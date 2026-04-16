@@ -1,0 +1,190 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "0.1.0-beta.7",
+  "FriendlyName": "RiftbornAI Copilot",
+  "Description": "Transaction-safe AI copilot for Unreal Engine. Production packaging focuses on governed editor inspection and controlled scene automation, with broader beta and internal tool surfaces behind readiness gates. Governance kernel: all mutations require confirmation tokens, destructive operations are fail-closed, and each action produces HMAC-SHA256 signed proof bundles. Intent parsing runs locally via Ollama; no cloud services or telemetry unless explicitly configured.",
+  "Category": "Editor",
+  "CreatedBy": "Riftborn Studios",
+  "CreatedByURL": "https://riftborn.io",
+  "DocsURL": "https://github.com/RiftbornGit/RiftbornAI/tree/main/docs",
+  "MarketplaceURL": "",
+  "SupportURL": "https://github.com/RiftbornGit/RiftbornAI/issues",
+  "CanContainContent": true,
+  "IsBetaVersion": true,
+  "IsExperimentalVersion": false,
+  "Installed": false,
+  "EnabledByDefault": true,
+  "SupportedTargetPlatforms": [
+    "Win64",
+    "Linux",
+    "Mac"
+  ],
+  "EngineVersion": "5.7.0",
+  "Modules": [
+    {
+      "Name": "RiftbornAIBoot",
+      "Type": "Editor",
+      "LoadingPhase": "PostConfigInit"
+    },
+    {
+      "Name": "RiftbornAI",
+      "Type": "Editor",
+      "LoadingPhase": "PostEngineInit"
+    }
+  ],
+  "Plugins": [
+    {
+      "Name": "EditorScriptingUtilities",
+      "Enabled": true
+    },
+    {
+      "Name": "PythonScriptPlugin",
+      "Enabled": true
+    },
+    {
+      "Name": "Niagara",
+      "Enabled": true
+    },
+    {
+      "Name": "EnhancedInput",
+      "Enabled": true
+    },
+    {
+      "Name": "OnlineSubsystem",
+      "Enabled": true
+    },
+    {
+      "Name": "OnlineSubsystemUtils",
+      "Enabled": true
+    },
+    {
+      "Name": "PCG",
+      "Enabled": true
+    },
+    {
+      "Name": "GameplayAbilities",
+      "Enabled": true
+    },
+    {
+      "Name": "StateTree",
+      "Enabled": true
+    },
+    {
+      "Name": "Metasound",
+      "Enabled": true
+    },
+    {
+      "Name": "MovieRenderPipeline",
+      "Enabled": true
+    },
+    {
+      "Name": "LevelSnapshots",
+      "Enabled": true
+    },
+    {
+      "Name": "GeometryScripting",
+      "Enabled": true
+    },
+    {
+      "Name": "PCGGeometryScriptInterop",
+      "Enabled": true
+    },
+    {
+      "Name": "MassCrowd",
+      "Enabled": true
+    },
+    {
+      "Name": "IKRig",
+      "Enabled": true
+    },
+    {
+      "Name": "ControlRig",
+      "Enabled": true
+    },
+    {
+      "Name": "Fracture",
+      "Enabled": true
+    },
+    {
+      "Name": "ChaosMover",
+      "Enabled": true
+    },
+    {
+      "Name": "VariantManager",
+      "Enabled": true
+    },
+    {
+      "Name": "VariantManagerContent",
+      "Enabled": true
+    },
+    {
+      "Name": "RemoteControl",
+      "Enabled": true
+    },
+    {
+      "Name": "SmartObjects",
+      "Enabled": true
+    },
+    {
+      "Name": "Chooser",
+      "Enabled": true
+    },
+    {
+      "Name": "DataRegistry",
+      "Enabled": true
+    },
+    {
+      "Name": "ContextualAnimation",
+      "Enabled": true
+    },
+    {
+      "Name": "CableComponent",
+      "Enabled": true
+    },
+    {
+      "Name": "LearningAgents",
+      "Enabled": true
+    },
+    {
+      "Name": "LiveLink",
+      "Enabled": true
+    },
+    {
+      "Name": "Takes",
+      "Enabled": true
+    },
+    {
+      "Name": "VirtualCameraCore",
+      "Enabled": true
+    },
+    {
+      "Name": "PoseSearch",
+      "Enabled": true
+    },
+    {
+      "Name": "MLDeformerFramework",
+      "Enabled": true
+    },
+    {
+      "Name": "NeuralMorphModel",
+      "Enabled": true
+    },
+    {
+      "Name": "GameplayCameras",
+      "Enabled": true
+    },
+    {
+      "Name": "USDImporter",
+      "Enabled": true
+    },
+    {
+      "Name": "WorldConditions",
+      "Enabled": true
+    },
+    {
+      "Name": "SignificanceManager",
+      "Enabled": true
+    }
+  ]
+}

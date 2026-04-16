@@ -1,0 +1,8 @@
+{
+	"BuildId": "47537391",
+	"Modules": 
+	{
+		"RiftbornAI": "UnrealEditor-RiftbornAI.dll",
+		"RiftbornAIBoot": "UnrealEditor-RiftbornAIBoot.dll"
+	}
+}

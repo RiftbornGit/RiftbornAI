@@ -1,0 +1,155 @@
+{
+  "$schema": "./tier_schema.json",
+  "tier": "B",
+  "name": "Content Expansion",
+  "version": "1.0.0",
+  "purpose": "Add multiple weapons/enemies/items/rooms without breaking the loop",
+  
+  "prerequisite_tier": "A",
+  "prerequisite_check": "tier_a_promoted",
+  
+  "allowed_operations": {
+    "_inherits": "tier_a",
+    "batch_entity_creation": {
+      "enabled": true,
+      "constraints": ["template_based", "max_batch_50"]
+    },
+    "parameterized_variations": {
+      "enabled": true,
+      "constraints": ["data_driven_only"]
+    },
+    "drop_tables": {
+      "enabled": true,
+      "constraints": ["data_asset_only"]
+    },
+    "progression_data": {
+      "enabled": true,
+      "constraints": ["xp_or_currency_only", "no_real_money"]
+    },
+    "modify_levels": false,
+    "delete_assets": false,
+    "bulk_operations": false
+  },
+  
+  "required_outputs": {
+    "content_variety": {
+      "description": "Minimum content thresholds met",
+      "options": [
+        {"type": "weapons", "min_count": 3},
+        {"type": "enemies", "min_count": 3},
+        {"type": "items", "min_count": 10}
+      ],
+      "require_any": 1,
+      "verifier": "verify_content_variety"
+    },
+    "drop_tables": {
+      "description": "Loot/drop tables defined",
+      "verifier": "verify_drop_tables"
+    },
+    "progression": {
+      "description": "XP or currency system functional",
+      "verifier": "verify_progression"
+    }
+  },
+  
+  "required_verifiers": [
+    {
+      "id": "tier_a_still_passes",
+      "name": "Tier A Regression",
+      "type": "tier_regression",
+      "tier": "A",
+      "required": true
+    },
+    {
+      "id": "content_assets_exist",
+      "name": "All Content Assets Exist",
+      "type": "asset_verification",
+      "required": true
+    },
+    {
+      "id": "no_missing_refs",
+      "name": "No Missing References",
+      "type": "reference_check",
+      "required": true
+    },
+    {
+      "id": "spawn_usage_works",
+      "name": "Spawn/Usage Works in PIE",
+      "type": "pie_test",
+      "test_all_content": true,
+      "timeout_ms": 120000,
+      "required": true
+    },
+    {
+      "id": "balance_sanity",
+      "name": "Balance Sanity Checks",
+      "type": "bounds_check",
+      "checks": [
+        {"field": "damage", "min": 1, "max": 10000},
+        {"field": "health", "min": 1, "max": 100000},
+        {"field": "speed", "min": 0.1, "max": 10},
+        {"field": "drop_rate", "min": 0.001, "max": 1.0}
+      ],
+      "required": true
+    },
+    {
+      "id": "nightly_regression",
+      "name": "Slice Still Passes Nightly",
+      "type": "recipe_run",
+      "recipe": "tier_a_nightly",
+      "required": true
+    }
+  ],
+  
+  "proof_requirements": {
+    "trace_file": true,
+    "replay_script": true,
+    "signature": true,
+    "artifact_manifest": true,
+    "content_manifest": true,
+    "balance_report": true
+  },
+  
+  "rollback_semantics": {
+    "default": "undo",
+    "irreversible_requires": "user_ack",
+    "max_undo_depth": 100,
+    "batch_undo_supported": true
+  },
+  
+  "ci_recipes": [
+    {
+      "name": "tier_b_nightly",
+      "schedule": "nightly",
+      "recipe": "recipes/tier_b_content_expansion.json",
+      "required": true
+    },
+    {
+      "name": "tier_b_balance_check",
+      "schedule": "on_change",
+      "recipe": "recipes/tier_b_balance.json",
+      "required": true
+    }
+  ],
+  
+  "promotion_requirements": {
+    "tier_a_promoted": true,
+    "min_confidence_score": 0.55,
+    "min_successful_runs": 7,
+    "max_failure_rate": 0.1,
+    "tier_a_regression_passes": true,
+    "proof_bundle_required": true,
+    "replay_verified": true
+  },
+  
+  "definition_of_done": [
+    "At least 3 weapons OR 3 enemies OR 10 items created",
+    "All content spawns correctly in PIE",
+    "Drop tables produce valid loot",
+    "XP/currency accumulates correctly",
+    "Balance values within sane bounds",
+    "Tier A slice still fully functional",
+    "No missing asset references",
+    "7 consecutive nightly runs pass"
+  ]
+}

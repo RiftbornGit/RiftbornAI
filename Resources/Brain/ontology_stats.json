@@ -1,0 +1,85 @@
+{
+  "stats": {
+    "spatial": {
+      "ontology": "spatial",
+      "total_episodes": 3,
+      "successes": 1,
+      "failures": 2,
+      "avg_plan_length": 1.0,
+      "avg_duration_ms": 0.0,
+      "avg_retries": 0.0,
+      "task_families": {
+        "spatial_task": 3
+      },
+      "top_failure_reasons": {
+        "validation_fail": 2
+      },
+      "success_rate": 0.3333333333333333
+    },
+    "ui": {
+      "ontology": "ui",
+      "total_episodes": 2,
+      "successes": 0,
+      "failures": 2,
+      "avg_plan_length": 1.0,
+      "avg_duration_ms": 0.0,
+      "avg_retries": 0.0,
+      "task_families": {
+        "ui_task": 2
+      },
+      "top_failure_reasons": {
+        "validation_fail": 2
+      },
+      "success_rate": 0.0
+    },
+    "ai": {
+      "ontology": "ai",
+      "total_episodes": 0,
+      "successes": 0,
+      "failures": 0,
+      "avg_plan_length": 0.0,
+      "avg_duration_ms": 0.0,
+      "avg_retries": 0.0,
+      "task_families": {},
+      "top_failure_reasons": {},
+      "success_rate": 0.0
+    },
+    "meta": {
+      "ontology": "meta",
+      "total_episodes": 0,
+      "successes": 0,
+      "failures": 0,
+      "avg_plan_length": 0.0,
+      "avg_duration_ms": 0.0,
+      "avg_retries": 0.0,
+      "task_families": {},
+      "top_failure_reasons": {},
+      "success_rate": 0.0
+    },
+    "animation": {
+      "ontology": "animation",
+      "total_episodes": 0,
+      "successes": 0,
+      "failures": 0,
+      "avg_plan_length": 0.0,
+      "avg_duration_ms": 0.0,
+      "avg_retries": 0.0,
+      "task_families": {},
+      "top_failure_reasons": {},
+      "success_rate": 0.0
+    },
+    "ability": {
+      "ontology": "ability",
+      "total_episodes": 0,
+      "successes": 0,
+      "failures": 0,
+      "avg_plan_length": 0.0,
+      "avg_duration_ms": 0.0,
+      "avg_retries": 0.0,
+      "task_families": {},
+      "top_failure_reasons": {},
+      "success_rate": 0.0
+    }
+  },
+  "last_updated": 1764758067
+}

@@ -1,0 +1,415 @@
+{
+	"_comment": "This file is READ AT RUNTIME. The AI can modify this to improve itself WITHOUT rebuilding.",
+	"_version": "1.0.0",
+	"_last_modified_by": "human",
+	"_last_modified_reason": "Initial creation",
+	"query_to_tool_mappings":
+	{
+		"_description": "Maps query patterns to preferred tools. AI learns these over time.",
+		"light_modifications":
+		{
+			"patterns": [
+				"light",
+				"bright",
+				"dim",
+				"dark",
+				"illuminate",
+				"shadow",
+				"glow"
+			],
+			"primary_tool": "set_actor_property",
+			"fallback_tools": [
+				"set_component_property",
+				"get_level_actors",
+				"create_light"
+			],
+			"default_args":
+			{
+				"property": "Intensity"
+			},
+			"notes": "Thin wrapper set_light_properties was removed. Prefer set_actor_property or set_component_property for explicit light edits, and use get_level_actors when the target light is ambiguous. Supports percentages like '200%'."
+		},
+		"spawn_actors":
+		{
+			"patterns": [
+				"spawn",
+				"add",
+				"create",
+				"place",
+				"put",
+				"insert"
+			],
+			"exclude_patterns": [
+				"blueprint",
+				"material",
+				"asset"
+			],
+			"primary_tool": "spawn_actor",
+			"required_args": [
+				"class_name"
+			],
+			"default_args":
+			{
+				"x": "0",
+				"y": "0",
+				"z": "0"
+			}
+		},
+		"delete_actors":
+		{
+			"patterns": [
+				"delete",
+				"remove",
+				"destroy",
+				"kill",
+				"clear"
+			],
+			"primary_tool": "delete_actor",
+			"required_args": [
+				"label"
+			]
+		},
+		"list_actors":
+		{
+			"patterns": [
+				"list",
+				"show",
+				"what",
+				"find",
+				"search",
+				"get all"
+			],
+			"primary_tool": "get_level_actors"
+		},
+		"blueprints":
+		{
+			"patterns": [
+				"blueprint",
+				"bp",
+				"class"
+			],
+			"primary_tool": "create_blueprint",
+			"required_args": [
+				"name",
+				"parent_class"
+			]
+		},
+		"materials":
+		{
+			"patterns": [
+				"material",
+				"texture",
+				"color",
+				"shader"
+			],
+			"primary_tool": "create_material"
+		}
+	},
+	"argument_extraction":
+	{
+		"_description": "Patterns to extract arguments from natural language",
+		"percentage":
+		{
+			"pattern": "(\\d+)%",
+			"maps_to": "intensity",
+			"transform": "keep_with_percent"
+		},
+		"multiplier":
+		{
+			"pattern": "(\\d+)x|times (\\d+)",
+			"maps_to": "intensity",
+			"transform": "multiply_current"
+		},
+		"coordinates":
+		{
+			"pattern": "at \\(([\\d.-]+),\\s*([\\d.-]+),\\s*([\\d.-]+)\\)",
+			"maps_to": [
+				"x",
+				"y",
+				"z"
+			]
+		},
+		"actor_reference":
+		{
+			"pattern": "(?:the |my )?(\\w+)",
+			"maps_to": "actor_name",
+			"context_required": true
+		}
+	},
+	"clarification_triggers":
+	{
+		"_description": "When to ask user for clarification instead of guessing",
+		"ambiguous_actor":
+		{
+			"condition": "multiple_actors_match",
+			"ask": "I found multiple actors matching '{query}': {matches}. Which one did you mean?"
+		},
+		"no_target":
+		{
+			"condition": "no_actors_of_type",
+			"ask": "There are no {type} actors in the scene. Should I create one?"
+		},
+		"unclear_intent":
+		{
+			"condition": "confidence_below_threshold",
+			"threshold": 0.59999999999999998,
+			"ask": "I'm not sure what you want. Did you mean to {guess1} or {guess2}?"
+		}
+	},
+	"learning_log":
+	{
+		"_description": "Record of AI self-corrections. AI appends here when it learns.",
+		"entries": [
+			"[2025.12.14-19.49.58] RULE-MODIFIED: TestValue.TestValue = TestValue (Reason: TestValue)",
+			"[2025.12.14-19.49.58] REBUILD: Triggered rebuild after code modification",
+			"[2025.12.14-19.51.05] RULE-MODIFIED: TestValue.TestValue = TestValue (Reason: TestValue)",
+			"[2025.12.14-19.51.05] REBUILD: Triggered rebuild after code modification",
+			"[2025.12.14-19.51.51] RULE-MODIFIED: TestValue.TestValue = TestValue (Reason: TestValue)",
+			"[2025.12.14-19.51.51] REBUILD: Triggered rebuild after code modification",
+			"[2025.12.14-19.52.20] RULE-MODIFIED: TestValue.TestValue = TestValue (Reason: TestValue)",
+			"[2025.12.14-19.52.20] REBUILD: Triggered rebuild after code modification",
+			"[2025.12.14-19.57.49] RULE-MODIFIED: TestValue.TestValue = TestValue (Reason: TestValue)",
+			"[2025.12.14-19.57.49] REBUILD: Triggered rebuild after code modification",
+			"[2025.12.14-20.22.33] RULE-MODIFIED: TestValue.TestValue = TestValue (Reason: TestValue)",
+			"[2025.12.14-20.22.33] REBUILD: Triggered rebuild after code modification",
+			"[2025.12.14-20.40.06] RULE-MODIFIED: TestValue.TestValue = TestValue (Reason: TestValue)",
+			"[2025.12.14-20.40.06] REBUILD: Triggered rebuild after code modification",
+			"[2025.12.14-20.41.03] RULE-MODIFIED: TestValue.TestValue = TestValue (Reason: TestValue)",
+			"[2025.12.14-20.41.03] REBUILD: Triggered rebuild after code modification",
+			"[2025.12.15-05.14.16] RULE-MODIFIED: TestValue.TestValue = TestValue (Reason: TestValue)",
+			"[2025.12.15-05.14.16] REBUILD: Triggered rebuild after code modification",
+			"[2025.12.16-07.07.10] REBUILD: Triggered rebuild after code modification",
+			"[2025.12.16-08.08.24] REBUILD: Triggered rebuild after code modification",
+			"[2025.12.18-08.42.17] PATTERN: 'not found' error for tool 'set_light_properties'. Likely need to: 1) List actors first, 2) Use 'all' for group operations",
+			"[2025.12.18-08.42.17] AUTO-FIX: Updated light_modifications to use 'all' by default",
+			"[2025.12.22-09.20.29] REBUILD: Triggered rebuild after code modification",
+			"[2025.12.22-09.45.18] REBUILD: Triggered rebuild after code modification",
+			"[2026.01.08-14.45.28] PATTERN: 'not found' error for tool 'spawn_unknown'. Likely need to: 1) List actors first, 2) Use 'all' for group operations",
+			"[2026.01.08-14.53.54] PATTERN: 'not found' error for tool 'spawn_unknown'. Likely need to: 1) List actors first, 2) Use 'all' for group operations",
+			"[2026.01.08-15.04.14] PATTERN: 'not found' error for tool 'spawn_unknown'. Likely need to: 1) List actors first, 2) Use 'all' for group operations",
+			"[2026.01.08-15.16.19] PATTERN: 'not found' error for tool 'spawn_unknown'. Likely need to: 1) List actors first, 2) Use 'all' for group operations",
+			"[2026.01.08-15.25.55] PATTERN: 'not found' error for tool 'spawn_unknown'. Likely need to: 1) List actors first, 2) Use 'all' for group operations",
+			"[2026.01.08-15.28.01] PATTERN: 'not found' error for tool 'spawn_unknown'. Likely need to: 1) List actors first, 2) Use 'all' for group operations",
+			"[2026.01.08-15.30.07] PATTERN: 'not found' error for tool 'spawn_unknown'. Likely need to: 1) List actors first, 2) Use 'all' for group operations",
+			"[2026.01.08-15.33.02] PATTERN: 'not found' error for tool 'spawn_unknown'. Likely need to: 1) List actors first, 2) Use 'all' for group operations",
+			"[2026.01.08-15.36.22] PATTERN: 'not found' error for tool 'spawn_unknown'. Likely need to: 1) List actors first, 2) Use 'all' for group operations",
+			"[2026.01.08-15.40.09] PATTERN: 'not found' error for tool 'spawn_unknown'. Likely need to: 1) List actors first, 2) Use 'all' for group operations",
+			"[2026.01.08-15.55.28] PATTERN: 'not found' error for tool 'spawn_unknown'. Likely need to: 1) List actors first, 2) Use 'all' for group operations",
+			"[2026.01.08-15.56.15] PATTERN: 'not found' error for tool 'spawn_unknown'. Likely need to: 1) List actors first, 2) Use 'all' for group operations",
+			"[2026.04.02-14.50.55] PATTERN: 'not found' error for tool 'set_light_properties'. Likely need to: 1) List actors first, 2) Use 'all' for group operations",
+			"[2026.04.02-14.50.55] AUTO-FIX: Updated light_modifications to use 'all' by default",
+			"[2026.04.02-14.56.47] PATTERN: 'not found' error for tool 'set_light_properties'. Likely need to: 1) List actors first, 2) Use 'all' for group operations",
+			"[2026.04.02-14.56.47] AUTO-FIX: Updated light_modifications to use 'all' by default",
+			"[2026.04.03-12.42.15] PATTERN: 'not found' error for tool 'set_light_properties'. Likely need to: 1) List actors first, 2) Use 'all' for group operations",
+			"[2026.04.03-12.42.15] AUTO-FIX: Updated light_modifications to use 'all' by default",
+			"[2026.04.03-12.48.50] PATTERN: 'not found' error for tool 'set_light_properties'. Likely need to: 1) List actors first, 2) Use 'all' for group operations",
+			"[2026.04.03-12.48.50] AUTO-FIX: Updated light_modifications to use 'all' by default",
+			"[2026.04.03-12.55.53] PATTERN: 'not found' error for tool 'set_light_properties'. Likely need to: 1) List actors first, 2) Use 'all' for group operations",
+			"[2026.04.03-12.55.53] AUTO-FIX: Updated light_modifications to use 'all' by default",
+			"[2026.04.03-12.57.02] PATTERN: 'not found' error for tool 'set_light_properties'. Likely need to: 1) List actors first, 2) Use 'all' for group operations",
+			"[2026.04.03-12.57.02] AUTO-FIX: Updated light_modifications to use 'all' by default",
+			"[2026.04.03-12.57.21] PATTERN: 'not found' error for tool 'set_light_properties'. Likely need to: 1) List actors first, 2) Use 'all' for group operations",
+			"[2026.04.03-12.57.21] AUTO-FIX: Updated light_modifications to use 'all' by default"
+		]
+	},
+	"failed_attempts":
+	{
+		"_description": "Record of failures to analyze patterns",
+		"entries": [
+			{
+				"timestamp": "2025.12.18-08.42.17",
+				"query": "modify the sun light",
+				"tool": "set_light_properties",
+				"error": "Actor not found: sun light",
+				"args":
+				{
+				}
+			},
+			{
+				"timestamp": "2026.04.02-14.50.55",
+				"query": "make lights brighter",
+				"tool": "set_light_properties",
+				"error": "Actor not found: light1",
+				"args":
+				{
+					"actor_name": "light1"
+				}
+			},
+			{
+				"timestamp": "2026.04.02-14.50.55",
+				"query": "make lights brighter",
+				"tool": "set_light_properties",
+				"error": "Actor not found: light1",
+				"args":
+				{
+					"actor_name": "light1"
+				}
+			},
+			{
+				"timestamp": "2026.04.02-14.50.55",
+				"query": "modify the sun light",
+				"tool": "set_light_properties",
+				"error": "Actor not found: sun light",
+				"args":
+				{
+				}
+			},
+			{
+				"timestamp": "2026.04.02-14.56.47",
+				"query": "make lights brighter",
+				"tool": "set_light_properties",
+				"error": "Actor not found: light1",
+				"args":
+				{
+					"actor_name": "light1"
+				}
+			},
+			{
+				"timestamp": "2026.04.02-14.56.47",
+				"query": "make lights brighter",
+				"tool": "set_light_properties",
+				"error": "Actor not found: light1",
+				"args":
+				{
+					"actor_name": "light1"
+				}
+			},
+			{
+				"timestamp": "2026.04.02-14.56.47",
+				"query": "modify the sun light",
+				"tool": "set_light_properties",
+				"error": "Actor not found: sun light",
+				"args":
+				{
+				}
+			},
+			{
+				"timestamp": "2026.04.03-12.42.15",
+				"query": "make lights brighter",
+				"tool": "set_light_properties",
+				"error": "Actor not found: light1",
+				"args":
+				{
+					"actor_name": "light1"
+				}
+			},
+			{
+				"timestamp": "2026.04.03-12.42.15",
+				"query": "make lights brighter",
+				"tool": "set_light_properties",
+				"error": "Actor not found: light1",
+				"args":
+				{
+					"actor_name": "light1"
+				}
+			},
+			{
+				"timestamp": "2026.04.03-12.42.15",
+				"query": "modify the sun light",
+				"tool": "set_light_properties",
+				"error": "Actor not found: sun light",
+				"args":
+				{
+				}
+			},
+			{
+				"timestamp": "2026.04.03-12.48.50",
+				"query": "make lights brighter",
+				"tool": "set_light_properties",
+				"error": "Actor not found: light1",
+				"args":
+				{
+					"actor_name": "light1"
+				}
+			},
+			{
+				"timestamp": "2026.04.03-12.48.50",
+				"query": "make lights brighter",
+				"tool": "set_light_properties",
+				"error": "Actor not found: light1",
+				"args":
+				{
+					"actor_name": "light1"
+				}
+			},
+			{
+				"timestamp": "2026.04.03-12.48.50",
+				"query": "modify the sun light",
+				"tool": "set_light_properties",
+				"error": "Actor not found: sun light",
+				"args":
+				{
+				}
+			},
+			{
+				"timestamp": "2026.04.03-12.55.53",
+				"query": "make lights brighter",
+				"tool": "set_light_properties",
+				"error": "Actor not found: light1",
+				"args":
+				{
+					"actor_name": "light1"
+				}
+			},
+			{
+				"timestamp": "2026.04.03-12.55.53",
+				"query": "make lights brighter",
+				"tool": "set_light_properties",
+				"error": "Actor not found: light1",
+				"args":
+				{
+					"actor_name": "light1"
+				}
+			},
+			{
+				"timestamp": "2026.04.03-12.57.02",
+				"query": "make lights brighter",
+				"tool": "set_light_properties",
+				"error": "Actor not found: light1",
+				"args":
+				{
+					"actor_name": "light1"
+				}
+			},
+			{
+				"timestamp": "2026.04.03-12.57.02",
+				"query": "make lights brighter",
+				"tool": "set_light_properties",
+				"error": "Actor not found: light1",
+				"args":
+				{
+					"actor_name": "light1"
+				}
+			},
+			{
+				"timestamp": "2026.04.03-12.57.21",
+				"query": "make lights brighter",
+				"tool": "set_light_properties",
+				"error": "Actor not found: light1",
+				"args":
+				{
+					"actor_name": "light1"
+				}
+			},
+			{
+				"timestamp": "2026.04.03-12.57.21",
+				"query": "make lights brighter",
+				"tool": "set_light_properties",
+				"error": "Actor not found: light1",
+				"args":
+				{
+					"actor_name": "light1"
+				}
+			},
+			{
+				"timestamp": "2026.04.03-12.57.21",
+				"query": "modify the sun light",
+				"tool": "set_light_properties",
+				"error": "Actor not found: sun light",
+				"args":
+				{
+				}
+			}
+		]
+	}
+}

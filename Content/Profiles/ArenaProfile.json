@@ -1,0 +1,51 @@
+{
+  "profile_id": "arena",
+  "display_name": "MOBA Arena",
+  "description": "Team-based arena combat with champions and abilities",
+  
+  "constraints": {
+    "required_entity_tags": ["Champion"],
+    "min_teams": 2,
+    "max_teams": 2,
+    "min_players_per_team": 1,
+    "max_players_per_team": 5
+  },
+  
+  "default_stats": [
+    {
+      "stat_id": "health",
+      "display_name": "Health",
+      "default_value": 1500.0,
+      "max_value": 1500.0,
+      "regen_rate": 5.0,
+      "display_in_ui": true
+    },
+    {
+      "stat_id": "mana",
+      "display_name": "Mana",
+      "default_value": 1000.0,
+      "max_value": 1000.0,
+      "regen_rate": 10.0,
+      "display_in_ui": true
+    }
+  ],
+  
+  "default_move_speed": 600.0,
+  
+  "ability_archetypes": [
+    "Skillshot",
+    "Dash",
+    "Buff",
+    "Teleport",
+    "Melee",
+    "AOE"
+  ],
+  
+  "win_conditions": ["EliminateEnemies", "CaptureObjective"],
+  
+  "map_requirements": {
+    "symmetric": true,
+    "spawn_regions_per_team": 1,
+    "typical_bounds": [5000, 5000]
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "anim\u2192find_skeleton": {
+    "pulls": 4,
+    "successes": 4,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764757763.4297814
+  },
+  "anim\u2192find_animations": {
+    "pulls": 1,
+    "successes": 1,
+    "recent_outcomes": [
+      true
+    ],
+    "last_update": 1764757763.7683682
+  },
+  "anim\u2192create_blend_space": {
+    "pulls": 1,
+    "successes": 1,
+    "recent_outcomes": [
+      true
+    ],
+    "last_update": 1764757764.108415
+  },
+  "anim\u2192add_animations_to_blend_space": {
+    "pulls": 1,
+    "successes": 1,
+    "recent_outcomes": [
+      true
+    ],
+    "last_update": 1764757764.4690454
+  }
+}

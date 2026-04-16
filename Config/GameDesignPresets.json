@@ -1,0 +1,124 @@
+{
+  "genre_templates": {
+    "ActionRPG": {
+      "title": "Untitled Action RPG",
+      "tagline": "Fight, loot, level up",
+      "art_direction": "Fantasy realism with stylized VFX",
+      "narrative_hook": "A world corrupted by ancient magic"
+    },
+    "Survival": {
+      "title": "Untitled Survival Game",
+      "tagline": "Gather, craft, endure",
+      "art_direction": "Grounded realism with harsh lighting",
+      "narrative_hook": "Civilization has collapsed"
+    },
+    "Platformer": {
+      "title": "Untitled Platformer",
+      "tagline": "Jump, explore, collect",
+      "art_direction": "Vibrant stylized cartoon",
+      "narrative_hook": "A hero restoring color to a fading world"
+    },
+    "MMO": {
+      "title": "Untitled MMORPG",
+      "tagline": "Explore, fight, socialize",
+      "art_direction": "Stylized fantasy with high readability",
+      "narrative_hook": "Rival factions compete for control of a living world"
+    },
+    "BattleRoyale": {
+      "title": "Untitled Battle Royale",
+      "tagline": "Drop in, loot fast, outlast everyone",
+      "art_direction": "Readable long-range silhouettes with high-contrast traversal and storm readability",
+      "narrative_hook": "Combatants are forced into a shrinking warzone where only one squad survives"
+    }
+  },
+  "core_loop_presets": {
+    "action_combat": {
+      "name": "Action Combat Loop",
+      "summary": "Engage enemies, gain rewards, upgrade, face harder enemies",
+      "phases": ["Explore", "Encounter", "Combat", "Loot", "Upgrade"],
+      "loop_duration_seconds": 300,
+      "emotional_arc": "Tension → Release → Satisfaction → Anticipation"
+    },
+    "exploration": {
+      "name": "Exploration Loop",
+      "summary": "Discover areas, solve puzzles, unlock shortcuts, reveal map",
+      "phases": ["Wander", "Discover", "Investigate", "Unlock", "Connect"],
+      "loop_duration_seconds": 600,
+      "emotional_arc": "Curiosity → Wonder → Mastery → Accomplishment"
+    },
+    "roguelike_run": {
+      "name": "Roguelike Run Loop",
+      "summary": "Start fresh, make choices, push luck, die/win, persist meta-progress",
+      "phases": ["Loadout", "Rooms", "Boss", "Death/Victory", "Meta-Upgrade"],
+      "loop_duration_seconds": 1200,
+      "emotional_arc": "Hope → Tension → Crisis → Resolution → Growth"
+    }
+  },
+  "progression_presets": {
+    "rpg_leveling": {
+      "name": "RPG Leveling System",
+      "philosophy": "Steady power growth with meaningful choices at milestones",
+      "target_hours_main": 40,
+      "target_hours_100": 120,
+      "has_prestige": false
+    },
+    "roguelite_meta": {
+      "name": "Roguelite Meta-Progression",
+      "philosophy": "Each death teaches and permanently unlocks options",
+      "target_hours_main": 20,
+      "target_hours_100": 80,
+      "has_prestige": true,
+      "prestige_description": "Ascension system resets level but unlocks new tiers"
+    },
+    "equipment_loot": {
+      "name": "Equipment/Loot Progression",
+      "philosophy": "Power comes from finding and combining gear, not character level",
+      "target_hours_main": 30,
+      "target_hours_100": 200,
+      "has_prestige": false
+    }
+  },
+  "roadmap_templates": {
+    "small": {
+      "project_name": "Small Project",
+      "total_estimated_days": 90,
+      "team_size": 3,
+      "milestones": ["Prototype (2 weeks)", "Vertical Slice (4 weeks)", "Alpha (6 weeks)", "Beta (8 weeks)", "Launch (12 weeks)"]
+    },
+    "medium": {
+      "project_name": "Medium Project",
+      "total_estimated_days": 270,
+      "team_size": 8,
+      "milestones": ["Prototype (1 month)", "Pre-Production (3 months)", "Production (5 months)", "Polish (7 months)", "Launch (9 months)"]
+    },
+    "large": {
+      "project_name": "Large Project",
+      "total_estimated_days": 720,
+      "team_size": 25,
+      "milestones": ["Concept (2 months)", "Pre-Production (6 months)", "Production Alpha (12 months)", "Production Beta (18 months)", "Polish (21 months)", "Launch (24 months)"]
+    }
+  },
+  "content_templates_by_genre": {
+    "ActionRPG": [
+      {"id": "player_character", "name": "Player Character", "category": "Character", "priority": "Critical", "estimated_days": 15},
+      {"id": "combat_system", "name": "Core Combat System", "category": "Gameplay", "priority": "Critical", "estimated_days": 20},
+      {"id": "enemy_ai", "name": "Enemy AI Framework", "category": "AI", "priority": "Critical", "estimated_days": 12},
+      {"id": "inventory", "name": "Inventory System", "category": "UI", "priority": "High", "estimated_days": 10},
+      {"id": "quest_system", "name": "Quest System", "category": "Gameplay", "priority": "High", "estimated_days": 15}
+    ],
+    "Survival": [
+      {"id": "gathering", "name": "Resource Gathering", "category": "Gameplay", "priority": "Critical", "estimated_days": 8},
+      {"id": "crafting", "name": "Crafting System", "category": "Gameplay", "priority": "Critical", "estimated_days": 12},
+      {"id": "building", "name": "Base Building", "category": "Gameplay", "priority": "Critical", "estimated_days": 20},
+      {"id": "survival_needs", "name": "Survival Needs (hunger, thirst)", "category": "Gameplay", "priority": "High", "estimated_days": 6},
+      {"id": "world_gen", "name": "Procedural World", "category": "World", "priority": "High", "estimated_days": 25}
+    ],
+    "BattleRoyale": [
+      {"id": "storm_zone", "name": "Storm Zone System", "category": "Gameplay", "priority": "Critical", "estimated_days": 14},
+      {"id": "loot_spawner", "name": "Loot Spawner Network", "category": "Gameplay", "priority": "Critical", "estimated_days": 12},
+      {"id": "drop_ship", "name": "Drop Ship Insertion Flow", "category": "Gameplay", "priority": "Critical", "estimated_days": 10},
+      {"id": "squad_ping", "name": "Squad and Ping System", "category": "UI", "priority": "High", "estimated_days": 8},
+      {"id": "dedicated_server", "name": "100-Player Dedicated Server Setup", "category": "Networking", "priority": "Critical", "estimated_days": 18}
+    ]
+  }
+}

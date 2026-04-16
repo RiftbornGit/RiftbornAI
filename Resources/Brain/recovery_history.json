@@ -1,0 +1,58 @@
+{
+  "attempts": [
+    {
+      "ontology": "ability",
+      "original_error": "GAS not available. Enable GameplayAbilities plugin",
+      "strategy": "skip",
+      "success": true,
+      "fallback_used": null,
+      "duration_ms": 0
+    },
+    {
+      "ontology": "animation",
+      "original_error": "AnimBP creation error: API mismatch",
+      "strategy": "fallback",
+      "success": true,
+      "fallback_used": null,
+      "duration_ms": 0
+    },
+    {
+      "ontology": "ui",
+      "original_error": "Request timeout after 30s",
+      "strategy": "retry",
+      "success": true,
+      "fallback_used": null,
+      "duration_ms": 0
+    },
+    {
+      "ontology": "spatial",
+      "original_error": "Actor class not found",
+      "strategy": "fallback",
+      "success": true,
+      "fallback_used": null,
+      "duration_ms": 0
+    }
+  ],
+  "profiles": {
+    "spatial": {
+      "preferred_strategy": "fallback",
+      "retry_count": 0,
+      "success_after_recovery": 1
+    },
+    "ui": {
+      "preferred_strategy": "fallback",
+      "retry_count": 1,
+      "success_after_recovery": 1
+    },
+    "animation": {
+      "preferred_strategy": "fallback",
+      "retry_count": 0,
+      "success_after_recovery": 1
+    },
+    "ability": {
+      "preferred_strategy": "fallback",
+      "retry_count": 0,
+      "success_after_recovery": 1
+    }
+  }
+}

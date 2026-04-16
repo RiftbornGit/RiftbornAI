@@ -1,0 +1,162 @@
+{
+  "game_id": "arena_v0",
+  "display_name": "Arena v0 - Vertical Slice",
+  "description": "Minimal arena game for testing compiler",
+  "tags": ["Arena", "MOBA", "TeamBased"],
+  
+  "entities": [
+    {
+      "entity_id": "fire_mage",
+      "display_name": "Fire Mage",
+      "tags": ["Champion", "Mage", "Ranged"],
+      "stats": [
+        {
+          "stat_id": "health",
+          "display_name": "Health",
+          "default_value": 1500.0,
+          "max_value": 1500.0,
+          "regen_rate": 5.0,
+          "display_in_ui": true
+        },
+        {
+          "stat_id": "mana",
+          "display_name": "Mana",
+          "default_value": 1000.0,
+          "max_value": 1000.0,
+          "regen_rate": 10.0,
+          "display_in_ui": true
+        }
+      ],
+      "ability_ids": ["fireball", "blink"],
+      "move_speed": 600.0,
+      "description": "Ranged mage with fire magic"
+    },
+    {
+      "entity_id": "sword_knight",
+      "display_name": "Sword Knight",
+      "tags": ["Champion", "Bruiser", "Melee"],
+      "stats": [
+        {
+          "stat_id": "health",
+          "display_name": "Health",
+          "default_value": 2200.0,
+          "max_value": 2200.0,
+          "regen_rate": 8.0,
+          "display_in_ui": true
+        },
+        {
+          "stat_id": "mana",
+          "display_name": "Mana",
+          "default_value": 500.0,
+          "max_value": 500.0,
+          "regen_rate": 5.0,
+          "display_in_ui": true
+        }
+      ],
+      "ability_ids": ["slash", "charge"],
+      "move_speed": 550.0,
+      "description": "Melee fighter with sword attacks"
+    }
+  ],
+  
+  "abilities": [
+    {
+      "ability_id": "fireball",
+      "display_name": "Fireball",
+      "targeting_mode": "Direction",
+      "cooldown": 6.0,
+      "range": 2000.0,
+      "cast_time": 0.4,
+      "costs": {
+        "mana": 80.0
+      },
+      "effects": {
+        "health": -260.0
+      },
+      "tags": ["Damage", "Projectile", "Magic"],
+      "description": "Launch a fireball in target direction"
+    },
+    {
+      "ability_id": "blink",
+      "display_name": "Blink",
+      "targeting_mode": "GroundLocation",
+      "cooldown": 14.0,
+      "range": 800.0,
+      "cast_time": 0.0,
+      "costs": {
+        "mana": 60.0
+      },
+      "effects": {},
+      "tags": ["Mobility", "Teleport", "Utility"],
+      "description": "Teleport to target location"
+    },
+    {
+      "ability_id": "slash",
+      "display_name": "Slash",
+      "targeting_mode": "Instant",
+      "cooldown": 4.0,
+      "range": 250.0,
+      "cast_time": 0.1,
+      "costs": {
+        "mana": 20.0
+      },
+      "effects": {
+        "health": -200.0
+      },
+      "tags": ["Damage", "Melee", "Physical"],
+      "description": "Slash nearby enemies with sword"
+    },
+    {
+      "ability_id": "charge",
+      "display_name": "Charge",
+      "targeting_mode": "Direction",
+      "cooldown": 12.0,
+      "range": 900.0,
+      "cast_time": 0.0,
+      "costs": {
+        "mana": 40.0
+      },
+      "effects": {
+        "health": -120.0
+      },
+      "tags": ["Mobility", "Damage", "Dash"],
+      "description": "Charge forward, damaging enemies hit"
+    }
+  ],
+  
+  "maps": [
+    {
+      "map_id": "arena_basic",
+      "display_name": "Basic Arena",
+      "bounds": [5000.0, 5000.0],
+      "spawn_regions": [
+        {
+          "region_id": "team1_spawn",
+          "team": 1,
+          "location": [-1000.0, 0.0, 100.0],
+          "rotation": [0.0, 0.0, 0.0],
+          "bounds": [500.0, 500.0, 200.0]
+        },
+        {
+          "region_id": "team2_spawn",
+          "team": 2,
+          "location": [1000.0, 0.0, 100.0],
+          "rotation": [0.0, 180.0, 0.0],
+          "bounds": [500.0, 500.0, 200.0]
+        }
+      ],
+      "tags": ["Symmetric", "Small", "1v1"]
+    }
+  ],
+  
+  "rules": {
+    "win_condition": "EliminateEnemies",
+    "respawn_enabled": false,
+    "respawn_delay": 0.0,
+    "round_time_seconds": 120.0,
+    "friendly_fire": false,
+    "num_teams": 2,
+    "players_per_team": 1,
+    "damage_formula": "flat"
+  }
+}

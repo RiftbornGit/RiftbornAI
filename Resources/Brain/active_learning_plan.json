@@ -1,0 +1,82 @@
+{
+  "requests": [
+    {
+      "priority": 0.7574358974358975,
+      "domain": "spatial",
+      "specific_skill": "spawn a static mesh actor",
+      "reason": "Limited experience (3 trials) in spatial",
+      "estimated_trials": 40,
+      "transfer_from": null
+    },
+    {
+      "priority": 0.72,
+      "domain": "ai",
+      "specific_skill": "create a basic behavior tree",
+      "reason": "No experience in ai domain",
+      "estimated_trials": 60,
+      "transfer_from": null
+    },
+    {
+      "priority": 0.72,
+      "domain": "animation",
+      "specific_skill": "play a single animation montage",
+      "reason": "No experience in animation domain",
+      "estimated_trials": 60,
+      "transfer_from": null
+    },
+    {
+      "priority": 0.7,
+      "domain": "meta",
+      "specific_skill": "basic meta task",
+      "reason": "No experience in meta domain",
+      "estimated_trials": 60,
+      "transfer_from": null
+    },
+    {
+      "priority": 0.7,
+      "domain": "ability",
+      "specific_skill": "create a basic gameplay ability",
+      "reason": "No experience in ability domain",
+      "estimated_trials": 60,
+      "transfer_from": null
+    },
+    {
+      "priority": 0.67,
+      "domain": "ui",
+      "specific_skill": "create a simple UMG widget",
+      "reason": "Low success rate (0%) in ui",
+      "estimated_trials": 58,
+      "transfer_from": null
+    }
+  ],
+  "total_trials_needed": 338,
+  "priority_domains": [
+    "spatial",
+    "ai",
+    "animation"
+  ],
+  "blocked_by": {
+    "ui": [
+      "spatial"
+    ],
+    "ai": [
+      "spatial"
+    ],
+    "animation": [
+      "spatial",
+      "ui"
+    ],
+    "ability": [
+      "animation",
+      "ai"
+    ]
+  },
+  "recommended_order": [
+    "spatial",
+    "ai",
+    "ui",
+    "animation",
+    "meta",
+    "ability"
+  ]
+}

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RiftbornAI Beta — Request your key</title>
+<meta name="description" content="Free signed beta license for RiftbornAI. Enter your email, get a license JSON, drop it into your Unreal project." />
+<meta name="robots" content="noindex" />
+<style>
+:root {
+  --bg: #0b0d12;
+  --bg-soft: #14171f;
+  --fg: #e7e9ef;
+  --fg-mute: #9ba1ad;
+  --accent: #ff7a1a;
+  --err: #ff5a5a;
+  --ok: #4fd496;
+  --rule: #232733;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+  font-size: 17px; line-height: 1.55; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.wrap { max-width: 560px; margin: 0 auto; padding: 80px 24px; }
+h1 { font-size: 34px; margin: 0 0 10px; }
+p.lead { color: var(--fg-mute); margin: 0 0 28px; }
+form { display: flex; flex-direction: column; gap: 10px; }
+input[type=email], input[type=text] {
+  font: inherit; color: var(--fg);
+  background: var(--bg-soft); border: 1px solid var(--rule);
+  padding: 12px 14px; border-radius: 8px; outline: none;
+}
+input[type=email]:focus, input[type=text]:focus { border-color: var(--accent); }
+button {
+  font: inherit; font-weight: 600; color: #000;
+  background: var(--accent); border: 0; padding: 12px 18px; border-radius: 8px;
+  cursor: pointer;
+}
+button:disabled { opacity: 0.6; cursor: wait; }
+.status { margin-top: 14px; min-height: 22px; font-size: 14px; }
+.status.err { color: var(--err); }
+.status.ok { color: var(--ok); }
+pre {
+  background: #000; color: var(--fg); padding: 14px; border-radius: 8px;
+  border: 1px solid var(--rule); overflow: auto; font-size: 12px; max-height: 260px;
+}
+.steps { margin-top: 28px; color: var(--fg-mute); font-size: 14px; }
+.steps ol { padding-left: 20px; }
+.steps code { background: var(--bg-soft); padding: 2px 6px; border-radius: 4px; color: var(--fg); }
+.footer { margin-top: 40px; color: var(--fg-mute); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Get your RiftbornAI beta key</h1>
+  <p class="lead">Free during the beta. Your signed license works for up to 7 days offline. When RiftbornAI v1 ships, beta keys stop working — beta testers get a launch discount.</p>
+
+  <form id="f">
+    <input type="email" id="email" placeholder="you@example.com" required autocomplete="email" />
+    <input type="text" id="name" placeholder="Display name (optional)" maxlength="80" autocomplete="name" />
+    <button type="submit" id="go">Email me my beta key</button>
+  </form>
+
+  <div id="status" class="status"></div>
+
+  <div id="result" style="display:none;">
+    <p style="margin-top:22px;">Save the JSON below as <code>Config/RiftbornLicense.json</code> inside your Unreal project, or paste it into the plugin's welcome screen.</p>
+    <pre id="licenseJson"></pre>
+    <button type="button" id="dl">Download as file</button>
+  </div>
+
+  <div class="steps">
+    <strong>What next</strong>
+    <ol>
+      <li>Install RiftbornAI from <a href="https://github.com/RiftbornGit/RiftbornAI/releases/latest">GitHub</a>, the Fab marketplace, or <a href="/">riftbornai.com</a>.</li>
+      <li>Open your UE 5.7 project. The welcome screen will ask for your key.</li>
+      <li>Paste the license, press <em>Import</em>, and you're in.</li>
+    </ol>
+  </div>
+
+  <div class="footer">
+    <a href="/">riftbornai.com</a> - <a href="https://github.com/RiftbornGit/RiftbornAI/blob/main/COMMERCIAL_LICENSE.md">License terms</a>
+  </div>
+</div>
+
+<script>
+const WORKER = "https://riftbornai-license-issuer.riftborn.workers.dev";
+
+const form = document.getElementById('f');
+const btn = document.getElementById('go');
+const statusEl = document.getElementById('status');
+const result = document.getElementById('result');
+const licenseJson = document.getElementById('licenseJson');
+const dlBtn = document.getElementById('dl');
+
+let currentLicense = null;
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('email').value.trim().toLowerCase();
+  const name = document.getElementById('name').value.trim();
+  if (!email) return;
+
+  btn.disabled = true;
+  statusEl.className = 'status';
+  statusEl.textContent = 'Requesting beta license...';
+
+  try {
+    const res = await fetch(WORKER + '/beta-signup', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email, name: name || undefined }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      statusEl.className = 'status err';
+      statusEl.textContent = data.error || ('Error ' + res.status);
+      btn.disabled = false;
+      return;
+    }
+    currentLicense = data.license;
+    statusEl.className = 'status ok';
+    statusEl.textContent = data.resent
+      ? 'Your existing beta key is shown below. Check your inbox for a new email copy too.'
+      : 'Beta key issued. Also sent to your inbox (check spam if missing).';
+    licenseJson.textContent = JSON.stringify(data.license, null, 2);
+    result.style.display = 'block';
+  } catch (err) {
+    statusEl.className = 'status err';
+    statusEl.textContent = 'Network error. Please try again.';
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+dlBtn.addEventListener('click', () => {
+  if (!currentLicense) return;
+  const blob = new Blob([JSON.stringify(currentLicense, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'RiftbornLicense.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,178 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "tier_schema.json",
+  "title": "RiftbornAI Tier Contract Schema",
+  "description": "Schema for tier capability contracts with enforcement semantics",
+  "type": "object",
+  "required": [
+    "tier",
+    "name",
+    "version",
+    "purpose",
+    "allowed_operations",
+    "required_outputs",
+    "required_verifiers",
+    "proof_requirements",
+    "rollback_semantics",
+    "ci_recipes",
+    "promotion_requirements",
+    "definition_of_done"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "tier": {
+      "type": "string",
+      "enum": ["A", "B", "C", "D"],
+      "description": "Tier level identifier"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable tier name"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Semantic version of this tier contract"
+    },
+    "purpose": {
+      "type": "string",
+      "description": "One-line description of what this tier enables"
+    },
+    "prerequisite_tier": {
+      "type": "string",
+      "enum": ["A", "B", "C"],
+      "description": "Tier that must be promoted before this tier unlocks"
+    },
+    "prerequisite_check": {
+      "type": "string",
+      "description": "Name of the check that verifies prerequisite"
+    },
+    "danger_level": {
+      "type": "string",
+      "enum": ["LOW", "MEDIUM", "HIGH"],
+      "description": "Trust risk level for this tier"
+    },
+    "flagship_slice": {
+      "type": "string",
+      "description": "The single slice that must be completed first"
+    },
+    "flagship_locked": {
+      "type": "boolean",
+      "description": "Whether the flagship slice is locked"
+    },
+    "allowed_operations": {
+      "type": "object",
+      "properties": {
+        "_inherits": {
+          "type": "string",
+          "description": "Reference to tier whose operations are inherited (e.g., 'tier_a')"
+        }
+      },
+      "additionalProperties": {
+        "oneOf": [
+          {"type": "boolean"},
+          {
+            "type": "object",
+            "properties": {
+              "enabled": {"type": "boolean"},
+              "constraints": {
+                "type": "array",
+                "items": {"type": "string"}
+              },
+              "allowlist": {
+                "type": "array",
+                "items": {"type": "string"}
+              },
+              "safe_paths": {
+                "type": "array",
+                "items": {"type": "string"}
+              }
+            },
+            "required": ["enabled"]
+          }
+        ]
+      }
+    },
+    "required_outputs": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "description": {"type": "string"},
+          "verifier": {"type": "string"},
+          "min_count": {"type": "integer"},
+          "min_nodes": {"type": "integer"},
+          "options": {"type": "array"}
+        },
+        "required": ["description", "verifier"]
+      }
+    },
+    "required_verifiers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string"},
+          "name": {"type": "string"},
+          "type": {"type": "string"},
+          "timeout_ms": {"type": "integer"},
+          "required": {"type": "boolean"}
+        },
+        "required": ["id", "name", "type", "required"]
+      }
+    },
+    "proof_requirements": {
+      "type": "object",
+      "properties": {
+        "trace_file": {"type": "boolean"},
+        "replay_script": {"type": "boolean"},
+        "signature": {"type": "boolean"},
+        "artifact_manifest": {"type": "boolean"},
+        "before_snapshot": {"type": "boolean"},
+        "after_snapshot": {"type": "boolean"}
+      }
+    },
+    "rollback_semantics": {
+      "type": "object",
+      "properties": {
+        "default": {"type": "string"},
+        "irreversible_requires": {"type": "string"},
+        "max_undo_depth": {"type": "integer"},
+        "snapshot_before_generation": {"type": "boolean"}
+      },
+      "required": ["default", "irreversible_requires"]
+    },
+    "ci_recipes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "schedule": {"type": "string"},
+          "recipe": {"type": "string"},
+          "required": {"type": "boolean"}
+        },
+        "required": ["name", "schedule", "recipe", "required"]
+      }
+    },
+    "promotion_requirements": {
+      "type": "object",
+      "properties": {
+        "min_confidence_score": {"type": "number", "minimum": 0, "maximum": 1},
+        "min_successful_runs": {"type": "integer", "minimum": 1},
+        "max_failure_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "proof_bundle_required": {"type": "boolean"},
+        "replay_verified": {"type": "boolean"},
+        "contract_hash_locked": {"type": "boolean"}
+      }
+    },
+    "definition_of_done": {
+      "type": "array",
+      "items": {"type": "string"},
+      "minItems": 1,
+      "description": "Checklist items that must all be true for tier completion"
+    }
+  }
+}

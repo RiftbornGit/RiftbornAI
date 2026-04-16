@@ -1,0 +1,117 @@
+{
+  "spatial\u2192AL-S1": {
+    "pulls": 8,
+    "successes": 8,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764768747.9679918
+  },
+  "spatial\u2192AL-S2": {
+    "pulls": 4,
+    "successes": 4,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764768329.6060827
+  },
+  "meta\u2192AL-F1": {
+    "pulls": 8,
+    "successes": 3,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "last_update": 1764768646.293544
+  },
+  "spatial\u2192AL-F2": {
+    "pulls": 6,
+    "successes": 3,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+    ],
+    "last_update": 1764768133.7769537
+  },
+  "spatial\u2192AL-F3": {
+    "pulls": 6,
+    "successes": 6,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764768133.8151133
+  },
+  "create_level\u2192design_level_from_description": {
+    "pulls": 6,
+    "successes": 5,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      false,
+      true
+    ],
+    "last_update": 1764768133.8718474
+  },
+  "meta\u2192AL-H1": {
+    "pulls": 6,
+    "successes": 5,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      false,
+      true
+    ],
+    "last_update": 1764768133.8733568
+  },
+  "spatial\u2192AL-B1": {
+    "pulls": 6,
+    "successes": 6,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764768749.972281
+  },
+  "spatial\u2192AL-B2": {
+    "pulls": 2,
+    "successes": 2,
+    "recent_outcomes": [
+      true,
+      true
+    ],
+    "last_update": 1764768485.9800398
+  }
+}

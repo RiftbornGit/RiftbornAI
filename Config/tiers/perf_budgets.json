@@ -1,0 +1,47 @@
+{
+  "$schema": "./perf_budgets_schema.json",
+  "version": "1.0.0",
+  "description": "RiftbornAI performance budgets. FPerfGate::CheckAgainstBudget(name) evaluates current metrics against these. 0 = no limit.",
+  "budgets": {
+    "editor": {
+      "min_fps_avg": 30.0,
+      "max_frame_ms_p95": 40.0,
+      "max_frame_ms_p99": 60.0,
+      "max_game_thread_ms_avg": 20.0,
+      "max_render_thread_ms_avg": 20.0,
+      "max_gpu_ms_avg": 25.0
+    },
+    "pie_session_60": {
+      "min_fps_avg": 60.0,
+      "max_frame_ms_p95": 18.0,
+      "max_frame_ms_p99": 25.0,
+      "max_game_thread_ms_avg": 10.0,
+      "max_render_thread_ms_avg": 10.0,
+      "max_gpu_ms_avg": 12.0
+    },
+    "pie_session_30": {
+      "min_fps_avg": 30.0,
+      "max_frame_ms_p95": 40.0,
+      "max_frame_ms_p99": 50.0,
+      "max_game_thread_ms_avg": 20.0,
+      "max_render_thread_ms_avg": 20.0,
+      "max_gpu_ms_avg": 25.0
+    },
+    "packaged_pc_60": {
+      "min_fps_avg": 60.0,
+      "max_frame_ms_p95": 18.0,
+      "max_frame_ms_p99": 22.0,
+      "max_game_thread_ms_avg": 8.0,
+      "max_render_thread_ms_avg": 8.0,
+      "max_gpu_ms_avg": 10.0
+    },
+    "packaged_console_30": {
+      "min_fps_avg": 30.0,
+      "max_frame_ms_p95": 35.0,
+      "max_frame_ms_p99": 45.0,
+      "max_game_thread_ms_avg": 14.0,
+      "max_render_thread_ms_avg": 14.0,
+      "max_gpu_ms_avg": 18.0
+    }
+  }
+}

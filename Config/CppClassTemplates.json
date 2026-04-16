@@ -1,0 +1,121 @@
+{
+  "$schema": "riftborn://config/cpp-class-templates/v1",
+  "description": "Per-class-type defaults used by FCppCodeGenerator::DesignClassFromDescription. Edit to customize parent class, required include, and the virtual overrides that are auto-added when generating a new class.",
+  "class_types": {
+    "Actor": {
+      "parent_class": "AActor",
+      "include": "GameFramework/Actor.h",
+      "common_functions": [
+        { "name": "BeginPlay", "return_type": "void", "virtual": true, "override": true },
+        {
+          "name": "Tick",
+          "return_type": "void",
+          "virtual": true,
+          "override": true,
+          "parameters": [
+            { "name": "DeltaTime", "type": "float" }
+          ]
+        }
+      ]
+    },
+    "Character": {
+      "parent_class": "ACharacter",
+      "include": "GameFramework/Character.h",
+      "common_functions": [
+        {
+          "name": "SetupPlayerInputComponent",
+          "return_type": "void",
+          "virtual": true,
+          "override": true,
+          "parameters": [
+            { "name": "PlayerInputComponent", "type": "UInputComponent*" }
+          ]
+        }
+      ]
+    },
+    "Pawn": {
+      "parent_class": "APawn",
+      "include": "GameFramework/Pawn.h"
+    },
+    "Component": {
+      "parent_class": "UActorComponent",
+      "include": "Components/ActorComponent.h",
+      "common_functions": [
+        { "name": "BeginPlay", "return_type": "void", "virtual": true, "override": true },
+        {
+          "name": "TickComponent",
+          "return_type": "void",
+          "virtual": true,
+          "override": true,
+          "parameters": [
+            { "name": "DeltaTime", "type": "float" },
+            { "name": "TickType", "type": "ELevelTick" },
+            { "name": "ThisTickFunction", "type": "FActorComponentTickFunction*" }
+          ]
+        }
+      ]
+    },
+    "SceneComponent": {
+      "parent_class": "USceneComponent",
+      "include": "Components/SceneComponent.h"
+    },
+    "Object": {
+      "parent_class": "UObject"
+    },
+    "Subsystem": {
+      "parent_class": "UGameInstanceSubsystem",
+      "include": "Subsystems/GameInstanceSubsystem.h",
+      "common_functions": [
+        {
+          "name": "Initialize",
+          "return_type": "void",
+          "virtual": true,
+          "override": true,
+          "parameters": [
+            { "name": "NewOuter", "type": "FSubsystemCollectionBase&" }
+          ]
+        },
+        { "name": "Deinitialize", "return_type": "void", "virtual": true, "override": true }
+      ]
+    },
+    "Interface": {
+      "parent_class": "UInterface"
+    },
+    "Struct": {
+      "parent_class": "UObject"
+    },
+    "GameMode": {
+      "parent_class": "AGameModeBase",
+      "include": "GameFramework/GameModeBase.h",
+      "common_functions": [
+        { "name": "BeginPlay", "return_type": "void", "virtual": true, "override": true }
+      ]
+    },
+    "PlayerController": {
+      "parent_class": "APlayerController",
+      "include": "GameFramework/PlayerController.h",
+      "common_functions": [
+        { "name": "SetupInputComponent", "return_type": "void", "virtual": true, "override": true }
+      ]
+    },
+    "AIController": {
+      "parent_class": "AAIController",
+      "include": "AIController.h"
+    },
+    "Widget": {
+      "parent_class": "UUserWidget",
+      "include": "Blueprint/UserWidget.h",
+      "common_functions": [
+        { "name": "NativeConstruct", "return_type": "void", "virtual": true, "override": true }
+      ]
+    },
+    "AnimInstance": {
+      "parent_class": "UAnimInstance",
+      "include": "Animation/AnimInstance.h"
+    },
+    "GameplayAbility": {
+      "parent_class": "UGameplayAbility",
+      "include": "Abilities/GameplayAbility.h"
+    }
+  }
+}

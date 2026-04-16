@@ -1,0 +1,45 @@
+{
+  "recipe_id": "tier_a_survival_wave",
+  "tier": "A",
+  "slice_id": "survival_wave",
+  "schedule": "nightly",
+  "purpose": "Compile, verify, and gate the Tier A survival wave flagship slice in CI.",
+  "steps": [
+    {
+      "order": 1,
+      "id": "compile_slice",
+      "runner": "python_module",
+      "module": "ci.slice_compiler",
+      "args": ["survival_wave", "--save"],
+      "expected_artifacts": [
+        "artifacts/compilations/survival_wave",
+        "artifacts/proof/tier_a_survival_wave_{timestamp}.json"
+      ]
+    },
+    {
+      "order": 2,
+      "id": "verify_slice",
+      "runner": "python_module",
+      "module": "ci.pie_verification",
+      "args": ["survival_wave", "--save"],
+      "expected_artifacts": [
+        "artifacts/verification/tier_a_survival_wave_{timestamp}.json",
+        "artifacts/verification/tier_a_verifiers.json"
+      ]
+    },
+    {
+      "order": 3,
+      "id": "validate_tier_gate",
+      "runner": "python_module",
+      "module": "ci.tier_gate",
+      "args": ["A", "--json"],
+      "expected_outcome": "report_generated"
+    }
+  ],
+  "success_criteria": {
+    "all_steps_pass": true,
+    "proof_bundle_generated": true,
+    "verification_artifact_generated": true,
+    "gate_report_generated": true
+  }
+}

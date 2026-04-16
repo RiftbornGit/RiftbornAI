@@ -1,0 +1,27 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "0.1.0",
+	"FriendlyName": "RiftbornAI Example Tool",
+	"Description": "Reference plugin demonstrating how to add community tools to the RiftbornAI engine. Copy into your project's Plugins/ folder and open the editor — the example tools will appear in MCP clients.",
+	"Category": "RiftbornAI",
+	"CreatedBy": "Riftborn Studios",
+	"CreatedByURL": "",
+	"DocsURL": "https://github.com/RiftbornGit/RiftbornAI/blob/main/docs/TOOL_AUTHORING.md",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"EngineVersion": "5.7.0",
+	"CanContainContent": false,
+	"IsBetaVersion": true,
+	"Installed": false,
+	"Plugins": [
+		{ "Name": "RiftbornAI", "Enabled": true }
+	],
+	"Modules": [
+		{
+			"Name": "RiftbornAIExampleTool",
+			"Type": "Editor",
+			"LoadingPhase": "PostEngineInit"
+		}
+	]
+}

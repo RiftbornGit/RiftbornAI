@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RiftbornAI — AI Game Director for Unreal Engine 5.7</title>
+<meta name="description" content="MCP-native editor copilot for Unreal Engine 5.7. Describe your scene; it builds it. Native C++/Slate panel, ~500 tools, vision-loop verification, community-extensible." />
+<meta property="og:title" content="RiftbornAI — AI Game Director for UE 5.7" />
+<meta property="og:description" content="Describe your scene in plain English. RiftbornAI builds it inside the live UE 5.7 editor — terrain, lighting, blueprints, characters, cinematics." />
+<meta property="og:image" content="https://github.com/RiftbornGit/RiftbornAI/raw/main/images/forest1.png" />
+<meta property="og:url" content="https://riftbornai.com" />
+<meta name="twitter:card" content="summary_large_image" />
+<style>
+:root {
+  --bg: #0b0d12;
+  --bg-soft: #14171f;
+  --fg: #e7e9ef;
+  --fg-mute: #9ba1ad;
+  --accent: #ff7a1a;
+  --accent-soft: #ffb37c;
+  --rule: #232733;
+  --max: 980px;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+  font-size: 17px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+header.nav {
+  position: sticky; top: 0; z-index: 10;
+  background: rgba(11, 13, 18, 0.85);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--rule);
+}
+header.nav .wrap {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 14px; padding-bottom: 14px;
+}
+.brand { font-weight: 700; letter-spacing: -0.01em; color: var(--fg); }
+.brand b { color: var(--accent); }
+nav.links a { margin-left: 24px; color: var(--fg-mute); }
+nav.links a:hover { color: var(--fg); text-decoration: none; }
+
+.hero { padding: 80px 0 60px; text-align: center; }
+.hero h1 {
+  font-size: clamp(36px, 6vw, 64px);
+  line-height: 1.05; letter-spacing: -0.025em;
+  margin: 0 0 24px;
+}
+.hero h1 b { color: var(--accent); }
+.hero p.lede {
+  font-size: clamp(18px, 2.4vw, 22px);
+  color: var(--fg-mute);
+  max-width: 720px; margin: 0 auto 32px;
+}
+.cta {
+  display: inline-flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+}
+.btn {
+  display: inline-block; padding: 14px 24px; border-radius: 8px;
+  font-weight: 600; font-size: 16px;
+  transition: transform 0.08s ease;
+}
+.btn:hover { text-decoration: none; transform: translateY(-1px); }
+.btn-primary {
+  background: var(--accent); color: #1a1208;
+}
+.btn-primary:hover { background: var(--accent-soft); }
+.btn-secondary {
+  background: transparent; color: var(--fg);
+  border: 1px solid var(--rule);
+}
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+.shot {
+  display: block; margin: 48px auto 0; max-width: 100%;
+  border-radius: 12px; border: 1px solid var(--rule);
+}
+
+section { padding: 64px 0; border-top: 1px solid var(--rule); }
+section h2 {
+  font-size: 32px; letter-spacing: -0.02em; margin: 0 0 24px;
+}
+section p { color: var(--fg-mute); max-width: 720px; }
+
+.grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px; margin-top: 32px;
+}
+.card {
+  background: var(--bg-soft); padding: 24px; border-radius: 12px;
+  border: 1px solid var(--rule);
+}
+.card h3 { margin: 0 0 12px; font-size: 18px; color: var(--fg); }
+.card p { margin: 0; font-size: 15px; color: var(--fg-mute); }
+
+.pricing {
+  text-align: center;
+}
+.price-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px; max-width: 820px; margin: 0 auto;
+}
+.price-card {
+  padding: 32px; background: var(--bg-soft);
+  border: 2px solid var(--rule); border-radius: 16px;
+  text-align: center;
+}
+.price-card.featured { border-color: var(--accent); }
+.price-card .tier {
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--accent); font-size: 13px; font-weight: 700;
+}
+.price-card .amount {
+  font-size: 64px; font-weight: 800; letter-spacing: -0.03em;
+  margin: 12px 0 4px;
+}
+.price-card .note {
+  color: var(--fg-mute); font-size: 14px; margin-bottom: 28px;
+}
+.price-card ul {
+  text-align: left; padding-left: 0; list-style: none; margin: 0 0 28px;
+}
+.price-card li {
+  padding: 8px 0; border-bottom: 1px solid var(--rule);
+  font-size: 15px;
+}
+.price-card li:last-child { border-bottom: none; }
+.price-card li::before { content: "✓ "; color: var(--accent); font-weight: 700; }
+
+.fineprint { color: var(--fg-mute); font-size: 14px; }
+.fineprint code {
+  background: var(--bg-soft); padding: 2px 6px; border-radius: 4px;
+  font-size: 13px;
+}
+
+footer {
+  padding: 48px 0; border-top: 1px solid var(--rule);
+  color: var(--fg-mute); font-size: 14px;
+}
+footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <div class="brand">Riftborn<b>AI</b></div>
+    <nav class="links">
+      <a href="#what">What</a>
+      <a href="#how">How</a>
+      <a href="#license">License</a>
+      <a href="https://github.com/RiftbornGit/RiftbornAI">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <h1>An <b>AI game director</b><br />inside Unreal Engine 5.7.</h1>
+    <p class="lede">
+      Describe a scene in plain English. RiftbornAI builds it inside your live
+      editor — terrain, lighting, blueprints, characters, foliage, cinematics.
+      Native C++ panel, ~500 tools, vision-loop verification.
+    </p>
+    <div class="cta">
+      <a class="btn btn-primary" href="https://github.com/RiftbornGit/RiftbornAI/releases/latest">Download free beta</a>
+      <a class="btn btn-secondary" href="#license">Become a Founder — $49 / Studio $99</a>
+    </div>
+    <img class="shot" src="https://github.com/RiftbornGit/RiftbornAI/raw/main/images/forest1.png"
+         alt="A forest environment built entirely from natural-language prompts inside the UE editor." />
+  </div>
+</section>
+
+<section id="what">
+  <div class="wrap">
+    <h2>What it does.</h2>
+    <p>
+      You type. The plugin plans. It calls real editor APIs. It screenshots the
+      viewport. It iterates until the result matches the intent. Nothing leaves
+      your machine unless you bring your own LLM key — and even then, you can
+      run everything locally with Ollama.
+    </p>
+    <div class="grid">
+      <div class="card">
+        <h3>Environments</h3>
+        <p>Landscape sculpt, multi-layer materials, weight-painted foliage, atmospheric fog, water bodies, post-process volumes.</p>
+      </div>
+      <div class="card">
+        <h3>Lighting</h3>
+        <p>Directional, point, spot, rect lights. Sky atmosphere. Vision-loop verifies mood against the prompt.</p>
+      </div>
+      <div class="card">
+        <h3>Blueprints &amp; gameplay</h3>
+        <p>Blueprint creation, component wiring, characters, navigation, AI perception, GAS abilities.</p>
+      </div>
+      <div class="card">
+        <h3>Materials &amp; PCG</h3>
+        <p>PBR graphs from texture maps, parameter-driven instances, landscape blends, PCG graphs, Niagara systems.</p>
+      </div>
+      <div class="card">
+        <h3>Cinematics</h3>
+        <p>Level Sequences, camera animation, keyframing, playback control.</p>
+      </div>
+      <div class="card">
+        <h3>Community-extensible</h3>
+        <p>Stable <code>IToolModule</code> SDK. Ship your own tools as a sibling .uplugin. Reference example in the repo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <h2>How it fits into your pipeline.</h2>
+    <p>
+      RiftbornAI is two things at once. A native C++/Slate copilot panel that
+      docks inside the Unreal editor like any other tab — chat, plans,
+      approvals, tool browser, execution history. And an MCP server that the
+      installer wires into Claude Desktop, VS Code, Cursor, and Windsurf, so
+      the same ~500 tools show up there too.
+    </p>
+    <p>
+      Bring your own LLM key — Anthropic, OpenAI, Google, or a local Ollama
+      install. No subscription, no per-seat cost, no telemetry unless you
+      explicitly turn it on. Every mutating tool runs through a governance
+      pipeline with risk tiers, undo strategies, confirmation tokens, and
+      cryptographic proof bundles you can audit.
+    </p>
+  </div>
+</section>
+
+<section id="license" class="pricing">
+  <div class="wrap">
+    <h2>Free during beta. Pay once at v1.0.</h2>
+    <p style="margin: 0 auto 40px; text-align: center;">
+      RiftbornAI is <b>free while it's in beta</b> — download, install, use it in
+      your games. No DRM, no expiry, no nag.
+      When we cut v1.0 stable, the plugin becomes paid. Founding Supporters
+      who buy now lock in the v1.0 price and get lifetime updates.
+    </p>
+
+    <div class="price-grid">
+      <div class="price-card featured">
+        <div class="tier">Founding Supporter</div>
+        <div class="amount">$49</div>
+        <div class="note">Personal, lifetime. Single developer.</div>
+        <ul>
+          <li>Lifetime updates across v0.x and v1.x</li>
+          <li>Signed license (Ed25519) — "Licensed to you" in-editor</li>
+          <li>Early access to macOS / Linux + new UE version ports</li>
+          <li>Priority support, 48h response</li>
+          <li>Founders Discord — direct line, monthly office hours</li>
+          <li>30-day no-questions refund</li>
+        </ul>
+        <a class="btn btn-primary" href="https://buy.stripe.com/6oU8wPcBkdpPbNO7Al14400">Become a Founder — $49</a>
+      </div>
+
+      <div class="price-card">
+        <div class="tier">Founding Studio</div>
+        <div class="amount">$99</div>
+        <div class="note">Studio, lifetime. Multi-seat within one legal entity.</div>
+        <ul>
+          <li>Everything in Founding Supporter</li>
+          <li>Multi-seat use across your studio</li>
+          <li>Named studio credit (optional)</li>
+          <li>Priority studio support channel</li>
+          <li>Early architecture input on v1.x milestones</li>
+          <li>30-day no-questions refund</li>
+        </ul>
+        <a class="btn btn-secondary" href="https://buy.stripe.com/7sY00j9p899z8BCcUF14401">Found a Studio — $99</a>
+      </div>
+    </div>
+
+    <p class="fineprint" style="margin-top: 32px; text-align: center;">
+      Stripe checkout, license email within 24 hours, Discord invite included.
+      Plugin is free and fully functional through the beta — your license
+      takes over at v1.0. See <a href="https://github.com/RiftbornGit/RiftbornAI/blob/main/COMMERCIAL_LICENSE.md">COMMERCIAL_LICENSE.md</a>.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Get started in two minutes.</h2>
+    <ol style="color: var(--fg-mute); padding-left: 24px; max-width: 720px;">
+      <li>Download the latest release zip from
+        <a href="https://github.com/RiftbornGit/RiftbornAI/releases/latest">GitHub Releases</a>.</li>
+      <li>Extract into <code>&lt;YourProject&gt;/Plugins/</code>.</li>
+      <li>Run <code>Setup\install.ps1</code> (Windows) or
+        <code>bash Setup/install.sh</code> (macOS / Linux).</li>
+      <li>Open your UE 5.7 project. The RiftbornAI tab lives under the
+        editor's <b>Window</b> menu.</li>
+    </ol>
+    <p style="margin-top: 32px;">
+      Trouble? <a href="https://github.com/RiftbornGit/RiftbornAI/blob/main/docs/FAQ.md">docs/FAQ.md</a>
+      has the common ones. Bug reports:
+      <a href="https://github.com/RiftbornGit/RiftbornAI/issues">GitHub Issues</a>.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>© Riftborn Studios — RiftbornAI is BSL 1.1 → Apache 2.0.</div>
+    <div>
+      <a href="https://github.com/RiftbornGit/RiftbornAI">GitHub</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/RiftbornGit/RiftbornAI/blob/main/COMMERCIAL_LICENSE.md">Licensing</a>
+      &nbsp;·&nbsp;
+      <a href="mailto:founders@riftbornai.com">founders@riftbornai.com</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

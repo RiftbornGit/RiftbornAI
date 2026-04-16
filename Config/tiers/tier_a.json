@@ -1,0 +1,168 @@
+{
+  "$schema": "./tier_schema.json",
+  "tier": "A",
+  "name": "Playable Slice Generator",
+  "version": "1.0.0",
+  "purpose": "Turn a prompt into a playable, minimal game loop inside UE",
+  
+  "flagship_slice": "survival_wave",
+  "flagship_locked": true,
+  "flagship_lock_reason": "Must complete one slice before expanding",
+  
+  "allowed_operations": {
+    "spawn_actors": {
+      "enabled": true,
+      "constraints": ["must_be_tagged", "max_count_100"]
+    },
+    "move_transform": {
+      "enabled": true,
+      "constraints": ["bounded_position", "no_scale_below_0.1"]
+    },
+    "set_properties": {
+      "enabled": true,
+      "constraints": ["allowlist_only"],
+      "allowlist": [
+        "Health", "MaxHealth", "Speed", "Damage", 
+        "SpawnRate", "WaveCount", "ScoreValue"
+      ]
+    },
+    "create_data_assets": {
+      "enabled": true,
+      "constraints": ["safe_paths_only", "data_only"],
+      "safe_paths": [
+        "/Game/RiftbornGenerated/DataAssets/",
+        "/Game/RiftbornGenerated/DataTables/"
+      ]
+    },
+    "wire_rules": {
+      "enabled": true,
+      "constraints": ["template_based_only"]
+    },
+    "modify_levels": false,
+    "delete_assets": false,
+    "bulk_operations": false
+  },
+  
+  "required_outputs": {
+    "player_spawn": {
+      "description": "Player spawns with camera attached",
+      "verifier": "verify_player_spawn"
+    },
+    "enemy_or_target": {
+      "description": "At least one enemy or target exists",
+      "verifier": "verify_enemies_exist"
+    },
+    "win_lose_condition": {
+      "description": "Terminal condition defined and reachable",
+      "verifier": "verify_win_condition"
+    },
+    "restart_reset": {
+      "description": "Game can restart cleanly",
+      "verifier": "verify_restart_works"
+    },
+    "minimal_ui": {
+      "description": "Basic feedback HUD (health, score, wave)",
+      "verifier": "verify_ui_feedback"
+    }
+  },
+  
+  "required_verifiers": [
+    {
+      "id": "pie_starts",
+      "name": "PIE Session Starts",
+      "type": "pie_test",
+      "timeout_ms": 10000,
+      "required": true
+    },
+    {
+      "id": "player_can_move",
+      "name": "Player Movement Works",
+      "type": "pie_test",
+      "timeout_ms": 5000,
+      "required": true
+    },
+    {
+      "id": "core_loop_fires",
+      "name": "Core Loop Event Fires",
+      "type": "pie_test",
+      "events": ["damage_dealt", "score_changed", "item_pickup"],
+      "min_events": 1,
+      "timeout_ms": 15000,
+      "required": true
+    },
+    {
+      "id": "terminal_reached",
+      "name": "Win/Lose Condition Reached",
+      "type": "pie_test",
+      "timeout_ms": 60000,
+      "required": true
+    },
+    {
+      "id": "cleanup_restores",
+      "name": "Cleanup Restores Baseline",
+      "type": "state_comparison",
+      "fallback": "user_ack_irreversible",
+      "required": true
+    },
+    {
+      "id": "proof_replay",
+      "name": "Proof Bundle Replays",
+      "type": "replay_test",
+      "required": true
+    }
+  ],
+  
+  "proof_requirements": {
+    "trace_file": true,
+    "replay_script": true,
+    "signature": true,
+    "artifact_manifest": true,
+    "before_snapshot": true,
+    "after_snapshot": true
+  },
+  
+  "rollback_semantics": {
+    "default": "undo",
+    "irreversible_requires": "user_ack",
+    "max_undo_depth": 50,
+    "snapshot_before_generation": true
+  },
+  
+  "ci_recipes": [
+    {
+      "name": "tier_a_nightly",
+      "schedule": "nightly",
+      "recipe": "Config/tiers/recipes/tier_a_survival_wave.json",
+      "required": true
+    },
+    {
+      "name": "tier_a_regression",
+      "schedule": "on_change",
+      "recipe": "Config/tiers/recipes/tier_a_regression.json",
+      "required": true
+    }
+  ],
+  
+  "promotion_requirements": {
+    "min_confidence_score": 0.5,
+    "min_successful_runs": 5,
+    "max_failure_rate": 0.1,
+    "proof_bundle_required": true,
+    "replay_verified": true,
+    "contract_hash_locked": true
+  },
+  
+  "definition_of_done": [
+    "Survival wave slice generates from prompt",
+    "PIE session starts and runs without crash",
+    "Player spawns, moves, can take damage",
+    "Enemies spawn in waves",
+    "Score increments on kill",
+    "Game ends on player death or wave completion",
+    "Restart resets state correctly",
+    "HUD shows health, score, wave number",
+    "Proof bundle generated and signed",
+    "Replay verification passes",
+    "5 consecutive nightly runs pass"
+  ]
+}

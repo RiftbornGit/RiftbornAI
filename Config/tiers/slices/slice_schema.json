@@ -1,0 +1,183 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "slice_schema.json",
+  "title": "RiftbornAI Slice Template Schema",
+  "description": "Schema for playable slice templates that define concrete game implementations",
+  "type": "object",
+  "required": [
+    "slice_id",
+    "slice_name",
+    "tier",
+    "version",
+    "description",
+    "game_loop",
+    "required_entities",
+    "required_systems",
+    "required_ui",
+    "required_inputs",
+    "level_requirements",
+    "verifier_hooks",
+    "compile_steps"
+  ],
+  "properties": {
+    "$schema": {"type": "string"},
+    "slice_id": {
+      "type": "string",
+      "pattern": "^[a-z_]+$",
+      "description": "Unique identifier for the slice"
+    },
+    "slice_name": {
+      "type": "string",
+      "description": "Human-readable slice name"
+    },
+    "tier": {
+      "type": "string",
+      "enum": ["A", "B", "C", "D"],
+      "description": "Minimum tier required for this slice"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "description": {"type": "string"},
+    "flagship": {
+      "type": "boolean",
+      "description": "Whether this is the flagship slice for its tier"
+    },
+    "game_loop": {
+      "type": "object",
+      "properties": {
+        "type": {"type": "string"},
+        "flow": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "win_condition": {
+          "type": "object",
+          "properties": {
+            "type": {"type": "string"},
+            "param": {"type": "string"},
+            "default": {"type": ["integer", "string"]}
+          }
+        },
+        "lose_condition": {
+          "type": "object",
+          "properties": {
+            "type": {"type": "string"},
+            "param": {"type": "string"},
+            "threshold": {"type": ["integer", "number"]}
+          }
+        }
+      },
+      "required": ["type", "flow", "win_condition", "lose_condition"]
+    },
+    "required_entities": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "type": {"type": "string"},
+          "components": {"type": "array"},
+          "variants": {"type": "array"},
+          "spawn_point": {"type": "string"},
+          "spawn_method": {"type": "string"},
+          "camera": {"type": "string"}
+        },
+        "required": ["type", "components"]
+      }
+    },
+    "required_systems": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "type": {"type": "string"},
+          "config": {"type": "object"},
+          "states": {"type": "array"},
+          "transitions": {"type": "object"}
+        },
+        "required": ["type"]
+      }
+    },
+    "required_ui": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "type": {"type": "string"},
+          "elements": {"type": "array"},
+          "trigger": {"type": "string"}
+        },
+        "required": ["type", "elements"]
+      }
+    },
+    "required_inputs": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "action": {"type": "string"},
+          "bindings": {"type": "array"},
+          "type": {"type": "string"},
+          "context": {"type": "string"}
+        },
+        "required": ["action", "bindings", "type"]
+      }
+    },
+    "required_assets": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "type": {"type": "string"},
+          "fallback": {"type": "string"},
+          "generate_if_missing": {"type": "boolean"}
+        }
+      }
+    },
+    "level_requirements": {
+      "type": "object",
+      "properties": {
+        "size": {"type": "string"},
+        "bounds": {"type": "object"},
+        "spawn_points": {"type": "object"},
+        "required_actors": {"type": "array"},
+        "lighting": {"type": "string"},
+        "navmesh": {"type": "boolean"}
+      }
+    },
+    "verifier_hooks": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "check": {"type": "string"},
+          "timeout_ms": {"type": "integer"}
+        },
+        "required": ["check", "timeout_ms"]
+      }
+    },
+    "compile_steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "order": {"type": "integer"},
+          "name": {"type": "string"},
+          "compiler": {"type": "string"},
+          "output": {"type": "string"}
+        },
+        "required": ["order", "name", "compiler", "output"]
+      }
+    },
+    "proof_template": {
+      "type": "object",
+      "properties": {
+        "trace_file": {"type": "string"},
+        "replay_script": {"type": "string"},
+        "artifact_manifest": {"type": "string"},
+        "required_hashes": {"type": "array"}
+      }
+    }
+  }
+}

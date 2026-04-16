@@ -1,0 +1,265 @@
+{
+  "$schema": "./slice_schema.json",
+  "slice_id": "survival_wave",
+  "slice_name": "Survival Wave",
+  "tier": "A",
+  "version": "1.0.0",
+  "description": "Survive waves of enemies. Simplest game loop with clear win/lose.",
+  
+  "flagship": true,
+  "flagship_reason": "Fastest path to prompt → playable game",
+  
+  "game_loop": {
+    "type": "wave_survival",
+    "flow": [
+      "spawn_player",
+      "start_wave",
+      "spawn_enemies",
+      "combat_phase",
+      "wave_complete_or_player_dead",
+      "next_wave_or_game_over"
+    ],
+    "win_condition": {
+      "type": "survive_waves",
+      "param": "wave_count",
+      "default": 5
+    },
+    "lose_condition": {
+      "type": "player_death",
+      "param": "health",
+      "threshold": 0
+    }
+  },
+  
+  "required_entities": {
+    "player": {
+      "type": "Character",
+      "components": [
+        {"name": "Health", "type": "HealthComponent", "default_value": 100},
+        {"name": "Movement", "type": "MovementComponent", "speed": 600},
+        {"name": "Combat", "type": "CombatComponent", "weapon_slot": true}
+      ],
+      "spawn_point": "PlayerStart",
+      "camera": "ThirdPerson"
+    },
+    "enemy": {
+      "type": "Character",
+      "variants": ["basic"],
+      "components": [
+        {"name": "Health", "type": "HealthComponent", "default_value": 50},
+        {"name": "AI", "type": "AIController", "behavior": "chase_player"},
+        {"name": "Combat", "type": "CombatComponent", "damage": 10}
+      ],
+      "spawn_method": "wave_spawner"
+    }
+  },
+  
+  "required_systems": {
+    "wave_spawner": {
+      "type": "WaveSpawnerActor",
+      "config": {
+        "wave_count": 5,
+        "enemies_per_wave": [3, 5, 7, 10, 15],
+        "spawn_delay": 2.0,
+        "spawn_radius": 1000
+      }
+    },
+    "score_system": {
+      "type": "ScoreManager",
+      "config": {
+        "score_per_kill": 100,
+        "wave_bonus": 500
+      }
+    },
+    "game_state": {
+      "type": "GameStateManager",
+      "states": ["pregame", "playing", "wave_complete", "game_over", "victory"],
+      "transitions": {
+        "pregame": ["playing"],
+        "playing": ["wave_complete", "game_over"],
+        "wave_complete": ["playing", "victory"],
+        "game_over": ["pregame"],
+        "victory": ["pregame"]
+      }
+    }
+  },
+  
+  "required_ui": {
+    "hud": {
+      "type": "HUDWidget",
+      "elements": [
+        {"name": "HealthBar", "binding": "Player.Health", "position": "bottom_left"},
+        {"name": "ScoreText", "binding": "ScoreManager.Score", "position": "top_right"},
+        {"name": "WaveText", "binding": "WaveSpawner.CurrentWave", "position": "top_center"}
+      ]
+    },
+    "game_over_screen": {
+      "type": "MenuWidget",
+      "trigger": "game_state.game_over",
+      "elements": [
+        {"name": "TitleText", "text": "GAME OVER"},
+        {"name": "FinalScore", "binding": "ScoreManager.Score"},
+        {"name": "RestartButton", "action": "restart_game"}
+      ]
+    },
+    "victory_screen": {
+      "type": "MenuWidget",
+      "trigger": "game_state.victory",
+      "elements": [
+        {"name": "TitleText", "text": "VICTORY!"},
+        {"name": "FinalScore", "binding": "ScoreManager.Score"},
+        {"name": "RestartButton", "action": "restart_game"}
+      ]
+    }
+  },
+  
+  "required_inputs": {
+    "movement": {
+      "action": "Move",
+      "bindings": ["WASD", "LeftStick"],
+      "type": "axis2d"
+    },
+    "look": {
+      "action": "Look",
+      "bindings": ["Mouse", "RightStick"],
+      "type": "axis2d"
+    },
+    "fire": {
+      "action": "Fire",
+      "bindings": ["LeftMouseButton", "RightTrigger"],
+      "type": "button"
+    },
+    "restart": {
+      "action": "Restart",
+      "bindings": ["R"],
+      "type": "button",
+      "context": "game_over"
+    }
+  },
+  
+  "required_assets": {
+    "player_mesh": {
+      "type": "SkeletalMesh",
+      "fallback": "/Engine/EngineMeshes/SkeletalCube",
+      "generate_if_missing": false
+    },
+    "enemy_mesh": {
+      "type": "SkeletalMesh",
+      "fallback": "/Engine/EngineMeshes/SkeletalCube",
+      "generate_if_missing": false
+    },
+    "weapon_mesh": {
+      "type": "StaticMesh",
+      "fallback": "/Engine/BasicShapes/Cylinder",
+      "generate_if_missing": false
+    },
+    "projectile_mesh": {
+      "type": "StaticMesh",
+      "fallback": "/Engine/BasicShapes/Sphere",
+      "generate_if_missing": false
+    }
+  },
+  
+  "level_requirements": {
+    "size": "small",
+    "bounds": {"x": 5000, "y": 5000, "z": 1000},
+    "spawn_points": {
+      "player": 1,
+      "enemy": 4
+    },
+    "required_actors": [
+      "PlayerStart",
+      "NavMeshBoundsVolume",
+      "PostProcessVolume"
+    ],
+    "lighting": "basic",
+    "navmesh": true
+  },
+  
+  "verifier_hooks": {
+    "pie_starts": {
+      "check": "PIE session active",
+      "timeout_ms": 10000
+    },
+    "player_spawns": {
+      "check": "Actor with tag 'Player' exists",
+      "timeout_ms": 5000
+    },
+    "player_moves": {
+      "check": "Player location changes on input",
+      "timeout_ms": 5000
+    },
+    "enemies_spawn": {
+      "check": "Actors with tag 'Enemy' count >= 1",
+      "timeout_ms": 15000
+    },
+    "score_increments": {
+      "check": "Score value increases",
+      "timeout_ms": 30000
+    }
+  },
+  
+  "compile_steps": [
+    {
+      "order": 1,
+      "name": "Create GameMode Blueprint",
+      "compiler": "loop_compiler",
+      "output": "BP_SurvivalWaveGameMode"
+    },
+    {
+      "order": 2,
+      "name": "Create Player Character",
+      "compiler": "entity_compiler",
+      "output": "BP_SurvivalPlayer"
+    },
+    {
+      "order": 3,
+      "name": "Create Enemy Character",
+      "compiler": "entity_compiler",
+      "output": "BP_BasicEnemy"
+    },
+    {
+      "order": 4,
+      "name": "Create Wave Spawner",
+      "compiler": "loop_compiler",
+      "output": "BP_WaveSpawner"
+    },
+    {
+      "order": 5,
+      "name": "Create HUD Widget",
+      "compiler": "entity_compiler",
+      "output": "WBP_SurvivalHUD"
+    },
+    {
+      "order": 6,
+      "name": "Create Game State Manager",
+      "compiler": "loop_compiler",
+      "output": "BP_GameStateManager"
+    },
+    {
+      "order": 7,
+      "name": "Setup Level",
+      "compiler": "world_compiler",
+      "output": "SurvivalWave_Arena"
+    },
+    {
+      "order": 8,
+      "name": "Wire Components",
+      "compiler": "loop_compiler",
+      "output": "event_bindings"
+    }
+  ],
+  
+  "proof_template": {
+    "trace_file": "artifacts/proof/tier_a_survival_wave_{timestamp}.json",
+    "replay_script": "artifacts/repro/tier_a_survival_wave_{timestamp}.json",
+    "artifact_manifest": "artifacts/proof/tier_a_manifest_{timestamp}.json",
+    "required_hashes": [
+      "game_mode_blueprint",
+      "player_blueprint",
+      "enemy_blueprint",
+      "hud_widget",
+      "level_asset"
+    ]
+  }
+}

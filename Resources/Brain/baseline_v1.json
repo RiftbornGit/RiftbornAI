@@ -1,0 +1,53 @@
+{
+  "version": "v1-pre-active-learning",
+  "timestamp": "2025-12-03T14:09:25.654286",
+  "git_commit": "6301620d",
+  "ontology_success": {
+    "spatial": 0.3333333333333333,
+    "ui": 0.0,
+    "ai": 0.0,
+    "meta": 0.0,
+    "animation": 0.0,
+    "ability": 0.0
+  },
+  "ontology_trials": {
+    "spatial": 3,
+    "ui": 2,
+    "ai": 0,
+    "meta": 0,
+    "animation": 0,
+    "ability": 0
+  },
+  "ontology_confidence": {
+    "spatial": 0.42691768007483627,
+    "ui": 0.32881402355519035,
+    "ai": 0.0,
+    "meta": 0.0,
+    "animation": 0.0,
+    "ability": 0.0
+  },
+  "cross_domain_success": {
+    "spatial_ui_widget_component": 1.0,
+    "animation_spatial_animated_character": 0.0,
+    "ui_ability_health_bound": 0.0,
+    "spatial_animation_ui_character": 0.0,
+    "full_composition": 0.0
+  },
+  "total_patterns": 55,
+  "total_trials": 456,
+  "overall_success": 0.9736842105263158,
+  "known_domains": [],
+  "help_needed_domains": [
+    "spatial",
+    "ui",
+    "ai",
+    "meta",
+    "animation",
+    "ability"
+  ],
+  "file_hashes": {
+    "bandit_stats": "b8a823c050fba4e7",
+    "ontology_stats": "26c7287580b45783",
+    "patterns": "5a1c0410854fcf14"
+  }
+}
