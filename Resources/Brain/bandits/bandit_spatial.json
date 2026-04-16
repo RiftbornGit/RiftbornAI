@@ -1,0 +1,45 @@
+{
+  "spawn\u2192spawn_cube": {
+    "pulls": 9,
+    "successes": 6,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+    ],
+    "last_update": 1764768133.737462
+  },
+  "spawn_floor\u2192add_walls\u2192verify_arena": {
+    "pulls": 5,
+    "successes": 3,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      false,
+      false
+    ],
+    "last_update": 1764768646.293544
+  },
+  "arena\u2192arena_floor": {
+    "pulls": 8,
+    "successes": 8,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764768749.9717777
+  }
+}

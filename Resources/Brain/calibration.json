@@ -1,0 +1,44 @@
+{
+  "arena\u2192arena_floor": {
+    "fingerprint": "arena\u2192arena_floor",
+    "times_consulted": 8,
+    "times_generated_code": 8,
+    "times_failed_to_generate": 0,
+    "times_code_failed": 0,
+    "times_semantic_failed": 0,
+    "times_full_success": 9,
+    "generation_rate": 1.0,
+    "execution_rate": 1.125,
+    "semantic_rate": 1.0,
+    "calibrated_confidence": 1.125,
+    "is_trustworthy": true
+  },
+  "spawn\u2192spawn_light": {
+    "fingerprint": "spawn\u2192spawn_light",
+    "times_consulted": 17,
+    "times_generated_code": 0,
+    "times_failed_to_generate": 17,
+    "times_code_failed": 0,
+    "times_semantic_failed": 0,
+    "times_full_success": 0,
+    "generation_rate": 0.0,
+    "execution_rate": 0.0,
+    "semantic_rate": 0.0,
+    "calibrated_confidence": 0.0,
+    "is_trustworthy": false
+  },
+  "": {
+    "fingerprint": "",
+    "times_consulted": 9,
+    "times_generated_code": 0,
+    "times_failed_to_generate": 9,
+    "times_code_failed": 0,
+    "times_semantic_failed": 0,
+    "times_full_success": 0,
+    "generation_rate": 0.0,
+    "execution_rate": 0.0,
+    "semantic_rate": 0.0,
+    "calibrated_confidence": 0.0,
+    "is_trustworthy": false
+  }
+}

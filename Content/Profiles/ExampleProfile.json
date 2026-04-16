@@ -1,0 +1,40 @@
+{
+    "profile_name": "ExampleProject",
+    "profile_version": "1.0",
+    "description": "Example project profile - demonstrates RiftbornAI configuration",
+    "game_genre": "Action",
+    "target_platforms": ["Win64"],
+    
+    "ai_settings": {
+        "ollama_model": "llama3.1:8b",
+        "ollama_endpoint": "http://localhost:11434",
+        "temperature": 0.7,
+        "max_tokens": 2048
+    },
+    
+    "code_generation": {
+        "preferred_language": "cpp",
+        "include_comments": true,
+        "use_ue_conventions": true,
+        "auto_compile": false
+    },
+    
+    "blueprint_settings": {
+        "organize_nodes": true,
+        "add_comments": true,
+        "use_pure_nodes": true
+    },
+    
+    "safety": {
+        "require_confirmation": true,
+        "backup_before_modify": true,
+        "dry_run_first": false
+    },
+
+    "default_commands": {
+        "character": "Create a third-person character with 100 health",
+        "enemy": "Create an enemy that patrols and attacks on sight",
+        "weapon": "Create a projectile weapon with 10 damage",
+        "ability": "Create a dash ability with 3 second cooldown"
+    }
+}

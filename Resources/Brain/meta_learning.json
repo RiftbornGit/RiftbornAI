@@ -1,0 +1,64 @@
+{
+  "profiles": {
+    "unknown": {
+      "first_seen": 1764743251,
+      "trials_to_50pct": 2,
+      "trials_to_80pct": 10,
+      "current_success_rate": 0.6027777777777777,
+      "learning_speed": 0.0025778576823723785,
+      "transfer_sources": [],
+      "key_patterns": []
+    },
+    "ui": {
+      "first_seen": 1764757633,
+      "trials_to_50pct": 1,
+      "trials_to_80pct": 1,
+      "current_success_rate": 0.5714285714285714,
+      "learning_speed": -0.05802197802197803,
+      "transfer_sources": [],
+      "key_patterns": []
+    },
+    "animation": {
+      "first_seen": 1764757634,
+      "trials_to_50pct": 1,
+      "trials_to_80pct": 1,
+      "current_success_rate": 0.7,
+      "learning_speed": -0.055757575757575756,
+      "transfer_sources": [],
+      "key_patterns": []
+    },
+    "spatial": {
+      "first_seen": 1764757634,
+      "trials_to_50pct": 0,
+      "trials_to_80pct": 0,
+      "current_success_rate": 0.0,
+      "learning_speed": 0.0,
+      "transfer_sources": [],
+      "key_patterns": []
+    },
+    "ability": {
+      "first_seen": 1764757751,
+      "trials_to_50pct": 0,
+      "trials_to_80pct": 0,
+      "current_success_rate": 0.16666666666666666,
+      "learning_speed": 0.043333333333333335,
+      "transfer_sources": [],
+      "key_patterns": []
+    }
+  },
+  "transfer_matrix": {},
+  "learning_strategies": [
+    {
+      "ontology": "physics",
+      "timestamp": 1764759600.921903,
+      "recommendations": {
+        "ontology": "physics",
+        "strategy": "from_scratch",
+        "transfer_from": [],
+        "estimated_trials": 30,
+        "priority_patterns": []
+      }
+    }
+  ],
+  "meta_trials": 0
+}

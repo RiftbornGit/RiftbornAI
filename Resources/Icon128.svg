@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="60" fill="#1a1a2e"/>
+  
+  <!-- Outer ring -->
+  <circle cx="64" cy="64" r="56" fill="none" stroke="#4f46e5" stroke-width="3"/>
+  
+  <!-- AI brain neural network -->
+  <g fill="#4f46e5">
+    <!-- Central node -->
+    <circle cx="64" cy="64" r="8"/>
+    
+    <!-- Outer nodes -->
+    <circle cx="64" cy="32" r="5"/>
+    <circle cx="64" cy="96" r="5"/>
+    <circle cx="32" cy="64" r="5"/>
+    <circle cx="96" cy="64" r="5"/>
+    <circle cx="42" cy="42" r="4"/>
+    <circle cx="86" cy="42" r="4"/>
+    <circle cx="42" cy="86" r="4"/>
+    <circle cx="86" cy="86" r="4"/>
+  </g>
+  
+  <!-- Neural connections -->
+  <g stroke="#4f46e5" stroke-width="2" fill="none" opacity="0.6">
+    <line x1="64" y1="56" x2="64" y2="37"/>
+    <line x1="64" y1="72" x2="64" y2="91"/>
+    <line x1="56" y1="64" x2="37" y2="64"/>
+    <line x1="72" y1="64" x2="91" y2="64"/>
+    <line x1="58" y1="58" x2="46" y2="46"/>
+    <line x1="70" y1="58" x2="82" y2="46"/>
+    <line x1="58" y1="70" x2="46" y2="82"/>
+    <line x1="70" y1="70" x2="82" y2="82"/>
+  </g>
+  
+  <!-- "R" letter overlay -->
+  <text x="64" y="74" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="white" text-anchor="middle">R</text>
+</svg>

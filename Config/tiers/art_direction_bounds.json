@@ -1,0 +1,55 @@
+{
+  "$schema": "./art_direction_bounds_schema.json",
+  "version": "1.0.0",
+  "description": "Numeric bounds for art-direction critics (Phase 6). Complements Config/GameDesignPresets.json which has descriptive strings; this file carries the measurable rules. Looked up by style_name (arbitrary, user-defined).",
+  "styles": {
+    "grounded_realism": {
+      "description": "Harsh lighting, muted palette, realistic materials.",
+      "light_intensity_lumens": {"min": 200.0, "max": 20000.0},
+      "directional_light_intensity_lux": {"min": 5000.0, "max": 120000.0},
+      "sky_light_intensity": {"min": 0.1, "max": 3.0},
+      "fog_density": {"min": 0.01, "max": 0.6},
+      "exposure_compensation": {"min": -1.0, "max": 1.5},
+      "roughness_typical": {"min": 0.4, "max": 0.9},
+      "metallic_typical": {"min": 0.0, "max": 0.2},
+      "saturation_post_process": {"min": 0.7, "max": 1.05},
+      "bloom_intensity": {"min": 0.1, "max": 0.6}
+    },
+    "stylized_fantasy": {
+      "description": "Saturated palette, softer lighting, long-range silhouette readability.",
+      "light_intensity_lumens": {"min": 400.0, "max": 50000.0},
+      "directional_light_intensity_lux": {"min": 10000.0, "max": 150000.0},
+      "sky_light_intensity": {"min": 0.5, "max": 6.0},
+      "fog_density": {"min": 0.0, "max": 0.4},
+      "exposure_compensation": {"min": -0.5, "max": 2.0},
+      "roughness_typical": {"min": 0.3, "max": 0.8},
+      "metallic_typical": {"min": 0.0, "max": 0.3},
+      "saturation_post_process": {"min": 1.0, "max": 1.5},
+      "bloom_intensity": {"min": 0.4, "max": 1.2}
+    },
+    "grimdark": {
+      "description": "Deep shadows, low saturation, high contrast.",
+      "light_intensity_lumens": {"min": 50.0, "max": 8000.0},
+      "directional_light_intensity_lux": {"min": 2000.0, "max": 60000.0},
+      "sky_light_intensity": {"min": 0.05, "max": 1.0},
+      "fog_density": {"min": 0.1, "max": 1.0},
+      "exposure_compensation": {"min": -2.0, "max": 0.5},
+      "roughness_typical": {"min": 0.5, "max": 0.95},
+      "metallic_typical": {"min": 0.0, "max": 0.15},
+      "saturation_post_process": {"min": 0.4, "max": 0.8},
+      "bloom_intensity": {"min": 0.0, "max": 0.4}
+    },
+    "bright_arcade": {
+      "description": "Flat lighting, primary-color palette, no fog, high readability.",
+      "light_intensity_lumens": {"min": 500.0, "max": 60000.0},
+      "directional_light_intensity_lux": {"min": 15000.0, "max": 180000.0},
+      "sky_light_intensity": {"min": 1.0, "max": 8.0},
+      "fog_density": {"min": 0.0, "max": 0.1},
+      "exposure_compensation": {"min": 0.0, "max": 2.5},
+      "roughness_typical": {"min": 0.25, "max": 0.7},
+      "metallic_typical": {"min": 0.0, "max": 0.5},
+      "saturation_post_process": {"min": 1.1, "max": 1.6},
+      "bloom_intensity": {"min": 0.3, "max": 1.0}
+    }
+  }
+}

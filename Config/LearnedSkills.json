@@ -1,0 +1,141 @@
+{
+	"skills": [
+		{
+			"name": "TestSkill_SpawnLight",
+			"intent": "spawn a light for testing",
+			"success_rate": 1,
+			"times_used": 1,
+			"failure_count": 0,
+			"pattern":
+			{
+				"verb": "",
+				"object_type": "",
+				"parameters":
+				{
+				}
+			},
+			"required_args": [],
+			"arg_templates":
+			{
+			},
+			"applicability_rules": [],
+			"failure_reasons": [],
+			"actions": [
+				{
+					"step": 1,
+					"tool": "spawn_actor",
+					"description": "Spawn a point light",
+					"arguments":
+					{
+						"class_name": "PointLight"
+					}
+				}
+			]
+		},
+		{
+			"name": "TestSkill",
+			"intent": "test spawn light",
+			"success_rate": 1,
+			"times_used": 1,
+			"failure_count": 0,
+			"pattern":
+			{
+				"verb": "",
+				"object_type": "",
+				"parameters":
+				{
+				}
+			},
+			"required_args": [],
+			"arg_templates":
+			{
+			},
+			"applicability_rules": [],
+			"failure_reasons": [],
+			"actions": [
+				{
+					"step": 1,
+					"tool": "spawn_actor",
+					"description": "Spawn a light",
+					"arguments":
+					{
+					}
+				}
+			]
+		},
+		{
+			"name": "TestSkill_SpawnPrimitive",
+			"intent": "spawn a cube",
+			"success_rate": 1,
+			"times_used": 3,
+			"failure_count": 0,
+			"pattern":
+			{
+				"verb": "SPAWN",
+				"object_type": "PRIMITIVE",
+				"parameters":
+				{
+					"shape": "cube"
+				}
+			},
+			"required_args": [],
+			"arg_templates":
+			{
+				"mesh": "{shape}",
+				"actor_label": "{shape}_spawned"
+			},
+			"applicability_rules": [
+				"ObjectType==PRIMITIVE",
+				"HasParameter:shape"
+			],
+			"failure_reasons": [],
+			"actions": [
+				{
+					"step": 1,
+					"tool": "spawn_actor",
+					"description": "Spawn a primitive",
+					"arguments":
+					{
+						"mesh": "/Engine/BasicShapes/Cube.Cube",
+						"actor_label": "cube_spawned",
+						"x": "0",
+						"y": "0",
+						"z": "0"
+					}
+				}
+			]
+		},
+		{
+			"name": "TestSkill_SpawnLight",
+			"intent": "spawn a light for testing",
+			"success_rate": 1,
+			"times_used": 1,
+			"failure_count": 0,
+			"pattern":
+			{
+				"verb": "",
+				"object_type": "",
+				"parameters":
+				{
+				}
+			},
+			"required_args": [],
+			"arg_templates":
+			{
+			},
+			"applicability_rules": [],
+			"failure_reasons": [],
+			"actions": [
+				{
+					"step": 1,
+					"tool": "spawn_actor",
+					"description": "Spawn a point light",
+					"arguments":
+					{
+						"class_name": "PointLight"
+					}
+				}
+			]
+		}
+	]
+}

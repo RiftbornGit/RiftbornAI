@@ -1,0 +1,32 @@
+{
+  "recipe_id": "tier_a_regression",
+  "tier": "A",
+  "slice_id": "survival_wave",
+  "schedule": "on_change",
+  "purpose": "Run the fast Tier A regression path after contract, compiler, or verifier changes.",
+  "steps": [
+    {
+      "order": 1,
+      "id": "compile_slice",
+      "runner": "python_module",
+      "module": "ci.slice_compiler",
+      "args": ["survival_wave", "--save"],
+      "expected_artifacts": [
+        "artifacts/compilations/survival_wave"
+      ]
+    },
+    {
+      "order": 2,
+      "id": "validate_tier_gate",
+      "runner": "python_module",
+      "module": "ci.tier_gate",
+      "args": ["A", "--json"],
+      "expected_outcome": "report_generated"
+    }
+  ],
+  "success_criteria": {
+    "all_steps_pass": true,
+    "compile_artifact_generated": true,
+    "gate_report_generated": true
+  }
+}

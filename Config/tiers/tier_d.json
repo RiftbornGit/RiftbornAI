@@ -1,0 +1,194 @@
+{
+  "$schema": "./tier_schema.json",
+  "tier": "D",
+  "name": "Deep Asset/World Generation",
+  "version": "1.0.0",
+  "purpose": "Building levels/maps/UI kits/assets at scale - THE DANGER ZONE",
+  
+  "prerequisite_tier": "C",
+  "prerequisite_check": "tier_c_promoted",
+  
+  "danger_level": "HIGH",
+  "trust_warning": "This tier touches disk/assets in bulk. Frequent user_ack required.",
+  
+  "allowed_operations": {
+    "_inherits": "tier_c",
+    "bulk_asset_creation": {
+      "enabled": true,
+      "constraints": ["manifest_required", "user_ack_per_batch"],
+      "max_batch_size": 100
+    },
+    "procedural_placement": {
+      "enabled": true,
+      "constraints": ["bounds_required", "density_limits"]
+    },
+    "style_kits": {
+      "enabled": true,
+      "constraints": ["template_based"]
+    },
+    "level_generation": {
+      "enabled": true,
+      "constraints": ["sublevel_only", "user_ack_required"]
+    },
+    "ui_generation": {
+      "enabled": true,
+      "constraints": ["widget_templates_only"]
+    },
+    "modify_levels": {
+      "enabled": true,
+      "constraints": ["sublevel_only", "snapshot_required", "user_ack_required"]
+    },
+    "delete_assets": {
+      "enabled": true,
+      "constraints": ["generated_only", "user_ack_required", "backup_required"]
+    }
+  },
+  
+  "required_outputs": {
+    "generated_zone": {
+      "description": "A generated zone with POIs and navmesh",
+      "verifier": "verify_zone_generation"
+    },
+    "ui_flow": {
+      "description": "A coherent UI flow",
+      "verifier": "verify_ui_flow"
+    },
+    "integrated_assets": {
+      "description": "Large asset sets integrated",
+      "verifier": "verify_asset_integration"
+    }
+  },
+  
+  "required_verifiers": [
+    {
+      "id": "tier_c_still_passes",
+      "name": "Tier C Regression",
+      "type": "tier_regression",
+      "tier": "C",
+      "required": true
+    },
+    {
+      "id": "asset_manifest_complete",
+      "name": "Asset Manifest Complete",
+      "type": "manifest_check",
+      "diff_required": true,
+      "required": true
+    },
+    {
+      "id": "navmesh_valid",
+      "name": "NavMesh Valid and Navigable",
+      "type": "pie_test",
+      "test_pathfinding": true,
+      "required": true
+    },
+    {
+      "id": "pois_reachable",
+      "name": "All POIs Reachable",
+      "type": "reachability_analysis",
+      "required": true
+    },
+    {
+      "id": "ui_flow_complete",
+      "name": "UI Flow Has No Dead Ends",
+      "type": "ui_graph_analysis",
+      "required": true
+    },
+    {
+      "id": "performance_budget",
+      "name": "Performance Within Budget",
+      "type": "performance_test",
+      "max_frame_time_ms": 33,
+      "max_memory_mb": 4096,
+      "required": true
+    },
+    {
+      "id": "irreversible_tracking",
+      "name": "Irreversible Changes Tracked",
+      "type": "audit_check",
+      "all_irreversible_logged": true,
+      "user_ack_verified": true,
+      "required": true
+    }
+  ],
+  
+  "proof_requirements": {
+    "trace_file": true,
+    "replay_script": true,
+    "signature": true,
+    "artifact_manifest": true,
+    "asset_diff_manifest": true,
+    "before_snapshot": true,
+    "after_snapshot": true,
+    "user_ack_log": true,
+    "rollback_script": true,
+    "performance_report": true
+  },
+  
+  "rollback_semantics": {
+    "default": "user_ack_then_revert_commit",
+    "irreversible_requires": "user_ack",
+    "snapshot_before_all": true,
+    "git_commit_per_batch": true,
+    "revert_via_git": true,
+    "asset_backup_required": true
+  },
+  
+  "user_ack_requirements": {
+    "before_bulk_creation": true,
+    "before_level_modification": true,
+    "before_asset_deletion": true,
+    "before_ui_generation": true,
+    "frequency": "per_batch",
+    "max_operations_without_ack": 10
+  },
+  
+  "ci_recipes": [
+    {
+      "name": "tier_d_nightly",
+      "schedule": "nightly",
+      "recipe": "recipes/tier_d_world_gen.json",
+      "required": true,
+      "user_ack_waived_for_ci": true
+    },
+    {
+      "name": "tier_d_performance",
+      "schedule": "weekly",
+      "recipe": "recipes/tier_d_performance.json",
+      "required": true
+    },
+    {
+      "name": "tier_d_rollback_drill",
+      "schedule": "weekly",
+      "recipe": "recipes/tier_d_rollback.json",
+      "required": true
+    }
+  ],
+  
+  "promotion_requirements": {
+    "tier_c_promoted": true,
+    "min_confidence_score": 0.65,
+    "min_successful_runs": 14,
+    "max_failure_rate": 0.05,
+    "all_lower_tiers_pass": true,
+    "rollback_drill_passed": true,
+    "performance_budget_met": true,
+    "proof_bundle_required": true,
+    "replay_verified": true,
+    "security_review_required": true
+  },
+  
+  "definition_of_done": [
+    "Generated zone with POIs and valid navmesh",
+    "All POIs reachable via pathfinding",
+    "UI flow with no dead ends",
+    "Large asset sets integrated without missing refs",
+    "Performance within budget (≤33ms frame, ≤4GB memory)",
+    "All irreversible changes tracked with user_ack",
+    "Asset diff manifest generated",
+    "Rollback script tested and working",
+    "Tier C functionality preserved",
+    "14 consecutive nightly runs pass",
+    "Weekly rollback drill passes",
+    "Security review completed"
+  ]
+}

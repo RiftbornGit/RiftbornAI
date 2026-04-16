@@ -1,0 +1,655 @@
+{
+  "create_level\u2192design_level_from_description\u2192spawn_actor": {
+    "pulls": 6,
+    "successes": 6,
+    "recent_outcomes": [],
+    "last_update": 1764746725.1972818
+  },
+  "create_level\u2192spawn_floor\u2192spawn_walls": {
+    "pulls": 4,
+    "successes": 0,
+    "recent_outcomes": [],
+    "last_update": 1764746725.1972818
+  },
+  "create_level\u2192design_level_from_description": {
+    "pulls": 7,
+    "successes": 6,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      false,
+      true
+    ],
+    "last_update": 1764768133.8718474
+  },
+  "test_good_tool_1\u2192test_good_tool_2": {
+    "pulls": 10,
+    "successes": 10,
+    "recent_outcomes": [],
+    "last_update": 1764746725.1972818
+  },
+  "test_bad_tool_1\u2192test_bad_tool_2": {
+    "pulls": 6,
+    "successes": 0,
+    "recent_outcomes": [],
+    "last_update": 1764746725.1972818
+  },
+  "create_level\u2192design_level_from_description\u2192spawn_lights": {
+    "pulls": 20,
+    "successes": 20,
+    "recent_outcomes": [],
+    "last_update": 1764746725.1972818
+  },
+  "create_level\u2192spawn_floor\u2192spawn_walls\u2192spawn_lights\u2192save_level": {
+    "pulls": 7,
+    "successes": 7,
+    "recent_outcomes": [],
+    "last_update": 1764746725.1972818
+  },
+  "spawn_character\u2192configure_input\u2192assign_controller": {
+    "pulls": 5,
+    "successes": 5,
+    "recent_outcomes": [],
+    "last_update": 1764746725.1972818
+  },
+  "add_component\u2192create_weapon\u2192setup_hit_detection": {
+    "pulls": 8,
+    "successes": 7,
+    "recent_outcomes": [],
+    "last_update": 1764746725.1972818
+  },
+  "spawn_ai_character\u2192create_behavior_tree\u2192setup_ai_perception": {
+    "pulls": 3,
+    "successes": 3,
+    "recent_outcomes": [],
+    "last_update": 1764746725.1972818
+  },
+  "create_level\u2192design_level_from_description\u2192spawn_character\u2192spawn_ai_enemies\u2192create_game_mode\u2192setup_hud\u2192configure_respawn\u2192save_and_compile": {
+    "pulls": 4,
+    "successes": 4,
+    "recent_outcomes": [],
+    "last_update": 1764746725.1972818
+  },
+  "spawn_actor\u2192spawn_actor\u2192spawn_actor\u2192spawn_actor": {
+    "pulls": 23,
+    "successes": 23,
+    "recent_outcomes": [],
+    "last_update": 1764746725.1972818
+  },
+  "spawn_floor\u2192add_walls\u2192verify_arena": {
+    "pulls": 35,
+    "successes": 33,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      false,
+      false
+    ],
+    "last_update": 1764768646.29304
+  },
+  "query\u2192ping": {
+    "pulls": 5,
+    "successes": 5,
+    "recent_outcomes": [],
+    "last_update": 1764746725.1972818
+  },
+  "query\u2192project_info": {
+    "pulls": 5,
+    "successes": 5,
+    "recent_outcomes": [],
+    "last_update": 1764746725.1972818
+  },
+  "query\u2192eval_simple": {
+    "pulls": 5,
+    "successes": 5,
+    "recent_outcomes": [],
+    "last_update": 1764746725.1972818
+  },
+  "spawn\u2192spawn_cube": {
+    "pulls": 49,
+    "successes": 46,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+    ],
+    "last_update": 1764768133.7364552
+  },
+  "spawn\u2192spawn_light": {
+    "pulls": 25,
+    "successes": 25,
+    "recent_outcomes": [],
+    "last_update": 1764746725.1972818
+  },
+  "arena\u2192create_floor": {
+    "pulls": 5,
+    "successes": 5,
+    "recent_outcomes": [],
+    "last_update": 1764746725.1972818
+  },
+  "arena\u2192add_wall_north": {
+    "pulls": 5,
+    "successes": 5,
+    "recent_outcomes": [],
+    "last_update": 1764746725.1972818
+  },
+  "arena\u2192arena_floor": {
+    "pulls": 28,
+    "successes": 28,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764768749.9707725
+  },
+  "arena\u2192arena_4walls": {
+    "pulls": 20,
+    "successes": 20,
+    "recent_outcomes": [],
+    "last_update": 1764746725.1972818
+  },
+  "soccer_stage1\u2192create_pitch": {
+    "pulls": 17,
+    "successes": 17,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764755004.3640244
+  },
+  "soccer_stage1\u2192create_walls": {
+    "pulls": 10,
+    "successes": 10,
+    "recent_outcomes": [],
+    "last_update": 1764746725.1972818
+  },
+  "soccer_stage1\u2192add_lighting": {
+    "pulls": 10,
+    "successes": 10,
+    "recent_outcomes": [],
+    "last_update": 1764746725.1972818
+  },
+  "soccer_stage1\u2192goal_north": {
+    "pulls": 10,
+    "successes": 10,
+    "recent_outcomes": [],
+    "last_update": 1764746725.1972818
+  },
+  "soccer_stage1\u2192goal_south": {
+    "pulls": 10,
+    "successes": 10,
+    "recent_outcomes": [],
+    "last_update": 1764746725.1972818
+  },
+  "test\u2192fast_exec": {
+    "pulls": 1,
+    "successes": 1,
+    "recent_outcomes": [
+      true
+    ],
+    "last_update": 1764746725.1972818
+  },
+  "phase2\u2192wall_loop": {
+    "pulls": 10,
+    "successes": 10,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764747045.5147636
+  },
+  "phase2\u2192lighting": {
+    "pulls": 10,
+    "successes": 10,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764747046.1807222
+  },
+  "phase2\u2192combined_arena": {
+    "pulls": 10,
+    "successes": 10,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764747049.84934
+  },
+  "spawn\u2192spawn_sphere": {
+    "pulls": 15,
+    "successes": 15,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764747474.2348325
+  },
+  "spawn\u2192spawn_cube\u2192spawn_light": {
+    "pulls": 15,
+    "successes": 15,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764747474.5726476
+  },
+  "soccer\u2192create_ball": {
+    "pulls": 5,
+    "successes": 5,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764747558.2884579
+  },
+  "soccer\u2192goal_trigger_north": {
+    "pulls": 5,
+    "successes": 5,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764747558.6170726
+  },
+  "soccer\u2192goal_trigger_south": {
+    "pulls": 5,
+    "successes": 5,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764747558.9443517
+  },
+  "soccer\u2192stage2": {
+    "pulls": 5,
+    "successes": 5,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764747558.9453576
+  },
+  "soccer\u2192create_player": {
+    "pulls": 5,
+    "successes": 5,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764747559.2843876
+  },
+  "soccer\u2192stage3": {
+    "pulls": 5,
+    "successes": 5,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764747559.2843876
+  },
+  "soccer\u2192game_manager": {
+    "pulls": 5,
+    "successes": 5,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764747559.6139848
+  },
+  "soccer\u2192stage4": {
+    "pulls": 5,
+    "successes": 5,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764747559.6144867
+  },
+  "soccer\u2192ai_opponent": {
+    "pulls": 5,
+    "successes": 5,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764747559.9527218
+  },
+  "soccer\u2192stage5": {
+    "pulls": 5,
+    "successes": 5,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764747559.9532912
+  },
+  "soccer_slice_v0\u2192regression": {
+    "pulls": 6,
+    "successes": 5,
+    "recent_outcomes": [
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764755005.3600564
+  },
+  "ui\u2192create_empty_widget": {
+    "pulls": 4,
+    "successes": 4,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764757761.774379
+  },
+  "anim\u2192find_skeleton": {
+    "pulls": 4,
+    "successes": 4,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764757763.4282262
+  },
+  "ui\u2192create_widget_with_progress_bar": {
+    "pulls": 1,
+    "successes": 1,
+    "recent_outcomes": [
+      true
+    ],
+    "last_update": 1764757762.438946
+  },
+  "ui\u2192create_and_show_hud": {
+    "pulls": 1,
+    "successes": 1,
+    "recent_outcomes": [
+      true
+    ],
+    "last_update": 1764757763.0965953
+  },
+  "anim\u2192find_animations": {
+    "pulls": 1,
+    "successes": 1,
+    "recent_outcomes": [
+      true
+    ],
+    "last_update": 1764757763.7683682
+  },
+  "anim\u2192create_blend_space": {
+    "pulls": 1,
+    "successes": 1,
+    "recent_outcomes": [
+      true
+    ],
+    "last_update": 1764757764.108415
+  },
+  "anim\u2192add_animations_to_blend_space": {
+    "pulls": 1,
+    "successes": 1,
+    "recent_outcomes": [
+      true
+    ],
+    "last_update": 1764757764.4685428
+  },
+  "ability\u2192find_or_create_asc_character": {
+    "pulls": 1,
+    "successes": 1,
+    "recent_outcomes": [
+      true
+    ],
+    "last_update": 1764757765.9428842
+  },
+  "cross\u2192spatial_ui_widget_component": {
+    "pulls": 2,
+    "successes": 2,
+    "recent_outcomes": [
+      true,
+      true
+    ],
+    "last_update": 1764757977.6537845
+  },
+  "spatial\u2192cross_domain": {
+    "pulls": 4,
+    "successes": 4,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764757977.662222
+  },
+  "ui\u2192cross_domain": {
+    "pulls": 5,
+    "successes": 5,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764757977.662222
+  },
+  "spatial\u2192AL-S1": {
+    "pulls": 8,
+    "successes": 8,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764768747.9669864
+  },
+  "spatial\u2192AL-S2": {
+    "pulls": 4,
+    "successes": 4,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764768329.6055794
+  },
+  "meta\u2192AL-F1": {
+    "pulls": 8,
+    "successes": 3,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "last_update": 1764768646.293544
+  },
+  "spatial\u2192AL-F2": {
+    "pulls": 6,
+    "successes": 3,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+    ],
+    "last_update": 1764768133.7759495
+  },
+  "spatial\u2192AL-F3": {
+    "pulls": 6,
+    "successes": 6,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764768133.8151133
+  },
+  "meta\u2192AL-H1": {
+    "pulls": 6,
+    "successes": 5,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      false,
+      true
+    ],
+    "last_update": 1764768133.8728533
+  },
+  "spatial\u2192AL-B1": {
+    "pulls": 6,
+    "successes": 6,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764768749.9717777
+  },
+  "spatial\u2192AL-B2": {
+    "pulls": 2,
+    "successes": 2,
+    "recent_outcomes": [
+      true,
+      true
+    ],
+    "last_update": 1764768485.979538
+  }
+}

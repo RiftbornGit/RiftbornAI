@@ -1,0 +1,109 @@
+{
+  "game_id": "arena_v0",
+  "display_name": "Arena v0 - Vertical Slice",
+  "maps": [
+    {
+      "id": "arena_basic",
+      "display_name": "Basic Arena",
+      "bounds": { "x": 5000, "y": 5000 },
+      "spawn_points": [
+        {
+          "id": "team1_spawn",
+          "team": 1,
+          "location": [-1000, 0, 100]
+        },
+        {
+          "id": "team2_spawn",
+          "team": 2,
+          "location": [1000, 0, 100]
+        }
+      ]
+    }
+  ],
+  "champions": [
+    {
+      "id": "fire_mage",
+      "display_name": "Fire Mage",
+      "role": "MAGE",
+      "base_stats": {
+        "health": 1500,
+        "mana": 1000,
+        "move_speed": 600,
+        "health_regen": 5.0,
+        "mana_regen": 10.0
+      },
+      "abilities": ["fireball", "blink"],
+      "description": "Ranged mage that deals magic damage. High damage, low survivability."
+    },
+    {
+      "id": "sword_knight",
+      "display_name": "Sword Knight",
+      "role": "BRUISER",
+      "base_stats": {
+        "health": 2200,
+        "mana": 500,
+        "move_speed": 550,
+        "health_regen": 8.0,
+        "mana_regen": 5.0
+      },
+      "abilities": ["slash", "charge"],
+      "description": "Melee bruiser with gap closer. Medium damage, high survivability."
+    }
+  ],
+  "abilities": [
+    {
+      "id": "fireball",
+      "display_name": "Fireball",
+      "type": "PROJECTILE",
+      "cooldown": 6.0,
+      "cost": { "mana": 80, "health": 0 },
+      "range": 2000,
+      "damage": 260,
+      "cast_time": 0.4,
+      "tags": ["MAGIC", "RANGED", "DAMAGE"],
+      "description": "Launch a fireball that deals 260 magic damage to the first enemy hit."
+    },
+    {
+      "id": "blink",
+      "display_name": "Blink",
+      "type": "TELEPORT",
+      "cooldown": 14.0,
+      "cost": { "mana": 60, "health": 0 },
+      "range": 800,
+      "damage": 0,
+      "cast_time": 0.0,
+      "tags": ["UTILITY", "MOBILITY", "TELEPORT"],
+      "description": "Instantly teleport to target location within 800 units."
+    },
+    {
+      "id": "slash",
+      "display_name": "Slash",
+      "type": "INSTANT_MELEE",
+      "cooldown": 4.0,
+      "cost": { "mana": 20, "health": 0 },
+      "range": 250,
+      "damage": 200,
+      "cast_time": 0.1,
+      "tags": ["PHYSICAL", "MELEE", "DAMAGE"],
+      "description": "Slash enemies in front of you for 200 physical damage."
+    },
+    {
+      "id": "charge",
+      "display_name": "Charge",
+      "type": "DASH",
+      "cooldown": 12.0,
+      "cost": { "mana": 40, "health": 0 },
+      "range": 900,
+      "damage": 120,
+      "cast_time": 0.0,
+      "tags": ["GAPCLOSER", "DAMAGE", "MOBILITY"],
+      "description": "Dash forward 900 units, dealing 120 physical damage to first enemy hit."
+    }
+  ],
+  "systems": {
+    "damage_formula": "flat",
+    "respawn_enabled": false,
+    "round_time_seconds": 120,
+    "friendly_fire": false
+  }
+}

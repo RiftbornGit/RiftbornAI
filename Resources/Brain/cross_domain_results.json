@@ -1,0 +1,63 @@
+[
+  {
+    "task_name": "spatial_ui_widget_component",
+    "difficulty": 1,
+    "success": true,
+    "ontologies_required": [
+      "spatial",
+      "ui"
+    ],
+    "ontologies_succeeded": [
+      "spatial",
+      "ui"
+    ],
+    "ontologies_failed": []
+  },
+  {
+    "task_name": "animation_spatial_animated_character",
+    "difficulty": 2,
+    "success": false,
+    "ontologies_required": [
+      "spatial",
+      "animation"
+    ],
+    "ontologies_succeeded": [],
+    "ontologies_failed": []
+  },
+  {
+    "task_name": "ui_ability_health_bound",
+    "difficulty": 3,
+    "success": false,
+    "ontologies_required": [
+      "ui",
+      "ability"
+    ],
+    "ontologies_succeeded": [],
+    "ontologies_failed": []
+  },
+  {
+    "task_name": "spatial_animation_ui_character",
+    "difficulty": 4,
+    "success": false,
+    "ontologies_required": [
+      "spatial",
+      "animation",
+      "ui"
+    ],
+    "ontologies_succeeded": [],
+    "ontologies_failed": []
+  },
+  {
+    "task_name": "full_composition",
+    "difficulty": 5,
+    "success": false,
+    "ontologies_required": [
+      "spatial",
+      "animation",
+      "ui",
+      "ability"
+    ],
+    "ontologies_succeeded": [],
+    "ontologies_failed": []
+  }
+]

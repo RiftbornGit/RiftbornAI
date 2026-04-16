@@ -1,0 +1,70 @@
+{
+  "overall_confidence": 0.38767621746697795,
+  "known_domains": [],
+  "unknown_domains": [
+    "spatial",
+    "ui",
+    "ai",
+    "meta",
+    "animation",
+    "ability"
+  ],
+  "help_needed_domains": [
+    "spatial",
+    "ui",
+    "ai",
+    "meta",
+    "animation",
+    "ability"
+  ],
+  "estimates": {
+    "spatial": {
+      "confidence": 0.42691768007483627,
+      "uncertainty": 0.36542736479867577,
+      "sample_size": 3,
+      "known": false,
+      "needs_help": true,
+      "reason": "Limited experience (3 episodes)"
+    },
+    "ui": {
+      "confidence": 0.32881402355519035,
+      "uncertainty": 0.32881402355519035,
+      "sample_size": 2,
+      "known": false,
+      "needs_help": true,
+      "reason": "Limited experience (2 episodes)"
+    },
+    "ai": {
+      "confidence": 0.0,
+      "uncertainty": 0.5,
+      "sample_size": 0,
+      "known": false,
+      "needs_help": true,
+      "reason": "No experience in this domain"
+    },
+    "meta": {
+      "confidence": 0.0,
+      "uncertainty": 0.5,
+      "sample_size": 0,
+      "known": false,
+      "needs_help": true,
+      "reason": "No experience in this domain"
+    },
+    "animation": {
+      "confidence": 0.0,
+      "uncertainty": 0.5,
+      "sample_size": 0,
+      "known": false,
+      "needs_help": true,
+      "reason": "No experience in this domain"
+    },
+    "ability": {
+      "confidence": 0.0,
+      "uncertainty": 0.5,
+      "sample_size": 0,
+      "known": false,
+      "needs_help": true,
+      "reason": "No experience in this domain"
+    }
+  }
+}

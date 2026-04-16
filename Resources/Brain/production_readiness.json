@@ -1,0 +1,76 @@
+{
+  "timestamp": "2025-12-03T12:10:02.681772",
+  "overall_status": "PRODUCTION READY",
+  "systems": [
+    {
+      "name": "Core Files",
+      "status": "operational",
+      "metrics": {
+        "files_present": 4,
+        "files_required": 4
+      },
+      "issues": []
+    },
+    {
+      "name": "Curriculum System",
+      "status": "operational",
+      "metrics": {
+        "curricula_count": 4
+      },
+      "issues": []
+    },
+    {
+      "name": "Learning Systems",
+      "status": "operational",
+      "metrics": {
+        "systems_present": [
+          "Meta-learning",
+          "Transfer learning",
+          "Self-assessment",
+          "Active learning"
+        ],
+        "systems_missing": []
+      },
+      "issues": []
+    },
+    {
+      "name": "Data Quality",
+      "status": "operational",
+      "metrics": {
+        "total_patterns": 55,
+        "total_trials": 456,
+        "overall_success_rate": 0.9736842105263158
+      },
+      "issues": []
+    },
+    {
+      "name": "Integration Tests",
+      "status": "operational",
+      "metrics": {
+        "tests_passed": 7,
+        "tests_total": 7,
+        "pass_rate": 1.0
+      },
+      "issues": []
+    }
+  ],
+  "capabilities": [
+    "Multi-ontology task detection",
+    "Pattern-based planning",
+    "Self-assessment (knows what it doesn't know)",
+    "Active learning (requests training)",
+    "Transfer learning analysis",
+    "Cross-domain task composition"
+  ],
+  "limitations": [
+    "Low success in: spatial, ui, ai, meta, animation, ability",
+    "Limited data for: spatial, ui, ai, meta, animation, ability",
+    "Requires Unreal Engine bridge for execution"
+  ],
+  "recommendations": [
+    "Train on: spatial, ai",
+    "Follow learning order: spatial \u2192 ai \u2192 ui",
+    "Run integration tests after each training session",
+    "Monitor regression in time_series_learning.py"
+  ]
+}

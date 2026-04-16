@@ -1,0 +1,50 @@
+{
+  "ui\u2192create_empty_widget": {
+    "pulls": 4,
+    "successes": 4,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764757761.7825303
+  },
+  "ui\u2192create_widget_with_progress_bar": {
+    "pulls": 1,
+    "successes": 1,
+    "recent_outcomes": [
+      true
+    ],
+    "last_update": 1764757762.438946
+  },
+  "ui\u2192create_and_show_hud": {
+    "pulls": 1,
+    "successes": 1,
+    "recent_outcomes": [
+      true
+    ],
+    "last_update": 1764757763.0965953
+  },
+  "cross\u2192spatial_ui_widget_component": {
+    "pulls": 2,
+    "successes": 2,
+    "recent_outcomes": [
+      true,
+      true
+    ],
+    "last_update": 1764757977.662222
+  },
+  "ui\u2192cross_domain": {
+    "pulls": 5,
+    "successes": 5,
+    "recent_outcomes": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "last_update": 1764757977.6637545
+  }
+}

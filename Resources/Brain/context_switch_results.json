@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "results": [
+    [
+      "spatial",
+      true
+    ],
+    [
+      "ui",
+      true
+    ],
+    [
+      "spatial_state",
+      true
+    ]
+  ],
+  "switches": 3,
+  "switch_success_rate": 1.0,
+  "state_preservation_rate": 1.0
+}

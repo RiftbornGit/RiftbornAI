@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Thanks — RiftbornAI</title>
+<style>
+:root {
+  --bg: #0b0d12; --bg-soft: #14171f;
+  --fg: #e7e9ef; --fg-mute: #9ba1ad;
+  --accent: #ff7a1a; --rule: #232733;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+  font-size: 17px; line-height: 1.55;
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.card {
+  max-width: 600px; width: 100%;
+  background: var(--bg-soft); border: 1px solid var(--rule);
+  border-radius: 16px; padding: 48px;
+}
+.checkmark {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: var(--accent); color: #1a1208;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; font-weight: 800; margin-bottom: 24px;
+}
+h1 {
+  font-size: 32px; letter-spacing: -0.02em; margin: 0 0 16px;
+}
+p { color: var(--fg-mute); margin: 0 0 16px; }
+ol { color: var(--fg-mute); padding-left: 20px; }
+ol li { margin-bottom: 8px; }
+strong { color: var(--fg); }
+.brand { color: var(--accent); }
+hr { border: none; border-top: 1px solid var(--rule); margin: 32px 0; }
+.btn {
+  display: inline-block; padding: 12px 20px; border-radius: 8px;
+  background: var(--accent); color: #1a1208;
+  font-weight: 600; font-size: 15px; margin-top: 8px;
+}
+.btn:hover { background: #ffb37c; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="checkmark">✓</div>
+  <h1>Thanks for backing <span class="brand">RiftbornAI</span>.</h1>
+
+  <p>Your Founding Supporter license will arrive by email within 24 hours.</p>
+
+  <p>If you'd like a specific name on the license (your studio, your handle),
+  just reply to your Stripe receipt with it. Otherwise we'll use the name on
+  the receipt.</p>
+
+  <hr />
+
+  <p><strong>While you wait — start using the plugin:</strong></p>
+
+  <ol>
+    <li>Download the latest release zip from
+      <a href="https://github.com/RiftbornGit/RiftbornAI/releases/latest">GitHub&nbsp;Releases</a>.</li>
+    <li>Extract into <code>&lt;YourProject&gt;/Plugins/</code>.</li>
+    <li>Run <code>Setup\install.ps1</code> (Windows) or
+      <code>bash Setup/install.sh</code> (macOS / Linux).</li>
+    <li>Open your UE 5.7 project. The RiftbornAI tab is under the
+      editor's <strong>Window</strong> menu.</li>
+  </ol>
+
+  <a class="btn" href="https://github.com/RiftbornGit/RiftbornAI/releases/latest">Download v0.1.0-beta.8</a>
+
+  <hr />
+
+  <p style="font-size: 14px;">Need help right now?
+    <a href="mailto:founders@riftbornai.com">founders@riftbornai.com</a>.<br />
+    Or check the <a href="https://github.com/RiftbornGit/RiftbornAI/blob/main/docs/FAQ.md">FAQ</a>
+    for setup issues.</p>
+</div>
+</body>
+</html>

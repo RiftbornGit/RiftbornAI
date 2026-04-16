@@ -1,0 +1,47 @@
+[
+  {
+    "pair": [
+      [
+        "spatial",
+        "ui"
+      ],
+      [
+        "ui",
+        "spatial"
+      ]
+    ],
+    "order_matters": true,
+    "a_success": true,
+    "b_success": false
+  },
+  {
+    "pair": [
+      [
+        "ui",
+        "ability"
+      ],
+      [
+        "ability",
+        "ui"
+      ]
+    ],
+    "order_matters": false,
+    "a_success": false,
+    "b_success": false
+  },
+  {
+    "pair": [
+      [
+        "spatial",
+        "animation"
+      ],
+      [
+        "animation",
+        "spatial"
+      ]
+    ],
+    "order_matters": false,
+    "a_success": false,
+    "b_success": false
+  }
+]

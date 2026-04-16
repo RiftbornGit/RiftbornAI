@@ -1,0 +1,5 @@
+
+
+		// Anti-cheat: Server authoritative validation
+		bUseChecksInShipping = true;
+		bUseLoggingInShipping = true;

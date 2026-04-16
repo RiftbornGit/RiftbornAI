@@ -1,0 +1,265 @@
+{
+  "$schema": "./budget_constraints_schema.json",
+  "version": "1.1.0",
+  "description": "RiftbornAI pre-execution budget constraints. Evaluated in FBudgetGate before any tool dispatches. Kinds: MaxActorCount, MaxLightCount, BoundedPosition, ScaleFloor, SafePathsOnly, PropertyAllowlist, MaxFoliageInstancesPerCall.",
+  "tools": {
+    "spawn_actor": {
+      "constraints": [
+        {"kind": "MaxActorCount", "limit": 5000},
+        {"kind": "BoundedPosition",
+         "min_x": -500000, "max_x": 500000,
+         "min_y": -500000, "max_y": 500000,
+         "min_z": -50000,  "max_z": 100000}
+      ]
+    },
+    "spawn_actor_with_tags": {
+      "constraints": [
+        {"kind": "MaxActorCount", "limit": 5000},
+        {"kind": "BoundedPosition",
+         "min_x": -500000, "max_x": 500000,
+         "min_y": -500000, "max_y": 500000,
+         "min_z": -50000,  "max_z": 100000}
+      ]
+    },
+    "create_static_mesh_actor": {
+      "constraints": [
+        {"kind": "MaxActorCount", "limit": 5000},
+        {"kind": "BoundedPosition",
+         "min_x": -500000, "max_x": 500000,
+         "min_y": -500000, "max_y": 500000,
+         "min_z": -50000,  "max_z": 100000}
+      ]
+    },
+    "duplicate_actor": {
+      "constraints": [
+        {"kind": "MaxActorCount", "limit": 5000}
+      ]
+    },
+    "create_light": {
+      "constraints": [
+        {"kind": "MaxLightCount", "limit": 500},
+        {"kind": "BoundedPosition",
+         "min_x": -500000, "max_x": 500000,
+         "min_y": -500000, "max_y": 500000,
+         "min_z": -50000,  "max_z": 100000}
+      ]
+    },
+    "move_actor": {
+      "constraints": [
+        {"kind": "BoundedPosition",
+         "min_x": -500000, "max_x": 500000,
+         "min_y": -500000, "max_y": 500000,
+         "min_z": -50000,  "max_z": 100000}
+      ]
+    },
+    "set_actor_transform": {
+      "constraints": [
+        {"kind": "BoundedPosition",
+         "min_x": -500000, "max_x": 500000,
+         "min_y": -500000, "max_y": 500000,
+         "min_z": -50000,  "max_z": 100000},
+        {"kind": "ScaleFloor", "min_scale": 0.01}
+      ]
+    },
+    "scale_actor": {
+      "constraints": [
+        {"kind": "ScaleFloor", "min_scale": 0.01}
+      ]
+    },
+    "set_actor_property": {
+      "constraints": [
+        {"kind": "PropertyAllowlist", "allowed_properties": [
+          "Health", "MaxHealth", "Mana", "MaxMana", "Stamina", "MaxStamina",
+          "Speed", "MovementSpeed", "Damage", "Armor",
+          "SpawnRate", "WaveCount", "ScoreValue", "ExperienceValue",
+          "bHidden", "bHiddenInGame", "bVisible",
+          "Mobility", "Tags",
+          "LightIntensity", "Intensity", "LightColor", "LightSourceAngle", "Temperature", "bUseTemperature", "AttenuationRadius", "SourceRadius",
+          "bCastShadow", "CastShadow", "CastShadows",
+          "InnerConeAngle", "OuterConeAngle",
+          "VolumetricScatteringIntensity",
+          "RelativeLocation", "RelativeRotation", "RelativeScale3D",
+          "ActorLocation", "ActorRotation", "ActorScale3D",
+          "bSimulatePhysics", "SimulatePhysics", "bEnableGravity", "EnableGravity",
+          "Mass", "MassInKg", "MassScale", "LinearDamping", "AngularDamping",
+          "bGenerateOverlapEvents", "bUseCCD", "CollisionEnabled", "CollisionProfileName",
+          "PhysicsType",
+          "RayleighScattering", "RayleighScatteringScale", "RayleighExponentialDistribution",
+          "MieScattering", "MieScatteringScale", "MieExponentialDistribution", "MieAbsorption", "MieAbsorptionScale", "MieAnisotropy",
+          "MultiScatteringFactor", "TransmittanceMinLightElevationAngle",
+          "SkyAtmosphereHeightFog", "AtmosphereHeight",
+          "GroundAlbedo", "GroundRadius",
+          "SunDiskColorScale", "SunDiskLuminance", "SunDiskHaloScale",
+          "AerialPespectiveViewDistanceScale", "AerialPerspectiveStartDepth",
+          "FogDensity", "FogHeightFalloff", "FogInscatteringColor", "DirectionalInscatteringColor", "VolumetricFog", "bEnableVolumetricFog", "VolumetricFogScatteringDistribution", "VolumetricFogAlbedo", "VolumetricFogEmissive", "VolumetricFogExtinctionScale",
+          "SourceType", "SkyDistanceThreshold", "bRealTimeCapture", "bLowerHemisphereIsBlack", "LowerHemisphereColor", "Cubemap", "CubemapAngle",
+          "AtmosphereSunLight", "AtmosphereSunLightIndex", "bUsedAsAtmosphereSunLight"
+        ]}
+      ]
+    },
+    "set_component_property": {
+      "constraints": [
+        {"kind": "PropertyAllowlist", "allowed_properties": [
+          "Health", "MaxHealth", "Mana", "MaxMana", "Stamina", "MaxStamina",
+          "Speed", "MovementSpeed", "Damage", "Armor",
+          "bVisible", "bHidden", "bHiddenInGame",
+          "LightIntensity", "Intensity", "LightColor", "LightSourceAngle", "Temperature", "bUseTemperature", "AttenuationRadius", "SourceRadius",
+          "InnerConeAngle", "OuterConeAngle",
+          "bCastShadow", "CastShadow", "CastShadows",
+          "Mobility", "AtmosphereSunLight", "AtmosphereSunLightIndex", "bUsedAsAtmosphereSunLight",
+          "FogDensity", "FogHeightFalloff", "FogInscatteringColor", "DirectionalInscatteringColor", "VolumetricFog", "bEnableVolumetricFog", "VolumetricFogScatteringDistribution", "VolumetricFogAlbedo", "VolumetricFogEmissive", "VolumetricFogExtinctionScale",
+          "VolumetricScatteringIntensity",
+          "RelativeLocation", "RelativeRotation", "RelativeScale3D",
+          "bSimulatePhysics", "SimulatePhysics", "bEnableGravity", "EnableGravity",
+          "Mass", "MassInKg", "MassScale", "LinearDamping", "AngularDamping",
+          "bGenerateOverlapEvents", "bUseCCD", "CollisionEnabled", "CollisionProfileName",
+          "PhysicsType",
+          "RayleighScattering", "RayleighScatteringScale", "RayleighExponentialDistribution",
+          "MieScattering", "MieScatteringScale", "MieExponentialDistribution", "MieAbsorption", "MieAbsorptionScale", "MieAnisotropy",
+          "MultiScatteringFactor", "TransmittanceMinLightElevationAngle",
+          "AtmosphereHeight", "GroundAlbedo", "GroundRadius",
+          "SunDiskColorScale", "SunDiskLuminance", "SunDiskHaloScale",
+          "AerialPespectiveViewDistanceScale", "AerialPerspectiveStartDepth",
+          "SourceType", "SkyDistanceThreshold", "bRealTimeCapture", "bLowerHemisphereIsBlack", "LowerHemisphereColor", "Cubemap", "CubemapAngle"
+        ]}
+      ]
+    },
+    "add_foliage_instance": {
+      "constraints": [
+        {"kind": "MaxFoliageInstancesPerCall", "limit": 10000}
+      ]
+    },
+    "paint_foliage": {
+      "constraints": [
+        {"kind": "MaxFoliageInstancesPerCall", "limit": 10000}
+      ]
+    },
+    "scatter_ecology_trees": {
+      "constraints": [
+        {"kind": "MaxFoliageInstancesPerCall", "limit": 10000}
+      ]
+    },
+    "create_data_asset": {
+      "constraints": [
+        {"kind": "SafePathsOnly", "allowed_prefixes": [
+          "/Game/RiftbornGenerated/",
+          "/Game/Data/",
+          "/Game/DataAssets/",
+          "/Game/Generated/"
+        ]}
+      ]
+    },
+    "create_datatable": {
+      "constraints": [
+        {"kind": "SafePathsOnly", "allowed_prefixes": [
+          "/Game/RiftbornGenerated/",
+          "/Game/Data/",
+          "/Game/DataAssets/",
+          "/Game/DataTables/",
+          "/Game/Generated/"
+        ]}
+      ]
+    },
+
+    "create_material": {
+      "constraints": [
+        {"kind": "SafePathsOnly", "allowed_prefixes": [
+          "/Game/RiftbornGenerated/",
+          "/Game/Materials/",
+          "/Game/Generated/"
+        ]}
+      ]
+    },
+    "create_material_instance": {
+      "constraints": [
+        {"kind": "SafePathsOnly", "allowed_prefixes": [
+          "/Game/RiftbornGenerated/",
+          "/Game/Materials/",
+          "/Game/Generated/"
+        ]}
+      ]
+    },
+    "create_pbr_material": {
+      "constraints": [
+        {"kind": "SafePathsOnly", "allowed_prefixes": [
+          "/Game/RiftbornGenerated/",
+          "/Game/Materials/",
+          "/Game/Generated/"
+        ]}
+      ]
+    },
+    "create_blueprint": {
+      "constraints": [
+        {"kind": "SafePathsOnly", "allowed_prefixes": [
+          "/Game/RiftbornGenerated/",
+          "/Game/Blueprints/",
+          "/Game/Characters/",
+          "/Game/Weapons/",
+          "/Game/Enemies/",
+          "/Game/Generated/"
+        ]}
+      ]
+    },
+    "create_anim_blueprint": {
+      "constraints": [
+        {"kind": "SafePathsOnly", "allowed_prefixes": [
+          "/Game/RiftbornGenerated/",
+          "/Game/Animations/",
+          "/Game/Generated/"
+        ]}
+      ]
+    },
+    "create_niagara_system": {
+      "constraints": [
+        {"kind": "SafePathsOnly", "allowed_prefixes": [
+          "/Game/RiftbornGenerated/",
+          "/Game/VFX/",
+          "/Game/Generated/"
+        ]}
+      ]
+    },
+    "create_sound_cue": {
+      "constraints": [
+        {"kind": "SafePathsOnly", "allowed_prefixes": [
+          "/Game/RiftbornGenerated/",
+          "/Game/Audio/",
+          "/Game/Generated/"
+        ]}
+      ]
+    },
+    "create_level": {
+      "constraints": [
+        {"kind": "SafePathsOnly", "allowed_prefixes": [
+          "/Game/RiftbornGenerated/",
+          "/Game/Maps/",
+          "/Game/Levels/",
+          "/Game/Generated/"
+        ]}
+      ]
+    },
+    "spawn_niagara_at_location": {
+      "constraints": [
+        {"kind": "BoundedPosition",
+         "min_x": -500000, "max_x": 500000,
+         "min_y": -500000, "max_y": 500000,
+         "min_z": -50000,  "max_z": 100000}
+      ]
+    },
+    "spawn_camera": {
+      "constraints": [
+        {"kind": "MaxActorCount", "limit": 5000},
+        {"kind": "BoundedPosition",
+         "min_x": -500000, "max_x": 500000,
+         "min_y": -500000, "max_y": 500000,
+         "min_z": -50000,  "max_z": 100000}
+      ]
+    },
+    "set_light_intensity": {
+      "constraints": [
+        {"kind": "PropertyAllowlist", "allowed_properties": [
+          "Intensity", "LightIntensity", "LightColor", "AttenuationRadius"
+        ]}
+      ]
+    }
+  }
+}

@@ -1,0 +1,185 @@
+{
+  "passed": 7,
+  "total": 7,
+  "success_rate": 1.0,
+  "results": [
+    {
+      "name": "Ontology Detection",
+      "passed": true,
+      "message": "6/6 cases correct",
+      "details": {
+        "spawn a cube at 0,0,100": {
+          "expected": "SPATIAL",
+          "detected": "SPATIAL",
+          "correct": true
+        },
+        "create a HUD widget": {
+          "expected": "UI",
+          "detected": "UI",
+          "correct": true
+        },
+        "play attack animation": {
+          "expected": "ANIMATION",
+          "detected": "ANIMATION",
+          "correct": true
+        },
+        "create a gameplay ability": {
+          "expected": "ABILITY",
+          "detected": "ABILITY",
+          "correct": true
+        },
+        "set up AI behavior tree": {
+          "expected": "AI",
+          "detected": "AI",
+          "correct": true
+        },
+        "something completely unknown": {
+          "expected": "UNKNOWN",
+          "detected": "UNKNOWN",
+          "correct": true
+        }
+      }
+    },
+    {
+      "name": "Bandit Data Integrity",
+      "passed": true,
+      "message": "55/55 patterns valid",
+      "details": {
+        "total_patterns": 55,
+        "valid_patterns": 55,
+        "invalid_patterns": []
+      }
+    },
+    {
+      "name": "Ontology Stats Consistency",
+      "passed": true,
+      "message": "All stats consistent",
+      "details": {
+        "spatial": {
+          "episodes": 3,
+          "successes": 1,
+          "failures": 2,
+          "success_rate": 0.3333333333333333
+        },
+        "ui": {
+          "episodes": 2,
+          "successes": 0,
+          "failures": 2,
+          "success_rate": 0.0
+        },
+        "ai": {
+          "episodes": 0,
+          "successes": 0,
+          "failures": 0,
+          "success_rate": 0.0
+        },
+        "meta": {
+          "episodes": 0,
+          "successes": 0,
+          "failures": 0,
+          "success_rate": 0.0
+        },
+        "animation": {
+          "episodes": 0,
+          "successes": 0,
+          "failures": 0,
+          "success_rate": 0.0
+        },
+        "ability": {
+          "episodes": 0,
+          "successes": 0,
+          "failures": 0,
+          "success_rate": 0.0
+        },
+        "issues": []
+      }
+    },
+    {
+      "name": "Self-Assessment Accuracy",
+      "passed": true,
+      "message": "Self-assessment valid",
+      "details": {
+        "spatial": {
+          "confidence": 0.42691768007483627,
+          "sample_size": 3
+        },
+        "ui": {
+          "confidence": 0.32881402355519035,
+          "sample_size": 2
+        },
+        "ai": {
+          "confidence": 0.0,
+          "sample_size": 0
+        },
+        "meta": {
+          "confidence": 0.0,
+          "sample_size": 0
+        },
+        "animation": {
+          "confidence": 0.0,
+          "sample_size": 0
+        },
+        "ability": {
+          "confidence": 0.0,
+          "sample_size": 0
+        },
+        "issues": []
+      }
+    },
+    {
+      "name": "Active Learning Plan",
+      "passed": true,
+      "message": "6 valid requests",
+      "details": {
+        "total_requests": 6,
+        "total_trials": 338,
+        "order": [
+          "spatial",
+          "ai",
+          "ui",
+          "animation",
+          "meta",
+          "ability"
+        ],
+        "issues": []
+      }
+    },
+    {
+      "name": "Transfer Analysis",
+      "passed": true,
+      "message": "30 valid transfers",
+      "details": {
+        "total_transfers": 30,
+        "max_transfer": 0.3833333333333333,
+        "min_transfer": 0.015,
+        "issues": []
+      }
+    },
+    {
+      "name": "System Coherence",
+      "passed": true,
+      "message": "Systems coherent",
+      "details": {
+        "help_needed": [
+          "spatial",
+          "ui",
+          "ai",
+          "meta",
+          "animation",
+          "ability"
+        ],
+        "priority_domains": [
+          "spatial",
+          "ai",
+          "animation"
+        ],
+        "overlap": [
+          "spatial",
+          "ai",
+          "animation"
+        ],
+        "high_transfer_pairs": 12
+      }
+    }
+  ]
+}

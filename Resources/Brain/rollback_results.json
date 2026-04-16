@@ -1,0 +1,16 @@
+{
+  "test1": {
+    "ok": true,
+    "steps_completed": 1,
+    "steps_total": 1,
+    "rollback_triggered": false,
+    "rollback_results": 0
+  },
+  "test2": {
+    "ok": false,
+    "steps_completed": 1,
+    "steps_total": 2,
+    "rollback_triggered": true,
+    "rollback_results": 1
+  }
+}

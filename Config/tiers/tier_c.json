@@ -1,0 +1,155 @@
+{
+  "$schema": "./tier_schema.json",
+  "tier": "C",
+  "name": "Narrative Systems",
+  "version": "1.0.0",
+  "purpose": "Questlines/dialogue/factions that integrate with the existing loop",
+  
+  "prerequisite_tier": "B",
+  "prerequisite_check": "tier_b_promoted",
+  
+  "allowed_operations": {
+    "_inherits": "tier_b",
+    "quest_data_assets": {
+      "enabled": true,
+      "constraints": ["data_asset_only"]
+    },
+    "dialogue_data_assets": {
+      "enabled": true,
+      "constraints": ["data_asset_only"]
+    },
+    "state_triggers": {
+      "enabled": true,
+      "constraints": ["flag_based", "no_code_injection"]
+    },
+    "npc_dialogue_switching": {
+      "enabled": true,
+      "constraints": ["state_driven"]
+    },
+    "faction_data": {
+      "enabled": true,
+      "constraints": ["data_asset_only"]
+    },
+    "modify_levels": false,
+    "delete_assets": false
+  },
+  
+  "required_outputs": {
+    "quest_graph": {
+      "description": "Quest graph with minimum 3 nodes",
+      "min_nodes": 3,
+      "verifier": "verify_quest_graph"
+    },
+    "dialogue_state_machine": {
+      "description": "Dialogue system with state-based switching",
+      "verifier": "verify_dialogue_system"
+    },
+    "gated_branch": {
+      "description": "At least 1 branch gated by reputation/flags",
+      "verifier": "verify_gated_content"
+    }
+  },
+  
+  "required_verifiers": [
+    {
+      "id": "tier_b_still_passes",
+      "name": "Tier B Regression",
+      "type": "tier_regression",
+      "tier": "B",
+      "required": true
+    },
+    {
+      "id": "no_dead_ends",
+      "name": "Quest Graph No Dead Ends",
+      "type": "graph_analysis",
+      "allow_intentional_dead_ends": true,
+      "required": true
+    },
+    {
+      "id": "nodes_have_triggers",
+      "name": "All Nodes Have Triggers",
+      "type": "completeness_check",
+      "fields": ["trigger", "completion_condition"],
+      "required": true
+    },
+    {
+      "id": "dialogue_refs_valid",
+      "name": "Dialogue References Valid",
+      "type": "reference_check",
+      "asset_types": ["dialogue", "npc", "voice"],
+      "required": true
+    },
+    {
+      "id": "state_flags_consistent",
+      "name": "State Flags Consistent",
+      "type": "state_analysis",
+      "check_unreachable": true,
+      "check_conflicts": true,
+      "required": true
+    },
+    {
+      "id": "questline_completable",
+      "name": "Questline Completable in PIE",
+      "type": "pie_test",
+      "scripted": true,
+      "timeout_ms": 300000,
+      "required": true
+    }
+  ],
+  
+  "proof_requirements": {
+    "trace_file": true,
+    "replay_script": true,
+    "signature": true,
+    "artifact_manifest": true,
+    "quest_graph_export": true,
+    "dialogue_tree_export": true,
+    "state_flag_manifest": true
+  },
+  
+  "rollback_semantics": {
+    "default": "undo",
+    "irreversible_requires": "user_ack",
+    "state_rollback": true,
+    "flag_reset_supported": true
+  },
+  
+  "ci_recipes": [
+    {
+      "name": "tier_c_nightly",
+      "schedule": "nightly",
+      "recipe": "recipes/tier_c_narrative.json",
+      "required": true
+    },
+    {
+      "name": "tier_c_quest_completion",
+      "schedule": "on_change",
+      "recipe": "recipes/tier_c_quest_test.json",
+      "required": true
+    }
+  ],
+  
+  "promotion_requirements": {
+    "tier_b_promoted": true,
+    "min_confidence_score": 0.6,
+    "min_successful_runs": 10,
+    "max_failure_rate": 0.1,
+    "tier_b_regression_passes": true,
+    "quest_completable": true,
+    "proof_bundle_required": true,
+    "replay_verified": true
+  },
+  
+  "definition_of_done": [
+    "Quest graph with ≥3 nodes created",
+    "Dialogue state machine functional",
+    "At least 1 reputation/flag gated branch",
+    "No unintentional dead ends in quest graph",
+    "All quest nodes have triggers and completion conditions",
+    "Dialogue references all valid",
+    "State flags have no conflicts",
+    "Full questline completable in PIE test",
+    "Tier B functionality preserved",
+    "10 consecutive nightly runs pass"
+  ]
+}
