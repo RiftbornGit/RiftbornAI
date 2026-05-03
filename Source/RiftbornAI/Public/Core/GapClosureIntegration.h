@@ -15,7 +15,7 @@
 /**
  * Static integration class that wires the competitive gap closure systems
  * into the existing RiftbornAI infrastructure.
- * 
+ *
  * Called from FRiftbornAIModule::StartupModule() after core services are initialized.
  * Reverse cleanup called from ShutdownModule().
  */
@@ -30,35 +30,35 @@ public:
 	 *   - FBlueprintFocusTracker::Initialize() (focus tracking active)
 	 */
 	static void Initialize();
-	
+
 	/**
 	 * Tear down all gap closure system connections.
 	 * Must be called BEFORE core services shut down.
 	 */
 	static void Shutdown();
-	
+
 	/** Has Initialize() been called this session? */
 	static bool IsInitialized() { return bInitialized; }
 
 private:
 	/** Wire FFirstRunSetup — auto-detect Ollama, Python, API keys (Gap #5) */
 	static void InitializeFirstRunSetup();
-	
+
 	/** Wire FTieredModelRouter — complexity-based model selection (Gap #2) */
 	static void InitializeTieredRouter();
-	
+
 	/** Wire FMultiFileRefactor tools into AgentToolRegistry (Gap #6) */
 	static void RegisterMultiFileRefactorTools();
-	
+
 	/** Wire FAutoSuggestionTrigger into BlueprintCopilotService (Gap #1) */
 	static void InitializeAutoSuggestionTrigger();
-	
+
 	/** Wire FProviderFailover — cross-provider auto-failover (Gap #9) */
 	static void InitializeProviderFailover();
 
 	/** Run deferred first-run setup after editor startup settles */
 	static bool RunDeferredFirstRunSetup(float DeltaTime);
-	
+
 	static bool bInitialized;
 	static FTSTicker::FDelegateHandle DeferredFirstRunSetupHandle;
 };

@@ -8,15 +8,15 @@
 
 /**
  * ARiftbornCrashTestActor
- * 
+ *
  * Test actor that deliberately triggers Accessed None errors for certification testing.
- * 
+ *
  * This actor is used to verify that the RuntimeCert v1 no_log_errors invariant
  * correctly detects Blueprint Runtime Errors and Accessed None crashes.
- * 
+ *
  * WARNING: This actor will crash PIE on BeginPlay when bCrashOnBeginPlay is true!
  * Only use this for certification testing purposes.
- * 
+ *
  * Usage:
  *   1. Spawn this actor in a test map
  *   2. Set bCrashOnBeginPlay = true (or bLogErrorOnBeginPlay for soft test)
@@ -27,7 +27,7 @@ UCLASS(Blueprintable, Placeable, meta=(DisplayName="Riftborn Crash Test Actor"))
 class RIFTBORNAI_API ARiftbornCrashTestActor : public AActor
 {
 	GENERATED_BODY()
-	
+
 public:
 	ARiftbornCrashTestActor();
 

@@ -9,7 +9,7 @@
 
 /**
  * FChooserToolsModule
- * 
+ *
  * Thin Chooser / ProxyTable evaluation tools.
  */
 class RIFTBORNAI_API FChooserToolsModule : public TToolModuleBase<FChooserToolsModule>

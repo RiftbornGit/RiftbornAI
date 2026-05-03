@@ -2,12 +2,15 @@ import * as crypto from "node:crypto";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createSanitizer, createToSafeRecord } from "./sanitize-utils.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PLUGIN_ROOT = path.resolve(__dirname, "../..");
 const CONTRACTS_PATH = path.resolve(PLUGIN_ROOT, "Bridge/toolbook/contracts.json");
 const ARTIFACTS_DIR = path.resolve(PLUGIN_ROOT, "artifacts");
 const SAVED_DIR = path.resolve(PLUGIN_ROOT, "Saved/RiftbornAI");
+const sanitizeParsedJson = createSanitizer();
+const toSafeRecord = createToSafeRecord(sanitizeParsedJson);
 export var RiskTier;
 (function (RiskTier) {
     RiskTier[RiskTier["SAFE"] = 0] = "SAFE";
@@ -62,15 +65,37 @@ function ensureRiskMapLoaded() {
         cachedRiskMap.clear();
     }
 }
+/** True iff contracts.json could not be loaded — exposed so MCP startup
+ *  can fail closed (refuse to start) rather than route through with a
+ *  permissive default that misclassifies mutating tools as safe. */
+export function isContractsMissing() {
+    ensureRiskMapLoaded();
+    return cachedContractsMissing;
+}
 export function getToolRiskTier(toolName) {
     ensureRiskMapLoaded();
     if (cachedRiskMap?.has(toolName)) {
         return cachedRiskMap.get(toolName);
     }
-    // When contracts are loaded, unknown tools default to highest risk tier
-    // (fail-closed). When contracts are missing, default to SAFE to avoid
-    // blocking all tools.
-    return cachedContractsMissing ? RiskTier.SAFE : RiskTier.MUTATING_PROJECT;
+    // Unknown tools always default to the highest non-destructive tier.
+    // The previous "if contracts missing, default to SAFE" branch was
+    // fail-OPEN — a packaged MCP without contracts would silently route
+    // mutators (compile_project, patch_cpp_file, etc.) through direct
+    // execution. Now contracts-missing is a startup error (see
+    // assertContractsLoaded), so this code path treats every unknown
+    // tool as high-risk and routes it through the governed lane.
+    return RiskTier.MUTATING_PROJECT;
+}
+/** Throws when contracts.json is missing or unparseable. Call from MCP
+ *  startup; without contracts the server cannot make safe routing
+ *  decisions, so refusing to start is the only correct behavior. */
+export function assertContractsLoaded() {
+    ensureRiskMapLoaded();
+    if (cachedContractsMissing) {
+        throw new Error(`RiftbornAI MCP cannot start: contracts manifest missing or unparseable at ${CONTRACTS_PATH}. ` +
+            "Without contracts the governed-execution layer cannot classify tools. " +
+            "Re-package with Bridge/toolbook/contracts.json present, or run from a complete source tree.");
+    }
 }
 export function requiresGovernedExecution(toolName) {
     return getToolRiskTier(toolName) > RiskTier.SAFE;
@@ -197,33 +222,34 @@ function buildConfirmationHint(metadata) {
     };
 }
 export function flattenAgentStepResponse(raw) {
-    if (!raw.ok) {
+    const safeRaw = sanitizeParsedJson(raw);
+    if (!safeRaw.ok) {
         return {
             ok: false,
-            error: raw.error || "Governed step failed",
-            error_code: raw.error_code,
-            exec_ctx_id: raw.exec_ctx_id,
+            error: safeRaw.error || "Governed step failed",
+            error_code: safeRaw.error_code,
+            exec_ctx_id: safeRaw.exec_ctx_id,
         };
     }
-    const step = raw.result;
+    const step = safeRaw.result;
     const toolResult = step?.tool_result;
     if (!step || !toolResult) {
         return { ok: false, error: "Governed step returned an unexpected response shape." };
     }
     const metadata = toolResult.metadata && typeof toolResult.metadata === "object"
-        ? { ...toolResult.metadata }
+        ? toSafeRecord(toolResult.metadata)
         : undefined;
     const confirmation = buildConfirmationHint(metadata);
     const flattened = {
         ok: toolResult.success === true,
-        result: toolResult.result,
+        result: sanitizeParsedJson(toolResult.result),
         error: toolResult.error,
     };
     if (metadata && Object.keys(metadata).length > 0) {
         flattened.metadata = metadata;
     }
     if (toolResult.receipt && typeof toolResult.receipt === "object") {
-        flattened.receipt = toolResult.receipt;
+        flattened.receipt = toSafeRecord(toolResult.receipt);
     }
     if (confirmation) {
         flattened.policy_decision = "needs_confirmation";
@@ -258,7 +284,7 @@ function parseAgentStepBody(rawText) {
         return null;
     }
     try {
-        return JSON.parse(rawText);
+        return sanitizeParsedJson(JSON.parse(rawText));
     }
     catch {
         return null;
@@ -367,4 +393,3 @@ export function resetGovernedExecutionStateForTest() {
     cachedContractsMissing = false;
     cachedSigningSecret = null;
 }
-//# sourceMappingURL=governed-execution.js.map

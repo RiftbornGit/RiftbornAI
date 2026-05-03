@@ -6,7 +6,7 @@
 
 /**
  * FCinematicComposerToolsModule
- * 
+ *
  * Tool module providing specialized functionality.
  */
 class RIFTBORNAI_API FCinematicComposerToolsModule : public TToolModuleBase<FCinematicComposerToolsModule>

@@ -35,4 +35,3 @@ export interface CrashDiagnosis {
  */
 export declare function resolveProjectDir(explicit?: string): string | null;
 export declare function diagnoseCrash(projectDir?: string, maxAge?: number): CrashDiagnosis;
-//# sourceMappingURL=crash-diagnosis.d.ts.map

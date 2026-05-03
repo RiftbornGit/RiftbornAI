@@ -1,4 +1,6 @@
 // Copyright RiftbornAI. All Rights Reserved.
+// Build cache bump 2026-04-27: forces UBT to re-scan governance runtime sources
+// on first build.
 
 using UnrealBuildTool;
 using System.IO;
@@ -426,7 +428,7 @@ public class RiftbornAI : ModuleRules
 			// Required by GeometryScriptToolsModule_Modeling for apply_mesh_subdivision.
 			AddOptionalModules(Target, "MODELING_COMPONENTS_EDITOR_ONLY",
 				"ModelingComponentsEditorOnly");
-			
+
 			// =================================================================
 			// TEST HOOKS MACRO - Controls availability of test injection APIs
 			// =================================================================
@@ -444,7 +446,7 @@ public class RiftbornAI : ModuleRules
 			// in your build environment or target.
 			// =================================================================
 			bool bEnableTestHooks = false;
-			
+
 			// Only consider enabling in editor builds
 			if (Target.bBuildEditor)
 			{
@@ -456,7 +458,7 @@ public class RiftbornAI : ModuleRules
 					bEnableTestHooks = true;
 				}
 			}
-			
+
 			// Allow explicit override to disable
 			// (for building "clean" editor binaries without test hooks)
 			// Set RIFTBORN_DISABLE_TEST_HOOKS=1 in environment to force off
@@ -464,7 +466,7 @@ public class RiftbornAI : ModuleRules
 			{
 				bEnableTestHooks = false;
 			}
-			
+
 			if (bEnableTestHooks)
 			{
 				PublicDefinitions.Add("RIFTBORN_WITH_TEST_HOOKS=1");
@@ -484,7 +486,7 @@ public class RiftbornAI : ModuleRules
 			PublicDefinitions.Add("RIFTBORN_WITH_LEARNING_AGENTS_EDITOR=0");
 			PublicDefinitions.Add("RIFTBORN_WITH_WORLD_CONDITIONS_EDITOR=0");
 		}
-		
+
 		DynamicallyLoadedModuleNames.AddRange(
 			new string[]
 			{

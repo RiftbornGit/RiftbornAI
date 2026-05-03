@@ -220,7 +220,7 @@ the current shipped beta boundary, use [README.md](README.md),
 - **mcp-prompts.test.ts**: 2 new tests for graceful unknown prompt handling.
 
 ### Fixed
-- **mcp-prompts.ts**: Unknown prompt names no longer throw `Error("Prompt handler not implemented")`. Now returns a graceful fallback text with the prompt name and any provided arguments.
+- **mcp-prompts.ts**: Unknown prompt names no longer throw an unhandled prompt-dispatch error. Now returns a graceful fallback text with the prompt name and any provided arguments.
 
 ### Removed — Deprecated API Cleanup
 - **AuthorizeAndExecute()**: Removed deprecated wrapper from `RiftbornCopilotController`. Tasks panel now calls `ApprovePlan()` directly.
@@ -361,7 +361,7 @@ the current shipped beta boundary, use [README.md](README.md),
 
 ### Fixed
 - Duplicate return statement in `ci/hygiene_gate.py` (dead code in governance file)
-- Adversarial trust suite stubs now honestly report SKIPPED instead of vacuously passing
+- Retired the skipped adversarial trust-suite scaffold in favor of active bypass/governance gates
 - Stale `artifacts/missing_contracts.txt` removed (no gaps remain)
 
 ### Changed
@@ -406,13 +406,13 @@ the current shipped beta boundary, use [README.md](README.md),
 ## [2.0.1] - 2026-01-29
 
 ### Security (P0 Fixes)
-- **REMOVED X-Riftborn-Unsafe header bypass**: This was a security hole that allowed 
-  bypassing the confirmation flow entirely. Now all mutations require proper 
+- **REMOVED X-Riftborn-Unsafe header bypass**: This was a security hole that allowed
+  bypassing the confirmation flow entirely. Now all mutations require proper
   confirmation tokens regardless of headers sent.
-- **Proof hash computed at chokepoint**: SemanticHash and WitnessHash are now computed 
-  in `ExecuteTool()` rather than scattered across handlers. This ensures every tool 
+- **Proof hash computed at chokepoint**: SemanticHash and WitnessHash are now computed
+  in `ExecuteTool()` rather than scattered across handlers. This ensures every tool
   execution gets a verifiable proof record.
-- **Fail-closed governance**: Unregistered tools are blocked by default. All delete 
+- **Fail-closed governance**: Unregistered tools are blocked by default. All delete
   operations marked as Destructive risk level.
 
 ### Changed
@@ -434,19 +434,19 @@ the current shipped beta boundary, use [README.md](README.md),
   - `scripts/vendor_wheels.py` for offline wheel bundling
   - `GET /riftborn/env` endpoint for environment attestation
   - Bootstrap script supports `-Offline` mode
-  
+
 - **Environment Attestation**: `Bridge/core/env_info.py` provides:
   - Python version and package inventory
   - Lockfile hash and environment hash
   - Dirty/sealed status indicators
-  
+
 - **Documentation**: `docs/SEALED_ENVIRONMENT.md` - complete studio deployment guide
 
 ### Changed
 - **Bridge Cleanup**: Moved 250+ development scripts to `Bridge/archive/dev_scripts/`
   - Reduced Bridge root from 375 to ~85 essential files
   - Development scripts still accessible but not cluttering main directory
-  
+
 - **Package Structure**: Updated `pyproject.toml` to include all packages:
   - `Bridge`, `riftborn`, `vessel`, `aggi`
 

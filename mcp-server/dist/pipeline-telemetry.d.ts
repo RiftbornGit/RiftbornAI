@@ -98,4 +98,3 @@ export interface PipelineTelemetryReport {
  */
 export declare function recordResponseTelemetry(telemetry: PipelineTelemetry, toolName: string, response: Record<string, unknown>): void;
 export {};
-//# sourceMappingURL=pipeline-telemetry.d.ts.map

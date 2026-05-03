@@ -6,16 +6,9 @@
  * 2. Parameter normalization: fixes common agent parameter mistakes
  * 3. Workflow hints: suggests next steps after key tool successes
  */
-const BLOCKED_RECORD_KEYS = new Set(["__proto__", "constructor", "prototype"]);
-function toSafeRecord(record) {
-    const out = {};
-    for (const [key, value] of Object.entries(record)) {
-        if (!BLOCKED_RECORD_KEYS.has(key)) {
-            out[key] = value;
-        }
-    }
-    return out;
-}
+import { createSanitizer, createToSafeRecord } from "./sanitize-utils.js";
+const sanitizeParsedJson = createSanitizer();
+const toSafeRecord = createToSafeRecord(sanitizeParsedJson);
 const ERROR_PATTERNS = [
     {
         pattern: /bridge.*(disconnected|not responding|not running)|ECONNREFUSED/i,
@@ -266,9 +259,10 @@ export function checkPrerequisite(toolName, params) {
     const rule = PREREQUISITE_GUARDS[toolName];
     if (!rule)
         return null;
+    const safeParams = toSafeRecord(params);
     // If there's a specific required param check, only fail if it's missing
     if (rule.requiredParam) {
-        const val = params[rule.requiredParam];
+        const val = safeParams[rule.requiredParam];
         if (val === undefined || val === null || val === "") {
             return {
                 ok: false,
@@ -285,6 +279,272 @@ export function checkPrerequisite(toolName, params) {
     // Return null to let them through; the UE5 error will be enriched by enrichError.
     return null;
 }
+const BLUEPRINT_EDITOR_REQUIRED_TOOLS = new Set([
+    "add_blueprint_component",
+    "add_blueprint_variable",
+    "add_blueprint_event",
+    "add_blueprint_node",
+    "connect_blueprint_nodes",
+    "add_blueprint_function",
+    "remove_blueprint_node",
+    "replace_blueprint_node",
+    "set_blueprint_pin_default",
+    "set_blueprint_pin_value",
+    "rename_blueprint_variable",
+    "reparent_blueprint",
+    "focus_blueprint_node",
+]);
+const MATERIAL_EDITOR_REQUIRED_TOOLS = new Set([
+    "add_material_expression",
+    "add_material_function_call",
+    "connect_material_nodes",
+    "connect_material_attributes",
+    "set_material_expression_property",
+    "delete_material_expression",
+    "replace_material_expression",
+]);
+const PIE_REQUIRED_TOOLS = new Set([
+    "stop_pie",
+    "assert_widget_visible_in_pie",
+    "run_ui_flow_test",
+    "capture_ui_state",
+]);
+const PIE_BLOCKED_TOOLS = new Set([
+    "start_pie",
+    "build_navmesh",
+    "compile_blueprint",
+    "compile_widget_blueprint",
+    "batch_compile_blueprints",
+    "create_blueprint",
+    "create_material",
+    "create_material_instance",
+    "create_widget",
+    "save_level",
+    "set_object_property_typed",
+]);
+const LEVEL_REQUIRED_TOOLS = new Set([
+    "spawn_actor",
+    "create_light",
+    "start_pie",
+    "save_level",
+    "build_navmesh",
+]);
+const ASSET_REQUIRED_TOOL_PATHS = {
+    compile_widget_blueprint: ["widget_path", "asset_path", "path"],
+    create_widget_from_json: ["widget_path", "asset_path", "path"],
+};
+function asRecord(value) {
+    return typeof value === "object" && value !== null && !Array.isArray(value)
+        ? value
+        : null;
+}
+function normalizeAssetPath(value) {
+    return value.trim().replace(/\\/g, "/").toLowerCase();
+}
+function findStringValue(value, keys) {
+    const record = asRecord(value);
+    if (!record) {
+        return typeof value === "string" && value.trim() ? value.trim() : null;
+    }
+    for (const key of keys) {
+        const candidate = record[key];
+        if (typeof candidate === "string" && candidate.trim()) {
+            return candidate.trim();
+        }
+    }
+    for (const nested of Object.values(record)) {
+        const found = findStringValue(nested, keys);
+        if (found)
+            return found;
+    }
+    return null;
+}
+function findBooleanValue(value, keys) {
+    const record = asRecord(value);
+    if (!record) {
+        return typeof value === "boolean" ? value : null;
+    }
+    for (const key of keys) {
+        const candidate = record[key];
+        if (typeof candidate === "boolean") {
+            return candidate;
+        }
+    }
+    for (const nested of Object.values(record)) {
+        const found = findBooleanValue(nested, keys);
+        if (found !== null)
+            return found;
+    }
+    return null;
+}
+function probeEditorContext(result, assetKeys) {
+    const safeResult = sanitizeParsedJson(result);
+    const assetPath = findStringValue(safeResult, assetKeys);
+    if (assetPath) {
+        return { hasContext: true, assetPath };
+    }
+    const positive = findBooleanValue(safeResult, [
+        "is_open",
+        "open",
+        "has_editor",
+        "has_asset",
+        "has_context",
+        "active",
+        "focused",
+    ]);
+    if (positive === true) {
+        return { hasContext: true, assetPath: null };
+    }
+    if (positive === false) {
+        return { hasContext: false, assetPath: null };
+    }
+    const text = typeof safeResult === "string" ? safeResult.toLowerCase() : "";
+    if (text.includes("no active") || text.includes("not open") || text.includes("no material editor")) {
+        return { hasContext: false, assetPath: null };
+    }
+    return { hasContext: null, assetPath: null };
+}
+function buildPrerequisiteError(error, recovery_hint) {
+    return {
+        ok: false,
+        error,
+        error_category: "prerequisite_missing",
+        recovery_hint,
+        retryable: false,
+    };
+}
+function parsePossiblyJsonResult(result) {
+    if (typeof result !== "string") {
+        return sanitizeParsedJson(result);
+    }
+    try {
+        return sanitizeParsedJson(JSON.parse(result));
+    }
+    catch {
+        return result;
+    }
+}
+function probeLevelContext(result) {
+    const parsed = parsePossiblyJsonResult(result);
+    const levelName = findStringValue(parsed, [
+        "name",
+        "level_name",
+        "current_level",
+        "persistent_level",
+        "world_name",
+    ]);
+    if (levelName) {
+        return { hasLevel: true, levelName };
+    }
+    const positive = findBooleanValue(parsed, [
+        "has_level",
+        "loaded",
+        "valid",
+        "has_world",
+    ]);
+    if (positive === true) {
+        return { hasLevel: true, levelName: null };
+    }
+    if (positive === false) {
+        return { hasLevel: false, levelName: null };
+    }
+    const text = typeof parsed === "string" ? parsed.toLowerCase() : "";
+    if (text.includes("no level") || text.includes("no world") || text.includes("not loaded")) {
+        return { hasLevel: false, levelName: null };
+    }
+    return { hasLevel: null, levelName: null };
+}
+export async function checkStatefulPrerequisite(toolName, params, executeToolDirect) {
+    const safeParams = toSafeRecord(params);
+    if (BLUEPRINT_EDITOR_REQUIRED_TOOLS.has(toolName)) {
+        const context = await executeToolDirect("get_blueprint_editor_context", { force_refresh: false });
+        if (!context.ok) {
+            return null;
+        }
+        const probe = probeEditorContext(context.result, [
+            "asset_path",
+            "blueprint_path",
+            "path",
+            "active_asset_path",
+        ]);
+        if (probe.hasContext === false) {
+            return buildPrerequisiteError(`Tool '${toolName}' requires an active Blueprint editor context.`, "Open the target Blueprint in the editor first with open_blueprint.");
+        }
+        const requestedPath = findStringValue(safeParams, [
+            "blueprint_path",
+            "blueprint",
+            "path",
+            "asset_path",
+        ]);
+        if (requestedPath && probe.assetPath && normalizeAssetPath(requestedPath) !== normalizeAssetPath(probe.assetPath)) {
+            return buildPrerequisiteError(`Tool '${toolName}' targets '${requestedPath}', but the active Blueprint editor is '${probe.assetPath}'.`, "Call open_blueprint for the target asset before mutating its graph.");
+        }
+    }
+    if (MATERIAL_EDITOR_REQUIRED_TOOLS.has(toolName)) {
+        const context = await executeToolDirect("get_material_editor_context", {});
+        if (!context.ok) {
+            return null;
+        }
+        const probe = probeEditorContext(context.result, [
+            "asset_path",
+            "material_path",
+            "path",
+            "active_asset_path",
+        ]);
+        if (probe.hasContext === false) {
+            return buildPrerequisiteError(`Tool '${toolName}' requires an active Material editor context.`, "Open or focus the target material asset editor before mutating the graph.");
+        }
+        const requestedPath = findStringValue(safeParams, [
+            "asset_path",
+            "material_path",
+            "path",
+        ]);
+        if (requestedPath && probe.assetPath && normalizeAssetPath(requestedPath) !== normalizeAssetPath(probe.assetPath)) {
+            return buildPrerequisiteError(`Tool '${toolName}' targets '${requestedPath}', but the active Material editor is '${probe.assetPath}'.`, "Focus the intended material asset editor before changing expressions or connections.");
+        }
+    }
+    if (PIE_REQUIRED_TOOLS.has(toolName)) {
+        const pie = await executeToolDirect("is_pie_running", {});
+        if (!pie.ok) {
+            return null;
+        }
+        const running = findBooleanValue(pie.result, ["running"]);
+        if (running === false) {
+            return buildPrerequisiteError(`Tool '${toolName}' requires Play In Editor to be running.`, "Start PIE first with start_pie, then retry the runtime verification tool.");
+        }
+    }
+    if (PIE_BLOCKED_TOOLS.has(toolName)) {
+        const pie = await executeToolDirect("is_pie_running", {});
+        if (!pie.ok) {
+            return null;
+        }
+        const running = findBooleanValue(pie.result, ["running"]);
+        if (running === true) {
+            return buildPrerequisiteError(`Tool '${toolName}' requires editor-world mutation and cannot run while Play In Editor is active.`, "Stop PIE first with stop_pie, then retry the editor mutation.");
+        }
+    }
+    if (LEVEL_REQUIRED_TOOLS.has(toolName)) {
+        const level = await executeToolDirect("get_current_level", { format: "json" });
+        if (!level.ok) {
+            return null;
+        }
+        const probe = probeLevelContext(level.result);
+        if (probe.hasLevel === false) {
+            return buildPrerequisiteError(`Tool '${toolName}' requires a loaded editor level.`, "Load or create a level first before attempting level-bound mutations or runtime start.");
+        }
+    }
+    const assetKeys = ASSET_REQUIRED_TOOL_PATHS[toolName];
+    if (assetKeys) {
+        const requestedPath = findStringValue(safeParams, assetKeys);
+        if (requestedPath) {
+            const asset = await executeToolDirect("get_asset_info", { asset_path: requestedPath });
+            if (!asset.ok) {
+                return buildPrerequisiteError(`Tool '${toolName}' requires an existing asset at '${requestedPath}'.`, "Create or open the target asset first, or correct the asset path before retrying.");
+            }
+        }
+    }
+    return null;
+}
 // ─── Execution Timing ─────────────────────────────────────────────────────────
 /**
  * Add execution duration to a tool response.
@@ -293,4 +553,3 @@ export function addTiming(response, startTime) {
     const safeResponse = toSafeRecord(response);
     return Object.assign({ ok: response.ok }, safeResponse, { _duration_ms: Math.round(performance.now() - startTime) });
 }
-//# sourceMappingURL=agent-assist.js.map

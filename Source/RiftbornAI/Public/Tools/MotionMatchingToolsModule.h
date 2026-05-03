@@ -9,7 +9,7 @@
 
 /**
  * FMotionMatchingToolsModule
- * 
+ *
  * Pose Search and motion-matching asset authoring tools.
  */
 class RIFTBORNAI_API FMotionMatchingToolsModule : public TToolModuleBase<FMotionMatchingToolsModule>

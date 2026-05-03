@@ -19,7 +19,7 @@
 
 /**
  * Actor with built-in proof binding component.
- * 
+ *
  * This actor exists primarily to allow Python bridge code to spawn
  * actors with proof chains without needing Blueprint setup.
  */

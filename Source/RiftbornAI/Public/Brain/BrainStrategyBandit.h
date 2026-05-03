@@ -1,6 +1,6 @@
 // BrainStrategyBandit.h
 // Real multi-armed bandit for strategy selection per task family.
-// Replaces the "STUB (brain reasoning removed)" stub.
+// Local learning helper retained after the older external brain path was removed.
 //
 // How it works:
 //   * Each task family (code, tdm, scene_edit, world_edit, visual_edit, ...)

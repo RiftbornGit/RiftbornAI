@@ -22,8 +22,8 @@ export interface BootstrapConfig {
 }
 export interface BootstrapOverrides {
     argv?: string[];
+    authSearchRoots?: string[];
     cwd?: string;
     env?: NodeJS.ProcessEnv;
 }
 export declare function loadBootstrapConfig(entryFilename: string, overrides?: BootstrapOverrides): BootstrapConfig;
-//# sourceMappingURL=bootstrap.d.ts.map

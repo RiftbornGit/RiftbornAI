@@ -3,7 +3,7 @@
   "display_name": "Arena v0 - Vertical Slice",
   "description": "Minimal arena game for testing compiler",
   "tags": ["Arena", "MOBA", "TeamBased"],
-  
+
   "entities": [
     {
       "entity_id": "fire_mage",
@@ -58,7 +58,7 @@
       "description": "Melee fighter with sword attacks"
     }
   ],
-  
+
   "abilities": [
     {
       "ability_id": "fireball",
@@ -123,7 +123,7 @@
       "description": "Charge forward, damaging enemies hit"
     }
   ],
-  
+
   "maps": [
     {
       "map_id": "arena_basic",
@@ -148,7 +148,7 @@
       "tags": ["Symmetric", "Small", "1v1"]
     }
   ],
-  
+
   "rules": {
     "win_condition": "EliminateEnemies",
     "respawn_enabled": false,

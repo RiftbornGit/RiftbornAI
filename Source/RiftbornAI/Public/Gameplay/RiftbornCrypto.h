@@ -1,6 +1,6 @@
 // Copyright 2024-2026 RiftbornAI. All Rights Reserved.
 // RiftbornCrypto.h - Centralized cryptographic utilities
-// 
+//
 // CRITICAL: All proof-related hashing MUST use these functions.
 // DO NOT use FSHA1 for anything labeled SHA256.
 // This file is the SINGLE SOURCE OF TRUTH for proof crypto.
@@ -28,7 +28,7 @@
 
 /**
  * Centralized crypto utilities for RiftbornAI.
- * 
+ *
  * IMPORTANT: All proof hashing, signature verification, and integrity
  * checks MUST use these functions to ensure:
  * 1. Consistent SHA256 (not SHA1) across the codebase
@@ -40,7 +40,7 @@ namespace RiftbornCrypto
     /**
      * Check if a hash result is an error code.
      * All error codes start with "ERROR_".
-     * 
+     *
      * @param Hash Result from Sha256, Sha256Bytes, or HmacSha256
      * @return True if the hash is an error code, false if valid hash
      */
@@ -52,10 +52,10 @@ namespace RiftbornCrypto
     /**
      * Compute SHA256 hash of a string.
      * Returns lowercase hex string (64 characters).
-     * 
+     *
      * CRITICAL: This is the ONLY function that should be used for
      * proof hashes, canonical JSON hashes, and integrity verification.
-     * 
+     *
      * @param Text Input string (will be converted to UTF-8)
      * @return Lowercase hex string of SHA256 hash (64 chars)
      */
@@ -65,12 +65,12 @@ namespace RiftbornCrypto
         FTCHARToUTF8 Utf8(*Text);
         const uint8* Data = reinterpret_cast<const uint8*>(Utf8.Get());
         const ULONG DataLen = static_cast<ULONG>(Utf8.Length());
-        
+
         BCRYPT_ALG_HANDLE hAlg = nullptr;
         BCRYPT_HASH_HANDLE hHash = nullptr;
         uint8 Digest[32] = {0};  // SHA-256 produces 32 bytes
         NTSTATUS Status;
-        
+
         // Open algorithm provider
         Status = BCryptOpenAlgorithmProvider(&hAlg, BCRYPT_SHA256_ALGORITHM, nullptr, 0);
         if (!BCRYPT_SUCCESS(Status))
@@ -78,7 +78,7 @@ namespace RiftbornCrypto
             UE_LOG(LogTemp, Error, TEXT("RiftbornCrypto::Sha256 - BCryptOpenAlgorithmProvider failed: 0x%08X"), Status);
             return TEXT("ERROR_SHA256_INIT_FAILED");
         }
-        
+
         // Create hash object
         Status = BCryptCreateHash(hAlg, &hHash, nullptr, 0, nullptr, 0, 0);
         if (!BCRYPT_SUCCESS(Status))
@@ -87,7 +87,7 @@ namespace RiftbornCrypto
             UE_LOG(LogTemp, Error, TEXT("RiftbornCrypto::Sha256 - BCryptCreateHash failed: 0x%08X"), Status);
             return TEXT("ERROR_SHA256_CREATE_FAILED");
         }
-        
+
         // Hash the data
         Status = BCryptHashData(hHash, const_cast<PUCHAR>(Data), DataLen, 0);
         if (!BCRYPT_SUCCESS(Status))
@@ -97,18 +97,18 @@ namespace RiftbornCrypto
             UE_LOG(LogTemp, Error, TEXT("RiftbornCrypto::Sha256 - BCryptHashData failed: 0x%08X"), Status);
             return TEXT("ERROR_SHA256_HASH_FAILED");
         }
-        
+
         // Finish and get digest
         Status = BCryptFinishHash(hHash, Digest, sizeof(Digest), 0);
         BCryptDestroyHash(hHash);
         BCryptCloseAlgorithmProvider(hAlg, 0);
-        
+
         if (!BCRYPT_SUCCESS(Status))
         {
             UE_LOG(LogTemp, Error, TEXT("RiftbornCrypto::Sha256 - BCryptFinishHash failed: 0x%08X"), Status);
             return TEXT("ERROR_SHA256_FINISH_FAILED");
         }
-        
+
         // Convert to lowercase hex string (64 chars for SHA-256)
         FString Result;
         Result.Reserve(64);
@@ -122,28 +122,28 @@ namespace RiftbornCrypto
         FTCHARToUTF8 Utf8(*Text);
         const unsigned char* Data = reinterpret_cast<const unsigned char*>(Utf8.Get());
         const size_t DataLen = static_cast<size_t>(Utf8.Length());
-        
+
         unsigned char Digest[SHA256_DIGEST_LENGTH];
-        
+
         EVP_MD_CTX* Ctx = EVP_MD_CTX_new();
         if (!Ctx)
         {
             UE_LOG(LogTemp, Error, TEXT("RiftbornCrypto::Sha256 - EVP_MD_CTX_new failed"));
             return TEXT("ERROR_SHA256_INIT_FAILED");
         }
-        
+
         bool bOk = (EVP_DigestInit_ex(Ctx, EVP_sha256(), nullptr) == 1)
                  && (EVP_DigestUpdate(Ctx, Data, DataLen) == 1)
                  && (EVP_DigestFinal_ex(Ctx, Digest, nullptr) == 1);
-        
+
         EVP_MD_CTX_free(Ctx);
-        
+
         if (!bOk)
         {
             UE_LOG(LogTemp, Error, TEXT("RiftbornCrypto::Sha256 - OpenSSL SHA256 computation failed"));
             return TEXT("ERROR_SHA256_HASH_FAILED");
         }
-        
+
         FString Result;
         Result.Reserve(64);
         for (int32 i = 0; i < SHA256_DIGEST_LENGTH; i++)
@@ -157,7 +157,7 @@ namespace RiftbornCrypto
     /**
      * Compute SHA256 hash of raw bytes.
      * Returns lowercase hex string (64 characters).
-     * 
+     *
      * @param Data Pointer to input data
      * @param DataLen Length of input data in bytes
      * @return Lowercase hex string of SHA256 hash (64 chars)
@@ -170,25 +170,25 @@ namespace RiftbornCrypto
             // Hash of empty input
             return Sha256(TEXT(""));
         }
-        
+
         BCRYPT_ALG_HANDLE hAlg = nullptr;
         BCRYPT_HASH_HANDLE hHash = nullptr;
         uint8 Digest[32] = {0};
         NTSTATUS Status;
-        
+
         Status = BCryptOpenAlgorithmProvider(&hAlg, BCRYPT_SHA256_ALGORITHM, nullptr, 0);
         if (!BCRYPT_SUCCESS(Status))
         {
             return TEXT("ERROR_SHA256_INIT_FAILED");
         }
-        
+
         Status = BCryptCreateHash(hAlg, &hHash, nullptr, 0, nullptr, 0, 0);
         if (!BCRYPT_SUCCESS(Status))
         {
             BCryptCloseAlgorithmProvider(hAlg, 0);
             return TEXT("ERROR_SHA256_CREATE_FAILED");
         }
-        
+
         Status = BCryptHashData(hHash, const_cast<PUCHAR>(Data), static_cast<ULONG>(DataLen), 0);
         if (!BCRYPT_SUCCESS(Status))
         {
@@ -196,16 +196,16 @@ namespace RiftbornCrypto
             BCryptCloseAlgorithmProvider(hAlg, 0);
             return TEXT("ERROR_SHA256_HASH_FAILED");
         }
-        
+
         Status = BCryptFinishHash(hHash, Digest, sizeof(Digest), 0);
         BCryptDestroyHash(hHash);
         BCryptCloseAlgorithmProvider(hAlg, 0);
-        
+
         if (!BCRYPT_SUCCESS(Status))
         {
             return TEXT("ERROR_SHA256_FINISH_FAILED");
         }
-        
+
         FString Result;
         Result.Reserve(64);
         for (int32 i = 0; i < 32; i++)
@@ -219,26 +219,26 @@ namespace RiftbornCrypto
         {
             return Sha256(TEXT(""));
         }
-        
+
         unsigned char Digest[SHA256_DIGEST_LENGTH];
-        
+
         EVP_MD_CTX* Ctx = EVP_MD_CTX_new();
         if (!Ctx)
         {
             return TEXT("ERROR_SHA256_INIT_FAILED");
         }
-        
+
         bool bOk = (EVP_DigestInit_ex(Ctx, EVP_sha256(), nullptr) == 1)
                  && (EVP_DigestUpdate(Ctx, Data, static_cast<size_t>(DataLen)) == 1)
                  && (EVP_DigestFinal_ex(Ctx, Digest, nullptr) == 1);
-        
+
         EVP_MD_CTX_free(Ctx);
-        
+
         if (!bOk)
         {
             return TEXT("ERROR_SHA256_HASH_FAILED");
         }
-        
+
         FString Result;
         Result.Reserve(64);
         for (int32 i = 0; i < SHA256_DIGEST_LENGTH; i++)
@@ -252,9 +252,9 @@ namespace RiftbornCrypto
     /**
      * Compute HMAC-SHA256 of data with a secret key.
      * Returns lowercase hex string (64 characters).
-     * 
+     *
      * Used for signature generation and verification.
-     * 
+     *
      * @param Data Input data string
      * @param Secret Secret key for HMAC
      * @return Lowercase hex string of HMAC-SHA256 (64 chars)
@@ -268,27 +268,27 @@ namespace RiftbornCrypto
         const ULONG DataLen = static_cast<ULONG>(DataUtf8.Length());
         const uint8* KeyData = reinterpret_cast<const uint8*>(KeyUtf8.Get());
         const ULONG KeyLen = static_cast<ULONG>(KeyUtf8.Length());
-        
+
         BCRYPT_ALG_HANDLE hAlg = nullptr;
         BCRYPT_HASH_HANDLE hHash = nullptr;
         uint8 Digest[32] = {0};
         NTSTATUS Status;
-        
+
         // Open with HMAC flag
         Status = BCryptOpenAlgorithmProvider(&hAlg, BCRYPT_SHA256_ALGORITHM, nullptr, BCRYPT_ALG_HANDLE_HMAC_FLAG);
         if (!BCRYPT_SUCCESS(Status))
         {
             return TEXT("ERROR_HMAC_INIT_FAILED");
         }
-        
+
         // Get required buffer size
         DWORD HashObjSize = 0;
         DWORD DataSize = 0;
         BCryptGetProperty(hAlg, BCRYPT_OBJECT_LENGTH, (PBYTE)&HashObjSize, sizeof(DWORD), &DataSize, 0);
-        
+
         TArray<uint8> HashObj;
         HashObj.SetNumZeroed(HashObjSize);
-        
+
         // Create HMAC hash with key
         Status = BCryptCreateHash(hAlg, &hHash, HashObj.GetData(), HashObjSize,
             const_cast<PUCHAR>(KeyData), KeyLen, 0);
@@ -297,7 +297,7 @@ namespace RiftbornCrypto
             BCryptCloseAlgorithmProvider(hAlg, 0);
             return TEXT("ERROR_HMAC_CREATE_FAILED");
         }
-        
+
         // Hash the data
         Status = BCryptHashData(hHash, const_cast<PUCHAR>(DataPtr), DataLen, 0);
         if (!BCRYPT_SUCCESS(Status))
@@ -306,17 +306,17 @@ namespace RiftbornCrypto
             BCryptCloseAlgorithmProvider(hAlg, 0);
             return TEXT("ERROR_HMAC_HASH_FAILED");
         }
-        
+
         // Get HMAC
         Status = BCryptFinishHash(hHash, Digest, sizeof(Digest), 0);
         BCryptDestroyHash(hHash);
         BCryptCloseAlgorithmProvider(hAlg, 0);
-        
+
         if (!BCRYPT_SUCCESS(Status))
         {
             return TEXT("ERROR_HMAC_FINISH_FAILED");
         }
-        
+
         FString Result;
         Result.Reserve(64);
         for (int32 i = 0; i < 32; i++)
@@ -332,28 +332,28 @@ namespace RiftbornCrypto
         const size_t DataLen = static_cast<size_t>(DataUtf8.Length());
         const unsigned char* KeyData = reinterpret_cast<const unsigned char*>(KeyUtf8.Get());
         const size_t KeyLen = static_cast<size_t>(KeyUtf8.Length());
-        
+
         unsigned char Digest[EVP_MAX_MD_SIZE];
         unsigned int DigestLen = 0;
-        
+
         // Use the EVP HMAC API (HMAC() is deprecated in OpenSSL 3.x)
         HMAC_CTX* Ctx = HMAC_CTX_new();
         if (!Ctx)
         {
             return TEXT("ERROR_HMAC_INIT_FAILED");
         }
-        
+
         bool bOk = (HMAC_Init_ex(Ctx, KeyData, static_cast<int>(KeyLen), EVP_sha256(), nullptr) == 1)
                  && (HMAC_Update(Ctx, DataPtr, DataLen) == 1)
                  && (HMAC_Final(Ctx, Digest, &DigestLen) == 1);
-        
+
         HMAC_CTX_free(Ctx);
-        
+
         if (!bOk || DigestLen != 32)
         {
             return TEXT("ERROR_HMAC_HASH_FAILED");
         }
-        
+
         FString Result;
         Result.Reserve(64);
         for (unsigned int i = 0; i < DigestLen; i++)
@@ -392,7 +392,7 @@ namespace RiftbornCrypto
     // Forward declarations for canonical JSON
     inline void CanonicalJsonValue(const TSharedPtr<FJsonValue>& Value, FString& OutStr);
     inline void CanonicalJsonObject(const TSharedPtr<FJsonObject>& Obj, FString& OutStr);
-    
+
     /**
      * Serialize a JSON value to canonical string representation.
      * - Objects: keys sorted alphabetically, no extra whitespace
@@ -409,17 +409,17 @@ namespace RiftbornCrypto
             OutStr += TEXT("null");
             return;
         }
-        
+
         switch (Value->Type)
         {
             case EJson::Null:
                 OutStr += TEXT("null");
                 break;
-                
+
             case EJson::Boolean:
                 OutStr += Value->AsBool() ? TEXT("true") : TEXT("false");
                 break;
-                
+
             case EJson::Number:
             {
                 double Num = Value->AsNumber();
@@ -435,7 +435,7 @@ namespace RiftbornCrypto
                 }
                 break;
             }
-                
+
             case EJson::String:
             {
                 // Escape and quote string
@@ -448,7 +448,7 @@ namespace RiftbornCrypto
                 OutStr += TEXT("\"") + Escaped + TEXT("\"");
                 break;
             }
-                
+
             case EJson::Array:
             {
                 const TArray<TSharedPtr<FJsonValue>>& Arr = Value->AsArray();
@@ -461,17 +461,17 @@ namespace RiftbornCrypto
                 OutStr += TEXT("]");
                 break;
             }
-                
+
             case EJson::Object:
                 CanonicalJsonObject(Value->AsObject(), OutStr);
                 break;
-                
+
             default:
                 OutStr += TEXT("null");
                 break;
         }
     }
-    
+
     /**
      * Serialize a JSON object to canonical string representation.
      * Keys are sorted alphabetically for deterministic output.
@@ -483,39 +483,39 @@ namespace RiftbornCrypto
             OutStr += TEXT("{}");
             return;
         }
-        
+
         // Get keys and sort them
         TArray<FString> Keys;
         Obj->Values.GetKeys(Keys);
         Keys.Sort();
-        
+
         OutStr += TEXT("{");
         for (int32 i = 0; i < Keys.Num(); ++i)
         {
             if (i > 0) OutStr += TEXT(",");
-            
+
             // Key (escaped)
             FString EscapedKey = Keys[i];
             EscapedKey.ReplaceInline(TEXT("\\"), TEXT("\\\\"));
             EscapedKey.ReplaceInline(TEXT("\""), TEXT("\\\""));
             OutStr += TEXT("\"") + EscapedKey + TEXT("\":");
-            
+
             // Value
             CanonicalJsonValue(Obj->Values[Keys[i]], OutStr);
         }
         OutStr += TEXT("}");
     }
-    
+
     /**
      * PROOF-CRITICAL: Serialize JSON object to canonical string for hashing.
-     * 
+     *
      * This function MUST be used for all proof hash computations.
      * It guarantees:
      * - Deterministic key ordering (alphabetically sorted)
      * - Consistent number representation
      * - No extra whitespace
      * - Proper string escaping
-     * 
+     *
      * @param Obj JSON object to serialize
      * @return Canonical JSON string suitable for hashing
      */
@@ -526,15 +526,15 @@ namespace RiftbornCrypto
         CanonicalJsonObject(Obj, Result);
         return Result;
     }
-    
+
     /**
      * Compute SHA256 hash of canonical JSON representation.
-     * 
+     *
      * This is the SINGLE function that should be used for proof hashing.
      * It combines canonicalization + SHA256 to ensure:
      * - Same object always produces same hash
      * - Hash is verifiable across different JSON parsers
-     * 
+     *
      * @param Obj JSON object to hash
      * @return Lowercase hex SHA256 hash (64 chars)
      */

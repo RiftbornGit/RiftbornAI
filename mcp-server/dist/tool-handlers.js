@@ -95,6 +95,8 @@ export function buildSafePlanWorkflowResult(plan, batchSteps) {
     result.batch_steps = Array.isArray(batchSteps) ? sanitizeParsedJson(batchSteps) : [];
     return result;
 }
+const BARE_HANDLER_GOVERNANCE_NOTE = "Bare handler mode does not know the live readiness-filtered visible tool set. " +
+    "index.ts installs richer governed overrides for workflow and planner responses at runtime.";
 const MAX_BATCH_STEPS = 10;
 const MAX_CODE_LENGTH = 65_536;
 function normalizeConsoleCommand(command) {
@@ -180,6 +182,13 @@ function normalizeStringArray(value, fieldName, maxItems) {
 }
 function clampNumber(value, minValue, maxValue) {
     return Math.min(maxValue, Math.max(minValue, value));
+}
+function numberOrDefault(value, fallback) {
+    if (value == null) {
+        return fallback;
+    }
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
 }
 function inferImageMimeType(source) {
     const normalized = source.split("?")[0] || source;
@@ -535,7 +544,33 @@ function searchToolsLocally(query, maxResults) {
         .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
         .slice(0, clampToolSearchResults(maxResults));
 }
-export function createToolHandlers({ executeTool, dispatchTool, httpRequest, host: _host, httpPort: _httpPort }) {
+function buildToolExecutionExplanation(tool) {
+    const schema = tool.inputSchema;
+    const params = schema?.properties ?? {};
+    const required = schema?.required ?? [];
+    return {
+        tool_name: tool.name,
+        description: tool.description,
+        parameter_count: Object.keys(params).length,
+        required_parameters: required,
+        parameters: Object.entries(params).map(([name, def]) => ({
+            name,
+            type: def.type ?? "string",
+            description: def.description ?? "",
+            required: required.includes(name),
+            default: def.default,
+        })),
+        usage_tips: [
+            required.length > 0
+                ? `Required parameters: ${required.join(", ")}`
+                : "All parameters are optional.",
+            "Parameters are passed as key-value pairs in the tool call.",
+            "Results are returned as JSON with 'ok' and 'result' fields.",
+        ],
+        category: tool.name.includes("_") ? tool.name.split("_")[0] : "general",
+    };
+}
+export function createToolHandlers({ executeTool, dispatchTool, httpRequest, host: _host, httpPort: _httpPort, visibleTools }) {
     return {
         // ── Name Remaps (MCP name ≠ C++ tool name) ──
         get_current_level: async () => executeTool("get_level_info"),
@@ -575,9 +610,9 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
                     destination_path: args.destination_path || undefined,
                     asset_name: args.asset_name || undefined,
                     place_in_scene: args.place_in_scene === true,
-                    place_x: Number(args.place_x) || 0,
-                    place_y: Number(args.place_y) || 0,
-                    place_z: Number(args.place_z) || 0,
+                    place_x: numberOrDefault(args.place_x, 0),
+                    place_y: numberOrDefault(args.place_y, 0),
+                    place_z: numberOrDefault(args.place_z, 0),
                     enable_nanite: args.enable_nanite === true,
                     generate_collision: args.generate_collision !== false,
                 });
@@ -766,9 +801,9 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
                 destination_path: args.destination_path || undefined,
                 asset_name: assetName,
                 place_in_scene: args.place_in_scene === true,
-                place_x: Number(args.place_x) || 0,
-                place_y: Number(args.place_y) || 0,
-                place_z: Number(args.place_z) || 0,
+                place_x: numberOrDefault(args.place_x, 0),
+                place_y: numberOrDefault(args.place_y, 0),
+                place_z: numberOrDefault(args.place_z, 0),
                 enable_nanite: args.enable_nanite === true,
                 generate_collision: args.generate_collision !== false,
             });
@@ -1232,12 +1267,12 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
                 return { ok: false, error: openSidesResult.error };
             }
             const defaults = defaultsByTemplate[template];
-            const width = Math.max(200, Number(args.width) || hints.width || defaults.width);
-            const depth = Math.max(200, Number(args.depth) || hints.depth || defaults.depth);
-            const height = Math.max(120, Number(args.height) || hints.height || defaults.height);
-            const wallThickness = Math.max(10, Number(args.wall_thickness) || 40);
-            const floorThickness = Math.max(5, Number(args.floor_thickness) || 20);
-            const levels = Math.max(1, Math.round(Number(args.levels) || hints.levels || defaults.levels));
+            const width = Math.max(200, numberOrDefault(args.width, hints.width || defaults.width));
+            const depth = Math.max(200, numberOrDefault(args.depth, hints.depth || defaults.depth));
+            const height = Math.max(120, numberOrDefault(args.height, hints.height || defaults.height));
+            const wallThickness = Math.max(10, numberOrDefault(args.wall_thickness, 40));
+            const floorThickness = Math.max(5, numberOrDefault(args.floor_thickness, 20));
+            const levels = Math.max(1, Math.round(numberOrDefault(args.levels, hints.levels || defaults.levels)));
             const stairStyle = normalizeOptionalString(args.stair_style)?.toLowerCase() === "curved" || hints.curvedStairs === true ? "curved" : "linear";
             const addStairs = normalizeBooleanArg(args.add_stairs, template === "tower" || hints.addStairs === true);
             const addRamp = normalizeBooleanArg(args.add_ramp, template === "bridge" || hints.addRamp === true);
@@ -1248,11 +1283,11 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
             const openSides = Array.from(new Set([...defaultOpenSides, ...(hints.openSides || []), ...openSidesResult.value]));
             const totalWallHeight = Math.max(height, height * levels);
             const effectiveWallHeight = template === "bridge" ? Math.max(100, Math.min(180, height)) : totalWallHeight;
-            const openingWidth = clampNumber(Number(args.opening_width) || Math.round(Math.min(width, depth) * (template === "bridge" ? 0.45 : 0.3)), 150, Math.max(160, Math.min(width, depth) - 120));
-            const openingHeight = clampNumber(Number(args.opening_height) || Math.round(effectiveWallHeight * (addArches ? 0.75 : 0.65)), 120, Math.max(140, effectiveWallHeight - 20));
-            const originX = Number(args.origin_x) || 0;
-            const originY = Number(args.origin_y) || 0;
-            const originZ = Number(args.origin_z) || 0;
+            const openingWidth = clampNumber(numberOrDefault(args.opening_width, Math.round(Math.min(width, depth) * (template === "bridge" ? 0.45 : 0.3))), 150, Math.max(160, Math.min(width, depth) - 120));
+            const openingHeight = clampNumber(numberOrDefault(args.opening_height, Math.round(effectiveWallHeight * (addArches ? 0.75 : 0.65))), 120, Math.max(140, effectiveWallHeight - 20));
+            const originX = numberOrDefault(args.origin_x, 0);
+            const originY = numberOrDefault(args.origin_y, 0);
+            const originZ = numberOrDefault(args.origin_z, 0);
             const actorPrefix = normalizeOptionalString(args.actor_prefix) || `${template}_blockout_${Date.now().toString().slice(-6)}`;
             const wallBaseZ = originZ + floorThickness;
             const runTool = async (toolName, params) => {
@@ -1555,9 +1590,9 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
         // ── Spawn with snap-to-ground ──
         spawn_actor: async (args) => {
             const loc = (args.location || {});
-            const x = Number(loc.x) || 0;
-            const y = Number(loc.y) || 0;
-            let z = Number(loc.z) || 0;
+            const x = numberOrDefault(loc.x, 0);
+            const y = numberOrDefault(loc.y, 0);
+            let z = numberOrDefault(loc.z, 0);
             if (args.snap_to_ground === true) {
                 const traceResult = await executeTool("line_trace", {
                     start_x: x, start_y: y, start_z: 50000,
@@ -1581,9 +1616,9 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
             });
         },
         create_static_mesh_actor: async (args) => {
-            const x = Number(args.x) || 0;
-            const y = Number(args.y) || 0;
-            let z = Number(args.z) || 0;
+            const x = numberOrDefault(args.x, 0);
+            const y = numberOrDefault(args.y, 0);
+            let z = numberOrDefault(args.z, 0);
             if (args.snap_to_ground === true) {
                 const traceResult = await executeTool("line_trace", {
                     start_x: x, start_y: y, start_z: 50000,
@@ -1605,35 +1640,42 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
         },
         // ── Physics & Traces ──
         line_trace: async (args) => executeTool("line_trace", {
-            start_x: Number(args.start_x) || 0,
-            start_y: Number(args.start_y) || 0,
-            start_z: Number(args.start_z) || 0,
-            end_x: Number(args.end_x) || 0,
-            end_y: Number(args.end_y) || 0,
-            end_z: Number(args.end_z) || 0,
+            start_x: numberOrDefault(args.start_x, 0),
+            start_y: numberOrDefault(args.start_y, 0),
+            start_z: numberOrDefault(args.start_z, 0),
+            end_x: numberOrDefault(args.end_x, 0),
+            end_y: numberOrDefault(args.end_y, 0),
+            end_z: numberOrDefault(args.end_z, 0),
             channel: args.channel || "Visibility",
             complex: args.complex === true,
         }),
         // ── Actor Management ──
         get_actor_info: async (args) => executeTool("get_actor_info", {
+            actor_id: args.actor_id || undefined,
             label: args.label,
+            format: args.format || undefined,
         }),
         get_actor_transform: async (args) => executeTool("get_actor_transform", {
             actor_name: args.actor_name,
+            actor_id: args.actor_id || undefined,
+            format: args.format || undefined,
         }),
         move_actor: async (args) => executeTool("move_actor", {
+            actor_id: args.actor_id || undefined,
             label: args.label,
-            x: Number(args.x) || 0,
-            y: Number(args.y) || 0,
-            z: Number(args.z) || 0,
+            x: numberOrDefault(args.x, 0),
+            y: numberOrDefault(args.y, 0),
+            z: numberOrDefault(args.z, 0),
         }),
         rotate_actor: async (args) => executeTool("rotate_actor", {
+            actor_id: args.actor_id || undefined,
             label: args.label,
-            pitch: Number(args.pitch) || 0,
-            yaw: Number(args.yaw) || 0,
-            roll: Number(args.roll) || 0,
+            pitch: numberOrDefault(args.pitch, 0),
+            yaw: numberOrDefault(args.yaw, 0),
+            roll: numberOrDefault(args.roll, 0),
         }),
         scale_actor: async (args) => executeTool("scale_actor", {
+            actor_id: args.actor_id || undefined,
             label: args.label,
             scale: args.scale != null ? Number(args.scale) : undefined,
             x: args.x != null ? Number(args.x) : undefined,
@@ -1641,36 +1683,43 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
             z: args.z != null ? Number(args.z) : undefined,
         }),
         delete_actor: async (args) => executeTool("delete_actor", {
+            actor_id: args.actor_id || undefined,
             label: args.label,
             dry_run: args.dry_run === true,
+            format: args.format || undefined,
         }),
         set_actor_transform: async (args) => executeTool("set_actor_transform", {
+            actor_id: args.actor_id || undefined,
             label: args.label,
-            loc_x: Number(args.loc_x) || 0,
-            loc_y: Number(args.loc_y) || 0,
-            loc_z: Number(args.loc_z) || 0,
-            rot_pitch: Number(args.rot_pitch) || 0,
-            rot_yaw: Number(args.rot_yaw) || 0,
-            rot_roll: Number(args.rot_roll) || 0,
+            loc_x: numberOrDefault(args.loc_x, 0),
+            loc_y: numberOrDefault(args.loc_y, 0),
+            loc_z: numberOrDefault(args.loc_z, 0),
+            rot_pitch: numberOrDefault(args.rot_pitch, 0),
+            rot_yaw: numberOrDefault(args.rot_yaw, 0),
+            rot_roll: numberOrDefault(args.rot_roll, 0),
             scale_x: args.scale_x != null ? Number(args.scale_x) : 1,
             scale_y: args.scale_y != null ? Number(args.scale_y) : 1,
             scale_z: args.scale_z != null ? Number(args.scale_z) : 1,
         }),
         duplicate_actor: async (args) => executeTool("duplicate_actor", {
+            actor_id: args.actor_id || undefined,
             label: args.label,
             new_label: args.new_label || undefined,
             offset_x: args.offset_x != null ? Number(args.offset_x) : 100,
-            offset_y: Number(args.offset_y) || 0,
-            offset_z: Number(args.offset_z) || 0,
+            offset_y: numberOrDefault(args.offset_y, 0),
+            offset_z: numberOrDefault(args.offset_z, 0),
+            folder: args.folder || undefined,
+            format: args.format || undefined,
         }),
         find_actor_by_label: async (args) => executeTool("find_actor_by_label", {
             label: args.label,
+            format: args.format || undefined,
         }),
         get_selected_actors: async () => executeTool("get_selected_actors"),
         set_actor_material: async (args) => executeTool("set_actor_material", {
             actor_label: args.actor_label,
             material_path: args.material_path,
-            slot_index: Number(args.slot_index) || 0,
+            slot_index: numberOrDefault(args.slot_index, 0),
         }),
         set_actor_color: async (args) => executeTool("set_actor_color", {
             actor_label: args.actor_label,
@@ -1679,36 +1728,42 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
             metallic: args.metallic != null ? Number(args.metallic) : 0.0,
         }),
         set_actor_property: async (args) => executeTool("set_actor_property", {
+            actor_id: args.actor_id || undefined,
             label: args.label,
             property: args.property,
             value: String(args.value),
+            format: args.format || undefined,
         }),
         get_actors_in_radius: async (args) => executeTool("get_actors_in_radius", {
-            x: Number(args.x) || 0,
-            y: Number(args.y) || 0,
-            z: Number(args.z) || 0,
-            radius: Number(args.radius) || 1000,
+            x: numberOrDefault(args.x, 0),
+            y: numberOrDefault(args.y, 0),
+            z: numberOrDefault(args.z, 0),
+            radius: numberOrDefault(args.radius, 1000),
             class_filter: args.class_filter || undefined,
+            format: args.format || undefined,
         }),
         select_actors: async (args) => executeTool("select_actors", {
             labels: args.labels,
         }),
         // ── Viewport & Camera Control ──
         set_viewport_location: async (args) => executeTool("set_viewport_location", {
-            x: Number(args.x) || 0,
-            y: Number(args.y) || 0,
-            z: Number(args.z) || 0,
-            pitch: Number(args.pitch) || 0,
-            yaw: Number(args.yaw) || 0,
+            x: numberOrDefault(args.x, 0),
+            y: numberOrDefault(args.y, 0),
+            z: numberOrDefault(args.z, 0),
+            pitch: numberOrDefault(args.pitch, 0),
+            yaw: numberOrDefault(args.yaw, 0),
+            roll: numberOrDefault(args.roll, 0),
+            fov: args.fov != null ? Number(args.fov) : undefined,
         }),
         focus_actor: async (args) => executeTool("focus_actor", {
+            actor_id: args.actor_id || undefined,
             label: args.label,
         }),
         look_at_and_capture: async (args) => executeTool("look_at_and_capture", {
             target_label: args.target_label || undefined,
-            target_x: Number(args.target_x) || 0,
-            target_y: Number(args.target_y) || 0,
-            target_z: Number(args.target_z) || 0,
+            target_x: numberOrDefault(args.target_x, 0),
+            target_y: numberOrDefault(args.target_y, 0),
+            target_z: numberOrDefault(args.target_z, 0),
             distance: args.distance != null ? Number(args.distance) : 1500,
             yaw: args.yaw != null ? Number(args.yaw) : 45,
             pitch: args.pitch != null ? Number(args.pitch) : -25,
@@ -1723,16 +1778,16 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
         }),
         capture_viewport_safe: async (args) => executeTool("capture_viewport_safe", {
             filename: args.filename || undefined,
-            width: Number(args.width) || 0,
-            height: Number(args.height) || 0,
+            width: numberOrDefault(args.width, 0),
+            height: numberOrDefault(args.height, 0),
             analyze: args.analyze === true,
             prompt: args.prompt || undefined,
         }),
         // ── Lighting ──
         create_light: async (args) => executeTool("create_light", {
             type: args.type,
-            x: Number(args.x) || 0,
-            y: Number(args.y) || 0,
+            x: numberOrDefault(args.x, 0),
+            y: numberOrDefault(args.y, 0),
             z: args.z != null ? Number(args.z) : 200,
             intensity: args.intensity != null ? Number(args.intensity) : 5000,
             color: args.color || "255,255,255",
@@ -1746,10 +1801,13 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
         // use spawn_actor / set_component_property instead.
         // ── Post-Processing ──
         create_post_process_volume: async (args) => executeTool("create_post_process_volume", {
-            x: Number(args.x) || 0,
-            y: Number(args.y) || 0,
-            z: Number(args.z) || 0,
+            label: args.label || undefined,
+            x: numberOrDefault(args.x, 0),
+            y: numberOrDefault(args.y, 0),
+            z: numberOrDefault(args.z, 0),
             infinite_extent: args.infinite_extent !== false,
+            priority: args.priority != null ? Number(args.priority) : undefined,
+            blend_radius: args.blend_radius != null ? Number(args.blend_radius) : undefined,
         }),
         // NOTE: set_bloom, set_exposure, set_color_grading DE-REGISTERED in C++ —
         // use set_post_process_settings instead.
@@ -1766,40 +1824,44 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
         }),
         // ── Landscape & Terrain ──
         create_landscape: async (args) => executeTool("create_landscape", {
-            size_x: Number(args.size_x) || 255,
-            size_y: Number(args.size_y) || 255,
-            x: Number(args.x) || 0,
-            y: Number(args.y) || 0,
-            z: Number(args.z) || 0,
-            scale: Number(args.scale) || 100,
+            size_x: numberOrDefault(args.size_x, 255),
+            size_y: numberOrDefault(args.size_y, 255),
+            x: numberOrDefault(args.x, 0),
+            y: numberOrDefault(args.y, 0),
+            z: numberOrDefault(args.z, 0),
+            scale: numberOrDefault(args.scale, 100),
             label: args.label || "Landscape",
             terrain_style: args.terrain_style || "hills",
+            save_level: args.save_level,
         }),
         sculpt_landscape: async (args) => executeTool("sculpt_landscape", {
             landscape_label: args.landscape_label,
             operation: args.operation,
-            center_x: Number(args.center_x ?? args.x) || 0,
-            center_y: Number(args.center_y ?? args.y) || 0,
-            radius: Number(args.radius) || 1000,
+            center_x: numberOrDefault(args.center_x ?? args.x, 0),
+            center_y: numberOrDefault(args.center_y ?? args.y, 0),
+            radius: numberOrDefault(args.radius, 1000),
             strength: args.strength != null ? Number(args.strength) : 0.5,
-            height: Number(args.height) || 0,
+            height: numberOrDefault(args.height, 0),
             height_delta: args.height_delta != null ? Number(args.height_delta) : undefined,
+            noise_scale: args.noise_scale != null ? Number(args.noise_scale) : undefined,
+            save_level: args.save_level,
         }),
         paint_landscape_layer: async (args) => executeTool("paint_landscape_layer", {
             landscape_label: args.landscape_label,
             layer_name: args.layer_name,
-            center_x: Number(args.center_x ?? args.x) || 0,
-            center_y: Number(args.center_y ?? args.y) || 0,
-            radius: Number(args.radius) || 1000,
+            center_x: numberOrDefault(args.center_x ?? args.x, 0),
+            center_y: numberOrDefault(args.center_y ?? args.y, 0),
+            radius: numberOrDefault(args.radius, 1000),
             strength: args.strength != null ? Number(args.strength) : 1.0,
             falloff_power: args.falloff_power != null ? Number(args.falloff_power) : undefined,
             refresh_grass: args.refresh_grass,
+            save_level: args.save_level,
         }),
         draw_landscape_path: async (args) => executeTool("draw_landscape_path", {
             landscape_label: args.landscape_label,
             layer_name: args.layer_name || "",
             path_points: args.path_points,
-            width: Number(args.width) || 400,
+            width: numberOrDefault(args.width, 400),
             strength: args.strength != null ? Number(args.strength) : 1.0,
             falloff_power: args.falloff_power != null ? Number(args.falloff_power) : 2.0,
             height_delta: args.height_delta != null ? Number(args.height_delta) : 0,
@@ -1809,9 +1871,9 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
         create_procedural_river: async (args) => executeTool("create_procedural_river", {
             landscape_label: args.landscape_label,
             path_points: args.path_points,
-            width: Number(args.width) || 800,
-            depth: Number(args.depth) || 150,
-            flow_speed: Number(args.flow_speed) || 120,
+            width: numberOrDefault(args.width, 800),
+            depth: numberOrDefault(args.depth, 150),
+            flow_speed: numberOrDefault(args.flow_speed, 120),
             layer_name: args.layer_name || "Dirt",
             falloff_power: args.falloff_power != null ? Number(args.falloff_power) : 1.5,
             endpoint_taper_distance: args.endpoint_taper_distance != null ? Number(args.endpoint_taper_distance) : -1,
@@ -1834,7 +1896,9 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
         // NOTE: set_static_mesh, add_component DE-REGISTERED in C++ —
         // use set_component_property / execute_python instead.
         set_component_property: async (args) => executeTool("set_component_property", {
+            actor_id: args.actor_id || undefined,
             actor_name: args.actor_name,
+            component_id: args.component_id || undefined,
             component_name: args.component_name,
             property_name: args.property_name,
             value: String(args.value),
@@ -1848,8 +1912,8 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
             include_screenshot: args.include_screenshot !== false,
             include_digest: args.include_digest !== false,
             include_performance: args.include_performance !== false,
-            width: Number(args.width) || 0,
-            height: Number(args.height) || 0,
+            width: numberOrDefault(args.width, 0),
+            height: numberOrDefault(args.height, 0),
         }),
         restore_scene_checkpoint: async (args) => executeTool("restore_scene_checkpoint", {
             checkpoint_path: args.checkpoint_path || undefined,
@@ -1862,17 +1926,19 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
             new_path: args.new_path,
         }),
         create_level: async (args) => executeTool("create_level", {
-            level_name: args.level_name,
+            level_name: args.level_name || args.name,
+            name: args.name || undefined,
             destination: args.destination || "/Game/Maps",
         }),
         load_level: async (args) => executeTool("load_level", {
             path: args.path,
+            format: args.format || undefined,
         }),
         // NOTE: set_default_map DE-REGISTERED in C++ — use set_project_setting instead.
         // ── Play In Editor (PIE) ──
         start_pie: async (args) => executeTool("start_pie", {
             mode: args.mode || "viewport",
-            num_players: Number(args.num_players) || 1,
+            num_players: numberOrDefault(args.num_players, 1),
         }),
         stop_pie: async () => executeTool("stop_pie"),
         // ── Blueprint Editing ──
@@ -1982,15 +2048,18 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
         // ── Vision / Viewport — explicit defaults + type casts ──
         analyze_scene_screenshot: async (args) => executeTool("analyze_scene_screenshot", {
             auto_capture: args.auto_capture !== false,
+            filename: args.filename || undefined,
             prompt: args.prompt || "",
             image_path: args.image_path || "",
         }),
         observe_ue_project: async (args) => executeTool("observe_ue_project", {
             capture_screenshot: args.capture_screenshot !== false,
             include_vision: args.include_vision !== false,
+            filename: args.filename || undefined,
+            image_path: args.image_path || undefined,
             prompt: args.prompt || "",
-            max_actor_sample: Number(args.max_actor_sample) || 40,
-            max_class_buckets: Number(args.max_class_buckets) || 12,
+            max_actor_sample: numberOrDefault(args.max_actor_sample, 40),
+            max_class_buckets: numberOrDefault(args.max_class_buckets, 12),
         }),
         // ── Pure passthrough handlers removed ──
         // Geometry modeling, level snapshots, crowd, niagara channels, metasound,
@@ -2003,7 +2072,7 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
         create_vme_material: async (args) => executeTool("create_vme_material", {
             material_name: args.material_name || "M_VME_Terrain",
             destination: args.destination || "/Game/Materials",
-            phase: Number(args.phase) || 4,
+            phase: numberOrDefault(args.phase, 4),
             apply_to_terrain: args.apply_to_terrain !== false,
             landscape_mode: args.landscape_mode === true,
         }),
@@ -2012,22 +2081,22 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
         // The C++ tool returns {ok, job_id, poll_url} — the caller polls via
         // get_latent_job_status using that job_id.
         wait_for_build: async (args) => executeTool("wait_for_build", {
-            timeout_seconds: Number(args.timeout_seconds) || 120,
+            timeout_seconds: numberOrDefault(args.timeout_seconds, 120),
         }),
         // ── Build Monitoring (passthrough to C++ build-event tracker) ──
         get_build_events: async (args) => executeTool("get_build_events", {
-            max_count: Number(args.max_count) || 20,
+            max_count: numberOrDefault(args.max_count, 20),
             clear: args.clear === true,
         }),
         get_build_errors: async (args) => executeTool("get_build_errors", {
-            max_count: Number(args.max_count) || 50,
+            max_count: numberOrDefault(args.max_count, 50),
             source: args.source || "all",
         }),
         get_error_summary: async (args) => executeTool("get_error_summary", args),
         get_errors_since: async (args) => executeTool("get_errors_since", {
-            since_timestamp: Number(args.since_timestamp) || 0,
+            since_timestamp: numberOrDefault(args.since_timestamp, 0),
             severity: args.severity || "all",
-            max_count: Number(args.max_count) || 50,
+            max_count: numberOrDefault(args.max_count, 50),
         }),
         // ── Modal Dismissal ──
         dismiss_modal_dialog: async (args) => executeTool("dismiss_modal_dialog", {
@@ -2052,7 +2121,7 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
         }),
         // ── Crash Diagnosis (bridge-independent — reads disk directly) ──
         diagnose_crash: async (args) => {
-            const result = diagnoseCrash(args.project_dir, args.max_age_seconds ? Number(args.max_age_seconds) : undefined);
+            const result = diagnoseCrash(args.project_dir, args.max_age_seconds == null ? undefined : Number(args.max_age_seconds));
             return { ok: true, result: JSON.stringify(result) };
         },
         // ── Tool Discovery / Workflow Discovery ──
@@ -2061,20 +2130,42 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
         // before index.ts decorates the handler map.
         find_tools: async (args) => {
             const query = normalizeToolSearchQuery(String(args.query || ""));
-            const maxResults = Number(args.max_results) || 20;
+            const maxResults = numberOrDefault(args.max_results, 20);
             const tools = searchToolsLocally(query, maxResults);
-            return { ok: true, result: { matches: tools.length, tools } };
+            return {
+                ok: true,
+                result: {
+                    matches: tools.length,
+                    tools,
+                    governed_surface: false,
+                    governance_note: BARE_HANDLER_GOVERNANCE_NOTE,
+                },
+            };
         },
         get_workflow: async (args) => {
             const query = normalizeWorkflowQuery(String(args.query || ""));
             if (query === "list" || query === "") {
-                return { ok: true, result: { workflows: listWorkflows() } };
+                return {
+                    ok: true,
+                    result: {
+                        workflows: listWorkflows(),
+                        governed_surface: false,
+                        governance_note: BARE_HANDLER_GOVERNANCE_NOTE,
+                    },
+                };
             }
             const workflow = getWorkflow(query);
             if (!workflow) {
                 return { ok: false, error: `Unknown workflow '${query}'. Use query='list' to see available workflows.` };
             }
-            return { ok: true, result: workflow };
+            return {
+                ok: true,
+                result: {
+                    ...workflow,
+                    governed_surface: false,
+                    governance_note: BARE_HANDLER_GOVERNANCE_NOTE,
+                },
+            };
         },
         // ── Batch Execution — reduces agent round-trips ──
         batch_execute: async (args) => {
@@ -2154,7 +2245,14 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
                 return { ok: false, error: "plan_workflow requires a 'goal' string." };
             }
             if (goal.toLowerCase() === "list") {
-                return { ok: true, result: { goals: listGoals() } };
+                return {
+                    ok: true,
+                    result: {
+                        goals: listGoals(),
+                        governed_surface: false,
+                        governance_note: BARE_HANDLER_GOVERNANCE_NOTE,
+                    },
+                };
             }
             // Build plan — uses empty session/context here; index.ts overrides with live state
             const plan = planFromGoal(goal, []);
@@ -2166,7 +2264,11 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
             }
             return {
                 ok: true,
-                result: buildSafePlanWorkflowResult(plan, planToBatchSteps(plan)),
+                result: {
+                    ...buildSafePlanWorkflowResult(plan, planToBatchSteps(plan)),
+                    governed_surface: false,
+                    governance_note: BARE_HANDLER_GOVERNANCE_NOTE,
+                },
             };
         },
         // ── Vision Loop — Claude's eyes inside Unreal Engine ──
@@ -2180,39 +2282,27 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
             if (!toolName) {
                 return { ok: false, error: "explain_tool_execution requires a 'tool_name' string." };
             }
-            // Look up the tool in generated tools
-            const { GENERATED_TOOLS } = await import("./generated-tools.js");
-            const tool = GENERATED_TOOLS.find((t) => t.name === toolName);
+            const governedSurface = typeof visibleTools === "function";
+            const explainableTools = governedSurface ? visibleTools() : buildAllTools();
+            const tool = explainableTools.find((entry) => entry.name === toolName);
             if (!tool) {
+                const existsOutsideGovernedSurface = governedSurface && buildAllTools().some((entry) => entry.name === toolName);
+                if (existsOutsideGovernedSurface) {
+                    return {
+                        ok: false,
+                        error: `Tool '${toolName}' is hidden by the readiness gate and not available on the current governed surface.`,
+                    };
+                }
                 return { ok: false, error: `Tool '${toolName}' not found in registry.` };
             }
-            const schema = tool.inputSchema;
-            const params = schema?.properties ?? {};
-            const required = schema?.required ?? [];
-            // Build structured explanation
-            const paramDocs = Object.entries(params).map(([name, def]) => ({
-                name,
-                type: def.type ?? "string",
-                description: def.description ?? "",
-                required: required.includes(name),
-                default: def.default,
-            }));
-            const explanation = {
-                tool_name: toolName,
-                description: tool.description,
-                parameter_count: Object.keys(params).length,
-                required_parameters: required,
-                parameters: paramDocs,
-                usage_tips: [
-                    required.length > 0
-                        ? `Required parameters: ${required.join(", ")}`
-                        : "All parameters are optional.",
-                    "Parameters are passed as key-value pairs in the tool call.",
-                    "Results are returned as JSON with 'ok' and 'result' fields.",
-                ],
-                category: toolName.includes("_") ? toolName.split("_")[0] : "general",
+            return {
+                ok: true,
+                result: {
+                    ...buildToolExecutionExplanation(tool),
+                    governed_surface: governedSurface,
+                    ...(governedSurface ? {} : { governance_note: BARE_HANDLER_GOVERNANCE_NOTE }),
+                },
             };
-            return { ok: true, result: explanation };
         },
         // ── Scene Quality Report — combines multiple analysis tools ──
         generate_scene_report: async (args) => {
@@ -2245,7 +2335,7 @@ export function createToolHandlers({ executeTool, dispatchTool, httpRequest, hos
             if (!packageName) {
                 return { ok: false, error: "query_dependencies requires a 'package_name' string." };
             }
-            const maxDepth = Number(args.max_depth) || 3;
+            const maxDepth = numberOrDefault(args.max_depth, 3);
             const pyCode = `
 import sys, json
 sys.path.insert(0, '${process.cwd().replace(/\\/g, "/")}/../Bridge/core')
@@ -2264,7 +2354,7 @@ print(json.dumps(result))
             if (!packageName) {
                 return { ok: false, error: "blast_radius requires a 'package_name' string." };
             }
-            const maxDepth = Number(args.max_depth) || 5;
+            const maxDepth = numberOrDefault(args.max_depth, 5);
             const pyCode = `
 import sys, json
 sys.path.insert(0, '${process.cwd().replace(/\\/g, "/")}/../Bridge/core')
@@ -2285,4 +2375,3 @@ print(json.dumps(result))
         },
     };
 }
-//# sourceMappingURL=tool-handlers.js.map

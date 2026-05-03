@@ -11,7 +11,7 @@
 
 /**
  * Physics Tools Module
- * 
+ *
  * Provides tools for physics simulation and collision:
  * - set_physics_enabled: Enable/disable physics simulation on an actor
  * - add_physics_constraint: Add a physics constraint between actors
@@ -25,9 +25,9 @@ class RIFTBORNAI_API FPhysicsToolsModule : public TToolModuleBase<FPhysicsToolsM
 {
 public:
     static FString StaticModuleName() { return TEXT("PhysicsTools"); }
-    
+
     virtual void RegisterTools(FClaudeToolRegistry& Registry) override;
-    
+
     // Tool implementations
     static FClaudeToolResult Tool_SetPhysicsEnabled(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_AddPhysicsConstraint(const FClaudeToolCall& Call);

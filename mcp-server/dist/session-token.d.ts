@@ -15,4 +15,3 @@ export interface SessionTokenResponse {
     tokenId: string;
 }
 export declare function exchangeScopedSessionToken(config: BridgeConfig, request: SessionTokenRequest): Promise<SessionTokenResponse>;
-//# sourceMappingURL=session-token.d.ts.map

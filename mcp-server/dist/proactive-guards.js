@@ -19,6 +19,7 @@
  *    Catches "same tool + same params within 5 seconds" for mutation tools.
  *    Wires the existing SessionTracker.isDuplicate into the pipeline.
  */
+import { buildParamsKey } from "./system-enhancements.js";
 const BLOCKED_PARAM_KEYS = new Set(["__proto__", "constructor", "prototype"]);
 function toSafeRecord(record) {
     const out = {};
@@ -334,6 +335,7 @@ export function checkIdempotency(toolName, params, sessionHistory, windowMs = 10
         return null;
     const now = Date.now();
     const cutoff = now - windowMs;
+    const currentParamsKey = buildParamsKey(params);
     // Walk history backwards (most recent first)
     for (let i = sessionHistory.length - 1; i >= 0; i--) {
         const entry = sessionHistory[i];
@@ -343,8 +345,8 @@ export function checkIdempotency(toolName, params, sessionHistory, windowMs = 10
             continue;
         if (!entry.ok)
             continue;
-        // For now, we can only match by tool name since we don't store params
-        // in the session history. This catches rapid duplicate calls.
+        if (entry.paramsKey !== currentParamsKey)
+            continue;
         return {
             tool: toolName,
             message: `'${toolName}' was already called successfully ${now - entry.timestamp}ms ago. This may be a duplicate call.`,
@@ -353,4 +355,3 @@ export function checkIdempotency(toolName, params, sessionHistory, windowMs = 10
     }
     return null;
 }
-//# sourceMappingURL=proactive-guards.js.map

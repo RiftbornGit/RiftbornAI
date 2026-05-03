@@ -47,6 +47,13 @@ pnpm install
 pnpm build
 ```
 
+## Developer Harness
+
+The source repository includes a headless agent harness for benchmark and
+diagnostic work. Binary beta packages do not ship the harness scenarios,
+benchmark manifests, or developer artifacts. For packaged releases, use the
+runtime self-test and live editor bridge checks shown above.
+
 ## Configuration
 
 The repo ships editor-specific MCP config files such as `.vscode/mcp.json` so supported clients can auto-discover the MCP server when you open the plugin workspace.
@@ -80,7 +87,7 @@ If your game project is in a separate workspace, copy `.vscode/mcp.json` there a
 
 The server merges manual tool definitions, vision helpers, and generated schemas, then filters them through the readiness gate. The default visible surface is the curated editor-copilot boundary, not the full generated schema set.
 
-Shipped Beta builds clamp that visible surface to the locked 99-tool beta set; source builds and developer mode retain the broader production surface.
+Shipped Beta builds clamp that visible surface to the locked 200-tool beta set; source builds and developer mode retain the broader production surface.
 
 - **Project**: `list_assets`, `get_current_level`, `find_actor_by_label`
 - **Editor Control**: `open_blueprint`, `start_pie`, `stop_pie`
@@ -102,23 +109,29 @@ Shipped Beta builds clamp that visible surface to the locked 99-tool beta set; s
 
 Internal-only experimental tools such as self-improvement and agent-job orchestration are excluded from production packaging unless `RIFTBORN_ENABLE_INTERNAL_TOOLS=true`.
 
-### Resources (6 live + 2 templates)
+### Resources (10 live + 4 templates)
 
 Resources give MCP clients automatic context about your UE project:
 
+- **Copilot Operating Contract**: `riftborn://copilot/operating-contract` — Shared editor-control loop, guardrails, and discovery starting points
 - **Project Info**: `riftborn://project/info` — Engine version, game mode, player controller, current level
 - **Level Actors**: `riftborn://project/actors` — All actors grouped by class with counts
 - **Bridge Health**: `riftborn://bridge/health` — HTTP bridge connection and governance status
 - **Asset Tree**: `riftborn://project/assets` — Top-level /Game/ folders and asset counts
 - **Governance**: `riftborn://governance/status` — Session taint, proof mode, verification state
-- **Tool Categories**: `riftborn://tools/categories` — Tool categories with counts
+- **Tool Categories**: `riftborn://tools/categories` — Visible tool categories with counts
+- **Deferred Tool Catalog**: `riftborn://tools/deferred` — Hidden/deferred tools grouped by readiness tier
+- **Session History**: `riftborn://session/history` — Recent tool calls, timings, and failures in this MCP session
+- **Domain Definition Of Done**: `riftborn://copilot/domain-definition-of-done` — Shared finish-line contracts used by planning and verification
 
 **Templates:**
 
 - **Asset Details**: `riftborn://asset/{path}` — Details about any asset by path
 - **Actor Details**: `riftborn://actor/{name}` — Details about any level actor by name
+- **Deferred Tool Search**: `riftborn://tools/search/{query}` — Search the full catalog, including deferred tools, by keyword
+- **Domain Definition Of Done By Domain**: `riftborn://copilot/domain-definition-of-done/{domain}` — Domain-specific finish-line contract
 
-### Prompts (7 templates)
+### Prompts (8 templates)
 
 Reusable prompt templates for common tasks:
 
@@ -128,6 +141,7 @@ Reusable prompt templates for common tasks:
 - **`debug-issue`**: `problem` — Diagnose gameplay or editor issues
 - **`create-game-mode`**: `mode_name`, `genre` — GameMode, GameState, PlayerController, and HUD scaffold
 - **`add-vfx`**: `effect_type`, `target` — Niagara particle effects on actors or locations
+- **`governed-editor-task`**: `task` — Shared governed editor loop with discovery, blockers, proof, and verification guidance
 - **`observe-scene`**: `focus` — Screenshot, vision analysis, and actor census
 
 ## How It Works

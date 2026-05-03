@@ -9,7 +9,7 @@
 
 /**
  * FMassCrowdToolsModule
- * 
+ *
  * Mass Crowd tools for live crowd simulation control.
  */
 class RIFTBORNAI_API FMassCrowdToolsModule : public TToolModuleBase<FMassCrowdToolsModule>

@@ -4,11 +4,11 @@
   "name": "Playable Slice Generator",
   "version": "1.0.0",
   "purpose": "Turn a prompt into a playable, minimal game loop inside UE",
-  
+
   "flagship_slice": "survival_wave",
   "flagship_locked": true,
   "flagship_lock_reason": "Must complete one slice before expanding",
-  
+
   "allowed_operations": {
     "spawn_actors": {
       "enabled": true,
@@ -22,7 +22,7 @@
       "enabled": true,
       "constraints": ["allowlist_only"],
       "allowlist": [
-        "Health", "MaxHealth", "Speed", "Damage", 
+        "Health", "MaxHealth", "Speed", "Damage",
         "SpawnRate", "WaveCount", "ScoreValue"
       ]
     },
@@ -42,7 +42,7 @@
     "delete_assets": false,
     "bulk_operations": false
   },
-  
+
   "required_outputs": {
     "player_spawn": {
       "description": "Player spawns with camera attached",
@@ -65,7 +65,7 @@
       "verifier": "verify_ui_feedback"
     }
   },
-  
+
   "required_verifiers": [
     {
       "id": "pie_starts",
@@ -111,7 +111,7 @@
       "required": true
     }
   ],
-  
+
   "proof_requirements": {
     "trace_file": true,
     "replay_script": true,
@@ -120,14 +120,14 @@
     "before_snapshot": true,
     "after_snapshot": true
   },
-  
+
   "rollback_semantics": {
     "default": "undo",
     "irreversible_requires": "user_ack",
     "max_undo_depth": 50,
     "snapshot_before_generation": true
   },
-  
+
   "ci_recipes": [
     {
       "name": "tier_a_nightly",
@@ -142,7 +142,7 @@
       "required": true
     }
   ],
-  
+
   "promotion_requirements": {
     "min_confidence_score": 0.5,
     "min_successful_runs": 5,
@@ -151,7 +151,7 @@
     "replay_verified": true,
     "contract_hash_locked": true
   },
-  
+
   "definition_of_done": [
     "Survival wave slice generates from prompt",
     "PIE session starts and runs without crash",

@@ -871,6 +871,9 @@ function toFiniteNumber(value) {
     }
     return undefined;
 }
+function numberOrDefault(value, defaultValue) {
+    return toFiniteNumber(value) ?? defaultValue;
+}
 function readVector(value) {
     const record = toRecord(value);
     const x = toFiniteNumber(record.x);
@@ -1211,11 +1214,11 @@ async function runSemanticSceneAudit(executeTool, args) {
         ? args.prompt
         : "Audit this Unreal Engine scene semantically. Evaluate lighting readability, material plausibility, " +
             "spatial grounding, composition, density, and atmosphere. Call out concrete visual problems.";
-    const maxVisibleActors = Math.max(1, Number(args.max_visible_actors) || 40);
-    const maxMaterialActors = Math.max(1, Number(args.max_material_actors) || 40);
+    const maxVisibleActors = Math.max(1, numberOrDefault(args.max_visible_actors, 40));
+    const maxMaterialActors = Math.max(1, numberOrDefault(args.max_material_actors, 40));
     const includeMaterials = args.include_materials !== false;
     const includeDepth = args.include_depth !== false;
-    const depthGridSize = Math.max(2, Number(args.depth_grid_size) || 8);
+    const depthGridSize = Math.max(2, numberOrDefault(args.depth_grid_size, 8));
     const observation = await requireTool(executeTool, "observe_ue_project", {
         capture_screenshot: true,
         include_vision: true,
@@ -1276,9 +1279,9 @@ async function runTemporalQualityAudit(executeTool, args) {
             pieStarted = true;
         }
         const capture = await requireTool(executeTool, "capture_frame_sequence", {
-            duration_seconds: Number(args.duration_seconds) || 3,
-            fps: Number(args.fps) || 5,
-            max_keyframes: Number(args.max_keyframes) || 4,
+            duration_seconds: numberOrDefault(args.duration_seconds, 3),
+            fps: numberOrDefault(args.fps, 5),
+            max_keyframes: numberOrDefault(args.max_keyframes, 4),
             analyze: true,
             prompt: typeof args.prompt === "string" ? args.prompt : undefined,
         });
@@ -1317,8 +1320,8 @@ function buildReferenceDelta(litIssues, referenceIssues) {
     };
 }
 async function runReferenceRenderCompare(executeTool, args) {
-    const width = Math.max(128, Number(args.width) || 1920);
-    const height = Math.max(128, Number(args.height) || 1080);
+    const width = Math.max(128, numberOrDefault(args.width, 1920));
+    const height = Math.max(128, numberOrDefault(args.height, 1080));
     const restoreMode = typeof args.restore_mode === "string" && args.restore_mode.trim().length > 0
         ? args.restore_mode
         : "lit";
@@ -1404,9 +1407,9 @@ async function runPhotorealPolishPass(executeTool, args) {
             const instanceVariation = await executeTool("setup_instance_variation", {
                 material_path: materialPath,
                 foliage_type_filter: typeof args.foliage_type_filter === "string" ? args.foliage_type_filter : "",
-                hue_shift_range: Number(args.hue_shift_range) || 0.08,
-                roughness_variation: Number(args.roughness_variation) || 0.12,
-                age_factor_range: Number(args.age_factor_range) || 0.35,
+                hue_shift_range: numberOrDefault(args.hue_shift_range, 0.08),
+                roughness_variation: numberOrDefault(args.roughness_variation, 0.12),
+                age_factor_range: numberOrDefault(args.age_factor_range, 0.35),
                 modify_material: true,
             });
             if (!instanceVariation.ok) {
@@ -1447,8 +1450,8 @@ async function runPhotorealPolishPass(executeTool, args) {
     });
     const referenceCompare = args.run_reference_compare !== false
         ? await runReferenceRenderCompare(executeTool, {
-            width: Number(args.width) || 1600,
-            height: Number(args.height) || 900,
+            width: numberOrDefault(args.width, 1600),
+            height: numberOrDefault(args.height, 900),
             restore_mode: "lit",
             prompt: "Use the path-traced render as a photoreal benchmark for this polish pass.",
         })
@@ -1468,8 +1471,8 @@ async function runPhotorealPolishPass(executeTool, args) {
 }
 async function runPerceptionBudgetPass(executeTool, args) {
     const warnings = [];
-    const topN = Math.max(1, Number(args.top_n) || 10);
-    const maxVisibleActors = Math.max(1, Number(args.max_visible_actors) || 25);
+    const topN = Math.max(1, numberOrDefault(args.top_n, 10));
+    const maxVisibleActors = Math.max(1, numberOrDefault(args.max_visible_actors, 25));
     const sceneCost = await requireTool(executeTool, "analyze_scene_cost", {
         top_n: topN,
     });
@@ -1481,10 +1484,10 @@ async function runPerceptionBudgetPass(executeTool, args) {
     if (args.auto_configure !== false) {
         const configure = await optionalTool(executeTool, "configure_visibility_budget", {
             enabled: args.enabled !== false,
-            evaluation_interval: Number(args.evaluation_interval) || 0.2,
+            evaluation_interval: numberOrDefault(args.evaluation_interval, 0.2),
             use_view_direction_bias: true,
-            prediction_time: Number(args.prediction_time) || 0.35,
-            view_cone_buffer_degrees: Number(args.view_cone_buffer_degrees) || 18,
+            prediction_time: numberOrDefault(args.prediction_time, 0.35),
+            view_cone_buffer_degrees: numberOrDefault(args.view_cone_buffer_degrees, 18),
             force_evaluate: true,
         }, warnings);
         configureResult = configure?.data;
@@ -1492,7 +1495,7 @@ async function runPerceptionBudgetPass(executeTool, args) {
     const apply = await optionalTool(executeTool, "apply_performance_budget", {
         preset: typeof args.preset === "string" ? args.preset : "balanced",
         scope: typeof args.scope === "string" ? args.scope : "all",
-        max_actors: Number(args.max_actors) || 250,
+        max_actors: numberOrDefault(args.max_actors, 250),
         selected_only: args.selected_only === true,
     }, warnings);
     const applyResult = apply?.data;
@@ -1532,13 +1535,13 @@ async function runMultiViewSceneAudit(executeTool, args) {
     const prompt = typeof args.prompt === "string" && args.prompt.trim().length > 0
         ? args.prompt
         : "Audit the scene from multiple viewpoints. Focus on readability, composition, lighting balance, material plausibility, grounding, and missing content.";
-    const viewCount = Math.max(1, Math.min(8, Number(args.view_count) || 4));
-    const distance = Number(args.distance) || 1800;
-    const pitch = Number(args.pitch) || -20;
-    const startYaw = Number(args.start_yaw) || 45;
-    const maxVisibleActors = Math.max(1, Number(args.max_visible_actors) || 24);
+    const viewCount = Math.max(1, Math.min(8, numberOrDefault(args.view_count, 4)));
+    const distance = numberOrDefault(args.distance, 1800);
+    const pitch = numberOrDefault(args.pitch, -20);
+    const startYaw = numberOrDefault(args.start_yaw, 45);
+    const maxVisibleActors = Math.max(1, numberOrDefault(args.max_visible_actors, 24));
     const includeMaterials = args.include_materials !== false;
-    const maxMaterialActors = Math.max(1, Number(args.max_material_actors) || 24);
+    const maxMaterialActors = Math.max(1, numberOrDefault(args.max_material_actors, 24));
     const targetContext = await inferTargetContext(executeTool, args, warnings, maxVisibleActors);
     const views = await captureOrbitViews(executeTool, {
         yawAngles: buildOrbitAngles(viewCount, startYaw),
@@ -1662,7 +1665,7 @@ function buildRepairSteps(issues, primaryActor, maxSteps = 6) {
     });
 }
 async function runSemanticRepairPlan(executeTool, args) {
-    const maxSteps = Math.max(1, Number(args.max_steps) || 6);
+    const maxSteps = Math.max(1, numberOrDefault(args.max_steps, 6));
     const multiView = await runMultiViewSceneAudit(executeTool, {
         target_label: typeof args.target_label === "string" ? args.target_label : undefined,
         prompt: typeof args.prompt === "string" ? args.prompt : undefined,
@@ -1700,11 +1703,11 @@ async function runSemanticRepairPlan(executeTool, args) {
 }
 async function runGroundingRepairPass(executeTool, args) {
     const warnings = [];
-    const maxVisibleActors = Math.max(1, Number(args.max_visible_actors) || 12);
+    const maxVisibleActors = Math.max(1, numberOrDefault(args.max_visible_actors, 12));
     const targetLabels = parseCsvList(args.target_labels);
-    const traceStartOffset = Number(args.trace_start_offset) || 500;
-    const traceDepth = Number(args.trace_depth) || 5000;
-    const surfaceOffset = Number(args.surface_offset) || 0;
+    const traceStartOffset = numberOrDefault(args.trace_start_offset, 500);
+    const traceDepth = numberOrDefault(args.trace_depth, 5000);
+    const surfaceOffset = numberOrDefault(args.surface_offset, 0);
     const frustum = targetLabels.length === 0
         ? await optionalTool(executeTool, "frustum_query", { max_results: maxVisibleActors }, warnings)
         : null;
@@ -1811,9 +1814,9 @@ async function runTemporalCameraSweepAudit(executeTool, args) {
             ? args.prompt
             : "Audit continuity during a deterministic camera sweep. Call out pop-in, shimmer, ghosting, exposure shifts, and readability breaks between adjacent views.";
         const targetContext = await inferTargetContext(executeTool, args, warnings, 12);
-        const distance = Number(args.distance) || 1600;
-        const pitch = Number(args.pitch) || -18;
-        const sweepAngles = buildSweepAngles(Math.max(1, Number(args.view_count) || 5), Number(args.sweep_angle_degrees) || 120);
+        const distance = numberOrDefault(args.distance, 1600);
+        const pitch = numberOrDefault(args.pitch, -18);
+        const sweepAngles = buildSweepAngles(Math.max(1, numberOrDefault(args.view_count, 5)), numberOrDefault(args.sweep_angle_degrees, 120));
         const views = await captureOrbitViews(executeTool, {
             yawAngles: sweepAngles,
             prompt,
@@ -1824,8 +1827,8 @@ async function runTemporalCameraSweepAudit(executeTool, args) {
         }, warnings);
         const sequenceCapture = args.include_sequence_capture !== false
             ? await optionalTool(executeTool, "capture_frame_sequence", {
-                duration_seconds: Number(args.duration_seconds) || 3,
-                fps: Number(args.fps) || 5,
+                duration_seconds: numberOrDefault(args.duration_seconds, 3),
+                fps: numberOrDefault(args.fps, 5),
                 max_keyframes: 4,
                 analyze: true,
                 prompt,
@@ -1864,7 +1867,7 @@ async function runTemporalCameraSweepAudit(executeTool, args) {
 async function captureRegressionSnapshot(executeTool, args, baselineName) {
     const multiView = await runMultiViewSceneAudit(executeTool, {
         target_label: typeof args.target_label === "string" ? args.target_label : undefined,
-        view_count: Number(args.view_count) || 4,
+        view_count: numberOrDefault(args.view_count, 4),
         include_materials: true,
         prompt: "Capture a stable multi-view baseline of the scene for later regression comparison.",
     });
@@ -1966,7 +1969,7 @@ async function runSceneRegressionBaseline(executeTool, args, baselineStore) {
 async function runHeroContentProtection(executeTool, args) {
     const warnings = [];
     const explicitLabels = parseCsvList(args.actor_labels);
-    const maxVisibleActors = Math.max(1, Number(args.max_visible_actors) || 6);
+    const maxVisibleActors = Math.max(1, numberOrDefault(args.max_visible_actors, 6));
     const frustum = explicitLabels.length === 0
         ? await optionalTool(executeTool, "frustum_query", { max_results: maxVisibleActors }, warnings)
         : null;
@@ -2065,17 +2068,18 @@ async function runLightingConsistencyAudit(executeTool, args) {
 }
 async function runMaterialPlausibilityAudit(executeTool, args) {
     const warnings = [];
+    const focusCount = Math.max(1, numberOrDefault(args.focus_count, 3));
     const materialAudit = await requireTool(executeTool, "material_audit", {
-        max_actors: Math.max(1, Number(args.max_material_actors) || 12),
+        max_actors: Math.max(1, numberOrDefault(args.max_material_actors, 12)),
         include_textures: true,
     });
     const frustum = await optionalTool(executeTool, "frustum_query", { max_results: 12 }, warnings);
     const explicitLabels = parseCsvList(args.actor_labels);
-    const materialActors = extractActorCandidates(materialAudit.data, Math.max(1, Number(args.focus_count) || 3));
-    const visibleActors = extractActorCandidates(frustum?.data, Math.max(1, Number(args.focus_count) || 3));
+    const materialActors = extractActorCandidates(materialAudit.data, focusCount);
+    const visibleActors = extractActorCandidates(frustum?.data, focusCount);
     const focusLabels = explicitLabels.length > 0
         ? explicitLabels
-        : [...new Set([...materialActors, ...visibleActors].map((entry) => entry.label).filter((entry) => Boolean(entry)))].slice(0, Math.max(1, Number(args.focus_count) || 3));
+        : [...new Set([...materialActors, ...visibleActors].map((entry) => entry.label).filter((entry) => Boolean(entry)))].slice(0, focusCount);
     const prompt = typeof args.prompt === "string" && args.prompt.trim().length > 0
         ? args.prompt
         : "Audit material plausibility. Focus on roughness/specular response, metallic plausibility, texture definition, and whether the material read matches the object type.";
@@ -2083,9 +2087,9 @@ async function runMaterialPlausibilityAudit(executeTool, args) {
     for (const [index, label] of focusLabels.entries()) {
         const capture = await optionalTool(executeTool, "look_at_and_capture", {
             target_label: label,
-            distance: Number(args.distance) || 1200,
+            distance: numberOrDefault(args.distance, 1200),
             yaw: 45,
-            pitch: Number(args.pitch) || -15,
+            pitch: numberOrDefault(args.pitch, -15),
             analyze: true,
             prompt: `${prompt} Focus actor ${index + 1} of ${focusLabels.length}: ${label}.`,
             filename: `material_plausibility_${Date.now()}_${index + 1}`,
@@ -2098,7 +2102,7 @@ async function runMaterialPlausibilityAudit(executeTool, args) {
         views.push({
             view_id: `material_${index + 1}`,
             yaw: 45,
-            pitch: Number(args.pitch) || -15,
+            pitch: numberOrDefault(args.pitch, -15),
             analysis,
             issues: uniqueIssues(parsed.issues),
             quality: parseQuality(parsed.quality),
@@ -2194,7 +2198,7 @@ async function runQualityGate(executeTool, args, baselineStore) {
     }
     const performance = await optionalTool(executeTool, "get_performance_snapshot", {}, warnings);
     const performanceSummary = performance ? parsePerformanceSummary(performance.data) : undefined;
-    const minFps = Number(args.min_fps) || 30;
+    const minFps = numberOrDefault(args.min_fps, 30);
     if (performanceSummary?.fps != null && performanceSummary.fps < minFps) {
         blockers.push(`Performance snapshot is below the minimum FPS threshold (${minFps}).`);
     }
@@ -2256,7 +2260,7 @@ async function runBenchmarkPack(executeTool, args, baselineStore) {
         : null;
     const quickPlaytest = args.include_quick_playtest !== false
         ? await optionalTool(executeTool, "run_quick_playtest", {
-            duration_seconds: Number(args.playtest_duration) || 3,
+            duration_seconds: numberOrDefault(args.playtest_duration, 3),
         }, warnings)
         : null;
     const benchmark = args.run_engine_benchmark !== false
@@ -2299,4 +2303,3 @@ export function createSceneEnhancementHandlers(executeTool) {
         benchmark_pack: async (args) => runBenchmarkPack(executeTool, args, baselineStore),
     };
 }
-//# sourceMappingURL=scene-enhancement.js.map

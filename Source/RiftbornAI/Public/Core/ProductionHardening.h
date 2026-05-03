@@ -19,23 +19,23 @@ namespace RiftbornSecurity
     static constexpr int32 MAX_ARGUMENTS_JSON_BYTES = 64 * 1024;  // 64KB max for tool args
     static constexpr int32 MAX_TOOL_NAME_LENGTH = 128;            // Reasonable tool name
     static constexpr int32 MAX_GOAL_ID_LENGTH = 64;               // UUID + margin
-    
+
     // Rate limiting
     static constexpr int32 RATE_LIMIT_REQUESTS_PER_SECOND = 10;   // Per client
     static constexpr int32 RATE_LIMIT_BURST_SIZE = 20;            // Burst allowance
     static constexpr int32 RATE_LIMIT_WINDOW_SECONDS = 60;        // Window for tracking
-    
+
     // Timeout limits
     static constexpr int32 MIN_TIMEOUT_MS = 100;                  // Minimum allowed
     static constexpr int32 MAX_TIMEOUT_MS = 300000;               // 5 minutes max
     static constexpr int32 DEFAULT_TIMEOUT_MS = 30000;            // 30 seconds default
-    
+
     // Tool name validation (alphanumeric, underscore, hyphen only)
     inline bool IsValidToolNameChar(TCHAR c)
     {
         return FChar::IsAlnum(c) || c == '_' || c == '-';
     }
-    
+
     inline bool IsValidToolName(const FString& Name)
     {
         if (Name.IsEmpty() || Name.Len() > MAX_TOOL_NAME_LENGTH)
@@ -84,25 +84,25 @@ inline FString ToolPermissionTierToString(EToolPermissionTier Tier)
 namespace RiftbornProductionFlags
 {
     // These flags control safety behaviors in production
-    
+
     /** Block destructive tools by default (require explicit enable) */
     static constexpr bool BLOCK_DESTRUCTIVE_BY_DEFAULT = true;
-    
+
     /** Require explicit lossy adaptation permission */
     static constexpr bool REQUIRE_EXPLICIT_LOSSY_ALLOW = true;
-    
+
     /** Log all tool executions to audit trail */
     static constexpr bool AUDIT_ALL_EXECUTIONS = true;
-    
+
     /** Refuse unknown fields in JSON requests */
     static constexpr bool REJECT_UNKNOWN_JSON_FIELDS = true;
-    
+
     /** Validate tool names against registry */
     static constexpr bool VALIDATE_TOOL_REGISTRY = true;
-    
+
     /** Enable request size enforcement */
     static constexpr bool ENFORCE_REQUEST_LIMITS = true;
-    
+
     /** Enable rate limiting */
     static constexpr bool ENFORCE_RATE_LIMITS = true;   // Enabled for production safety
 }
@@ -154,51 +154,51 @@ inline FString GetRefusalExplanation(ERefusalReason Reason, const FString& Conte
     {
         case ERefusalReason::None:
             return TEXT("No refusal");
-            
+
         case ERefusalReason::TrustPenaltyExceeded:
             return FString::Printf(
                 TEXT("Tool '%s' is blocked because its trust penalty exceeds threshold (3.0). "
                      "This happens when a tool repeatedly produces unexpected outcomes. "
                      "To unblock: reset penalty via /agent/reset-penalty or wait for decay."),
                 *Context);
-            
+
         case ERefusalReason::NoAlternativeAvailable:
             return FString::Printf(
                 TEXT("Tool '%s' is blocked and no equivalent tool is available. "
                      "The agent cannot substitute because no other tool implements the same capability. "
                      "To resolve: provide alternative tools in request, or reset the blocked tool's penalty."),
                 *Context);
-            
+
         case ERefusalReason::LossyAdaptationDisallowed:
             return FString::Printf(
                 TEXT("Substituting '%s' would lose semantic data and lossy adaptation is not permitted. "
                      "Set allow_lossy=true in request to permit, or use a more expressive tool."),
                 *Context);
-            
+
         case ERefusalReason::ToolNotInRegistry:
             return FString::Printf(
                 TEXT("Tool '%s' is not found in the registry. This tool is not registered. "
                      "To unblock: check spelling of the tool name or register the tool in C++ if it should exist."),
                 *Context);
-            
+
         case ERefusalReason::PermissionDenied:
             return FString::Printf(
                 TEXT("Tool '%s' requires permission tier '%s' which is not currently enabled."),
                 *Context, *Context);  // Context should include tier info
-            
+
         case ERefusalReason::RateLimitExceeded:
             return TEXT("Request rate limit exceeded. Wait before sending more requests.");
-            
+
         case ERefusalReason::RequestTooLarge:
             return TEXT("Request body exceeds size limit. Reduce argument size.");
-            
+
         case ERefusalReason::InvalidToolName:
             return FString::Printf(
                 TEXT("Tool name '%s' contains invalid characters or is empty. "
                      "Valid tool names use only alphanumeric, underscore, or hyphen characters. "
                      "To unblock: provide a valid tool name."),
                 *Context);
-            
+
         case ERefusalReason::InvalidArguments:
             return FString::Printf(
                 TEXT("Arguments validation failed for tool '%s'. "
@@ -206,10 +206,10 @@ inline FString GetRefusalExplanation(ERefusalReason Reason, const FString& Conte
                      "To unblock: provide all required fields and include valid JSON arguments. "
                      "Add the missing required fields to your request."),
                 *Context);
-            
+
         case ERefusalReason::GoalHalted:
             return TEXT("This goal has been halted by policy. No further steps will be executed.");
-            
+
         case ERefusalReason::SystemError:
             return FString::Printf(TEXT("Internal system error: %s"), *Context);
     }

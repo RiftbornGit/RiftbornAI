@@ -42,7 +42,7 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FModuleInfo
 {
     GENERATED_BODY()
-    
+
     UPROPERTY() FString ModuleName;
     UPROPERTY() FString ModulePath;
     UPROPERTY() FString ModuleType;  // Runtime, Editor, Developer
@@ -57,7 +57,7 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FClassInfo
 {
     GENERATED_BODY()
-    
+
     UPROPERTY() FString ClassName;
     UPROPERTY() FString ParentClass;
     UPROPERTY() ECodeType CodeType = ECodeType::Unknown;
@@ -74,7 +74,7 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FDataTableInfo
 {
     GENERATED_BODY()
-    
+
     UPROPERTY() FString TableName;
     UPROPERTY() FString AssetPath;
     UPROPERTY() FString RowStruct;
@@ -89,7 +89,7 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FConfigInfo
 {
     GENERATED_BODY()
-    
+
     UPROPERTY() FString ConfigName;
     UPROPERTY() FString FilePath;
     UPROPERTY() FString ConfigType;  // Game, Engine, Editor, Input, etc.
@@ -106,7 +106,7 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FSourceFileInfo
 {
     GENERATED_BODY()
-    
+
     UPROPERTY() FString FileName;
     UPROPERTY() FString RelativePath;
     UPROPERTY() FString ModuleName;
@@ -119,7 +119,7 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FProjectModuleInfo
 {
     GENERATED_BODY()
-    
+
     UPROPERTY() FString ProjectName;
     UPROPERTY() FString ProjectPath;
     UPROPERTY() FString EngineVersion;
@@ -137,7 +137,7 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FBuildTargetInfo
 {
     GENERATED_BODY()
-    
+
     UPROPERTY() FString TargetName;
     UPROPERTY() FString TargetFilePath;
     UPROPERTY() TArray<FString> SupportedPlatforms;
@@ -150,7 +150,7 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FPluginInfo
 {
     GENERATED_BODY()
-    
+
     UPROPERTY() FString PluginName;
     UPROPERTY() FString FriendlyName;
     UPROPERTY() FString Version;
@@ -167,7 +167,7 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FContentFolderInfo
 {
     GENERATED_BODY()
-    
+
     UPROPERTY() FString FolderName;
     UPROPERTY() FString FolderPath;
     UPROPERTY() int32 AssetCount = 0;
@@ -181,7 +181,7 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FSourceSearchResult
 {
     GENERATED_BODY()
-    
+
     UPROPERTY() FString FilePath;
     UPROPERTY() int32 LineNumber = 0;
     UPROPERTY() int32 ColumnNumber = 0;
@@ -194,7 +194,7 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FFolderInfo
 {
     GENERATED_BODY()
-    
+
     UPROPERTY() FString FolderPath;
     UPROPERTY() FString FolderName;
     UPROPERTY() EProjectAssetCategory Category = EProjectAssetCategory::Unknown;
@@ -207,7 +207,7 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FProjectStructure
 {
     GENERATED_BODY()
-    
+
     UPROPERTY() FString ProjectName;
     UPROPERTY() FString ProjectPath;
     UPROPERTY() FString EngineVersion;
@@ -224,18 +224,18 @@ class RIFTBORNAI_API FProjectStructureAwareness
 {
 public:
     static FProjectStructureAwareness& Get();
-    
+
     // Project overview
     FProjectStructure GetProjectStructure() const;
     FString GetProjectName() const;
     FString GetProjectPath() const;
     FString GetEngineVersion() const;
-    
+
     // Modules
     TArray<FModuleInfo> GetModules() const;
     FModuleInfo GetModuleInfo(const FString& ModuleName) const;
     TArray<FString> GetModuleDependencies(const FString& ModuleName) const;
-    
+
     // Classes
     TArray<FClassInfo> GetClasses() const;
     TArray<FClassInfo> GetClassesByCategory(EProjectAssetCategory Category) const;
@@ -243,63 +243,63 @@ public:
     FClassInfo GetClassInfo(const FString& ClassName) const;
     FString GetClassFilePath(const FString& ClassName) const;
     bool IsClassBlueprintable(const FString& ClassName) const;
-    
+
     // Blueprints
     TArray<FClassInfo> GetBlueprints() const;
     TArray<FClassInfo> GetBlueprintsByCategory(EProjectAssetCategory Category) const;
     FString GetBlueprintParentClass(const FString& BlueprintName) const;
-    
+
     // Data Tables
     TArray<FDataTableInfo> GetDataTables() const;
     FDataTableInfo GetDataTableInfo(const FString& TableName) const;
     TArray<FString> GetDataTableRows(const FString& TableName) const;
-    
+
     // Configs
     TArray<FConfigInfo> GetConfigs() const;
     TArray<FConfigInfo> GetConfigFiles() const { return GetConfigs(); }  // Alias
     FString GetConfigValue(const FString& ConfigName, const FString& Section, const FString& Key) const;
-    
+
     // Source Files
     TArray<FSourceFileInfo> GetSourceFiles(const FString& ModuleName = TEXT("")) const;
-    
+
     // Project Modules (extended info)
     FProjectModuleInfo GetProjectModules() const;
-    
+
     // Build Targets
     TArray<FBuildTargetInfo> GetBuildTargets() const;
-    
+
     // Plugins
     TArray<FPluginInfo> GetPlugins() const;
-    
+
     // Content Structure
     FContentFolderInfo GetContentStructure(const FString& StartPath, int32 MaxDepth) const;
-    
+
     // Source Code Search
     TArray<FSourceSearchResult> SearchSourceCode(const FString& Query, const FString& FilePattern, bool bCaseSensitive, int32 MaxResults) const;
-    
+
     // Folders
     TArray<FFolderInfo> GetContentFolders() const;
     FFolderInfo GetFolderInfo(const FString& FolderPath) const;
     EProjectAssetCategory GuessFolderCategory(const FString& FolderPath) const;
     FString GetRecommendedFolder(EProjectAssetCategory Category) const;
-    
+
     // Naming conventions
     FString SuggestClassName(const FString& Description, EProjectAssetCategory Category) const;
     FString SuggestAssetName(const FString& Description, const FString& AssetType) const;
     bool ValidateNamingConvention(const FString& Name, ECodeType CodeType) const;
-    
+
     // Utility
     static FString CodeTypeToString(ECodeType Type);
     static FString CategoryToString(EProjectAssetCategory Category);
     static EProjectAssetCategory ParseCategory(const FString& Str);
-    
+
     // World-aware overload
     static FProjectStructureAwareness& Get(UWorld* World) { return Get(); }
-    
+
 private:
     FProjectStructureAwareness();
     void RefreshCache() const;
-    
+
     mutable FProjectStructure CachedStructure;
     mutable double LastCacheTime = 0.0;
 };

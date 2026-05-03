@@ -70,4 +70,3 @@ export declare class ContextPropagator {
     clear(): void;
     get size(): number;
 }
-//# sourceMappingURL=pipeline-intelligence.d.ts.map

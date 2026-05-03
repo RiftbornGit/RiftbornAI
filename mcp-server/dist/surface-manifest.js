@@ -7,18 +7,31 @@ function manifestPath() {
     const moduleDir = path.dirname(fileURLToPath(import.meta.url));
     return path.resolve(moduleDir, "../../Bridge/toolbook/public_surface.json");
 }
-export function normalizeStringArray(value) {
+export function normalizeStringArray(value, fieldName) {
     if (!Array.isArray(value)) {
         return [];
     }
     const seen = new Set();
     const out = [];
+    const dupes = [];
     for (const item of value) {
-        if (typeof item !== "string" || seen.has(item)) {
+        if (typeof item !== "string") {
+            continue;
+        }
+        if (seen.has(item)) {
+            dupes.push(item);
             continue;
         }
         seen.add(item);
         out.push(item);
+    }
+    // Surface duplicates loudly. Silent dedupe used to hide manifest mistakes
+    // (e.g. a duplicate `resolve_asset` in production_tools) that should fail
+    // pre-merge, not get silently fixed at load time.
+    if (dupes.length > 0) {
+        const label = fieldName ? `surface-manifest field '${fieldName}'` : "surface-manifest array";
+        console.error(`[RiftbornAI] WARNING: ${label} contains duplicate entries: ${[...new Set(dupes)].join(", ")}. ` +
+            "Fix the manifest source — silent dedupe will be removed.");
     }
     return out;
 }
@@ -54,11 +67,11 @@ export function parseSurfaceManifest(raw) {
                     : {},
                 rules: normalizeStringArray(readinessTruth.rules),
             } : undefined,
-            tools: normalizeStringArray(parsed.tools),
-            production_tools: normalizeStringArray(parsed.production_tools),
-            beta_release_tools: normalizeStringArray(parsed.beta_release_tools),
-            internal_tools: normalizeStringArray(parsed.internal_tools),
-            blocked_tools: normalizeStringArray(parsed.blocked_tools),
+            tools: normalizeStringArray(parsed.tools, "tools"),
+            production_tools: normalizeStringArray(parsed.production_tools, "production_tools"),
+            beta_release_tools: normalizeStringArray(parsed.beta_release_tools, "beta_release_tools"),
+            internal_tools: normalizeStringArray(parsed.internal_tools, "internal_tools"),
+            blocked_tools: normalizeStringArray(parsed.blocked_tools, "blocked_tools"),
         };
     }
     catch {
@@ -144,4 +157,3 @@ export function getDefaultReadinessTierNames() {
     // tier filter from over-restricting before the lock applies.
     return [getDefaultProductionReadinessTier()];
 }
-//# sourceMappingURL=surface-manifest.js.map

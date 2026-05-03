@@ -43,4 +43,3 @@ export declare function createToSafeRecord(sanitize: SanitizeFn): (value: unknow
  * after passing each through `toSafeRecord`.
  */
 export declare function createMergeSafeRecords(toSafeRecord: (value: unknown) => Record<string, unknown>): (...records: Array<Record<string, unknown> | null | undefined>) => Record<string, unknown>;
-//# sourceMappingURL=sanitize-utils.d.ts.map

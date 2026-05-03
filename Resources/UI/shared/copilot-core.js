@@ -23,10 +23,10 @@
 
     function sanitizeHTML(html) {
         if (!html || typeof html !== 'string') return '';
-        
+
         const template = document.createElement('template');
         template.innerHTML = html;
-        
+
         const walker = document.createTreeWalker(
             template.content,
             NodeFilter.SHOW_ELEMENT,
@@ -35,11 +35,11 @@
         );
 
         const nodesToRemove = [];
-        
+
         while (walker.nextNode()) {
             const node = walker.currentNode;
             const tagName = node.tagName.toLowerCase();
-            
+
             // Remove disallowed tags
             if (!ALLOWED_TAGS.has(tagName)) {
                 nodesToRemove.push(node);
@@ -50,10 +50,10 @@
             const attrs = Array.from(node.attributes);
             for (const attr of attrs) {
                 const name = attr.name.toLowerCase();
-                
+
                 // Check data-* attributes
                 if (name.startsWith('data-')) continue;
-                
+
                 if (!ALLOWED_ATTRS.has(name)) {
                     node.removeAttribute(attr.name);
                     continue;
@@ -95,7 +95,7 @@
             this.onComplete = options.onComplete || (() => {});
             this.onError = options.onError || (() => {});
             this.onMetrics = options.onMetrics || (() => {});
-            
+
             this.buffer = '';
             this.totalTokens = 0;
             this.startTime = 0;
@@ -147,7 +147,7 @@
 
                 try {
                     const data = JSON.parse(line);
-                    
+
                     if (this.firstTokenTime === 0) {
                         this.firstTokenTime = performance.now();
                     }
@@ -171,16 +171,16 @@
 
         complete() {
             const totalTime = performance.now() - this.startTime;
-            const ttft = this.firstTokenTime > 0 
-                ? this.firstTokenTime - this.startTime 
+            const ttft = this.firstTokenTime > 0
+                ? this.firstTokenTime - this.startTime
                 : totalTime;
 
             this.onMetrics({
                 totalTime,
                 ttft,
                 tokens: this.totalTokens,
-                tokensPerSecond: totalTime > 0 
-                    ? (this.totalTokens / (totalTime / 1000)).toFixed(1) 
+                tokensPerSecond: totalTime > 0
+                    ? (this.totalTokens / (totalTime / 1000)).toFixed(1)
                     : 0
             });
 
@@ -193,8 +193,8 @@
                 this.onMetrics({
                     totalTime: secs * 1000,
                     tokens: data.eval_count || this.totalTokens,
-                    tokensPerSecond: data.eval_count 
-                        ? (data.eval_count / secs).toFixed(1) 
+                    tokensPerSecond: data.eval_count
+                        ? (data.eval_count / secs).toFixed(1)
                         : 0,
                     promptTokens: data.prompt_eval_count || 0,
                     contextLength: data.prompt_eval_count + (data.eval_count || 0)
@@ -231,10 +231,10 @@
             try {
                 const raw = localStorage.getItem(this.storageKey);
                 if (!raw) return null;
-                
+
                 const data = JSON.parse(raw);
                 if (data.version !== 1) return null;
-                
+
                 return {
                     messages: data.messages || [],
                     model: data.model || '',
@@ -259,7 +259,7 @@
         exportJSON() {
             const session = this.load();
             if (!session) return null;
-            
+
             return JSON.stringify({
                 exported: new Date().toISOString(),
                 source: 'RiftbornAI Copilot',
@@ -289,13 +289,13 @@
                 if (!Array.isArray(data.messages)) {
                     throw new Error('Invalid session format');
                 }
-                
+
                 this.save({
                     messages: data.messages,
                     model: data.model || '',
                     metadata: { imported: true, originalTimestamp: data.timestamp }
                 });
-                
+
                 return data;
             } catch (e) {
                 throw new Error('Failed to import session: ' + e.message);
@@ -310,7 +310,7 @@
             this.pingInterval = options.pingInterval || 15000;
             this.onStatusChange = options.onStatusChange || (() => {});
             this.onMetadata = options.onMetadata || (() => {});
-            
+
             this.status = 'unknown';
             this.uptime = 0;
             this.lastPing = 0;
@@ -335,7 +335,7 @@
 
         async check() {
             const start = performance.now();
-            
+
             try {
                 const response = await fetch(`${this.endpoint}/api/tags`, {
                     method: 'GET',
@@ -347,14 +347,14 @@
                     this.lastPing = performance.now() - start;
                     this.retryCount = 0;
                     this.setStatus('online');
-                    
+
                     this.metadata = {
                         models: data.models?.length || 0,
                         latency: Math.round(this.lastPing),
                         uptime: this.uptime
                     };
                     this.onMetadata(this.metadata);
-                    
+
                     // Process offline queue
                     this.processQueue();
                 } else {
@@ -367,7 +367,7 @@
 
         handleFailure() {
             this.retryCount++;
-            
+
             if (this.retryCount >= this.maxRetries) {
                 this.setStatus('offline');
             } else {
@@ -380,7 +380,7 @@
                 this.status = status;
                 this.onStatusChange(status);
             }
-            
+
             if (status === 'online') {
                 this.uptime += this.pingInterval / 1000;
             }
@@ -417,7 +417,7 @@
         }
 
         isAllowedType(file) {
-            return this.allowedTypes.some(type => 
+            return this.allowedTypes.some(type =>
                 file.type.startsWith(type) || file.name.endsWith('.txt') ||
                 file.name.endsWith('.md') || file.name.endsWith('.py') ||
                 file.name.endsWith('.cpp') || file.name.endsWith('.h') ||
@@ -446,7 +446,7 @@
 
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
-                
+
                 reader.onload = (e) => {
                     const result = {
                         name: file.name,
@@ -456,16 +456,16 @@
                         content: e.target.result,
                         truncated: false
                     };
-                    
+
                     this.onFile(result);
                     resolve(result);
                 };
-                
+
                 reader.onerror = () => {
                     this.onError('Failed to read file');
                     reject(new Error('Read failed'));
                 };
-                
+
                 reader.readAsText(file);
             });
         }
@@ -473,51 +473,51 @@
         packForContext(files) {
             let packed = '';
             let totalSize = 0;
-            
+
             for (const file of files) {
                 const header = `\n--- FILE: ${file.name} (${file.sizeFormatted}) ---\n`;
                 const content = file.content;
-                
+
                 if (totalSize + header.length + content.length > this.maxSize) {
                     packed += header + '[Content truncated to fit context limit]\n';
                     break;
                 }
-                
+
                 packed += header + content + '\n';
                 totalSize += header.length + content.length;
             }
-            
+
             return packed;
         }
 
         setupDropZone(element, options = {}) {
             const highlight = () => element.classList.add('dragover');
             const unhighlight = () => element.classList.remove('dragover');
-            
+
             element.addEventListener('dragenter', (e) => {
                 e.preventDefault();
                 highlight();
             });
-            
+
             element.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 highlight();
             });
-            
+
             element.addEventListener('dragleave', unhighlight);
-            
+
             element.addEventListener('drop', async (e) => {
                 e.preventDefault();
                 unhighlight();
-                
+
                 const files = Array.from(e.dataTransfer.files);
                 const results = [];
-                
+
                 for (const file of files) {
                     const result = await this.readFile(file);
                     if (result) results.push(result);
                 }
-                
+
                 if (options.onDrop) {
                     options.onDrop(results);
                 }
@@ -531,7 +531,7 @@
             this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             this.announcer = null;
             this.focusTrap = null;
-            
+
             this.init();
         }
 
@@ -542,23 +542,23 @@
             this.announcer.setAttribute('aria-atomic', 'true');
             this.announcer.className = 'sr-only';
             document.body.appendChild(this.announcer);
-            
+
             // Listen for motion preference changes
             window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', (e) => {
                 this.reducedMotion = e.matches;
                 document.body.classList.toggle('reduce-motion', this.reducedMotion);
             });
-            
+
             // Keyboard navigation
             document.addEventListener('keydown', (e) => this.handleGlobalKeys(e));
         }
 
         announce(message, priority = 'polite') {
             if (!this.announcer) return;
-            
+
             this.announcer.setAttribute('aria-live', priority);
             this.announcer.textContent = '';
-            
+
             // Small delay to ensure screen readers pick up the change
             requestAnimationFrame(() => {
                 this.announcer.textContent = message;
@@ -581,15 +581,15 @@
             const focusable = container.querySelectorAll(
                 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
             );
-            
+
             if (focusable.length === 0) return;
-            
+
             const first = focusable[0];
             const last = focusable[focusable.length - 1];
-            
+
             this.focusTrap = (e) => {
                 if (e.key !== 'Tab') return;
-                
+
                 if (e.shiftKey) {
                     if (document.activeElement === first) {
                         e.preventDefault();
@@ -602,7 +602,7 @@
                     }
                 }
             };
-            
+
             container.addEventListener('keydown', this.focusTrap);
             first.focus();
         }
@@ -626,7 +626,7 @@
             this.onRetry = options.onRetry || (() => {});
             this.onEdit = options.onEdit || (() => {});
             this.onPin = options.onPin || (() => {});
-            
+
             this.pinnedMessages = new Set();
         }
 
@@ -635,7 +635,7 @@
             toolbar.className = 'message-actions';
             toolbar.setAttribute('role', 'toolbar');
             toolbar.setAttribute('aria-label', 'Message actions');
-            
+
             const actions = [
                 { icon: 'copy', title: 'Copy message', action: () => this.copy(message) },
                 ...(role === 'user' ? [
@@ -708,7 +708,7 @@
         pin(message) {
             const id = message.dataset.id || Date.now().toString();
             message.dataset.id = id;
-            
+
             if (this.pinnedMessages.has(id)) {
                 this.pinnedMessages.delete(id);
                 message.classList.remove('pinned');
@@ -716,7 +716,7 @@
                 this.pinnedMessages.add(id);
                 message.classList.add('pinned');
             }
-            
+
             this.onPin(Array.from(this.pinnedMessages));
         }
     }
@@ -729,27 +729,27 @@
             this.buffer = options.buffer || 5;
             this.items = [];
             this.renderItem = options.renderItem || ((item) => item);
-            
+
             this.viewport = null;
             this.content = null;
             this.startIndex = 0;
             this.endIndex = 0;
-            
+
             this.init();
         }
 
         init() {
             this.viewport = document.createElement('div');
             this.viewport.style.cssText = 'overflow-y: auto; height: 100%;';
-            
+
             this.content = document.createElement('div');
             this.content.style.position = 'relative';
-            
+
             this.viewport.appendChild(this.content);
             this.container.appendChild(this.viewport);
-            
+
             this.viewport.addEventListener('scroll', () => this.onScroll());
-            
+
             new ResizeObserver(() => this.render()).observe(this.viewport);
         }
 
@@ -773,7 +773,7 @@
         render() {
             const scrollTop = this.viewport.scrollTop;
             const viewportHeight = this.viewport.clientHeight;
-            
+
             this.startIndex = Math.max(0, Math.floor(scrollTop / this.itemHeight) - this.buffer);
             this.endIndex = Math.min(
                 this.items.length,
@@ -782,7 +782,7 @@
 
             // Clear and re-render visible items
             this.content.innerHTML = '';
-            
+
             for (let i = this.startIndex; i < this.endIndex; i++) {
                 const item = this.items[i];
                 const el = this.renderItem(item, i);
@@ -832,7 +832,7 @@
                 transform: translateX(20px);
                 transition: opacity 0.2s, transform 0.2s;
             `;
-            
+
             if (type === 'error') {
                 toast.style.borderColor = 'rgba(255, 107, 107, 0.6)';
                 toast.style.color = 'var(--error)';
@@ -840,16 +840,16 @@
                 toast.style.borderColor = 'rgba(123, 215, 165, 0.6)';
                 toast.style.color = 'var(--success)';
             }
-            
+
             toast.textContent = message;
             this.container.appendChild(toast);
-            
+
             // Animate in
             requestAnimationFrame(() => {
                 toast.style.opacity = '1';
                 toast.style.transform = 'translateX(0)';
             });
-            
+
             // Remove after duration
             setTimeout(() => {
                 toast.style.opacity = '0';
@@ -870,7 +870,7 @@
         MessageActions,
         VirtualList,
         ToastManager,
-        
+
         // Utility functions
         formatTime: (date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         formatDuration: (ms) => {

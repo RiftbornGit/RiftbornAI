@@ -309,14 +309,14 @@ User: "Is the arena too dark?"
     ▼ LLM selects tools
     │
     ├── get_performance_snapshot()  → FPerformanceState
-    ├── get_spatial_info("Arena")   → FActorSpatialInfo  
+    ├── get_spatial_info("Arena")   → FActorSpatialInfo
     ├── get_lighting_analysis()     → From SpatialLightingSystem
     └── get_temporal_state()        → ETimeOfDay, ELightingMood
     │
     ▼ LLM synthesizes answer
     │
-"The arena has 2 point lights at 1000 intensity each (dim). 
- It's set to Night/Dark mood. Recommendation: add 4 more point 
+"The arena has 2 point lights at 1000 intensity each (dim).
+ It's set to Night/Dark mood. Recommendation: add 4 more point
  lights at 5000 intensity, or switch to Afternoon/Bright."
 ```
 

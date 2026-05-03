@@ -16,6 +16,9 @@ import type { PipelineTraceStore } from "./pipeline-trace.js";
 export interface WorkflowHandlerDeps {
     toolHandlers: Record<string, ToolHandler>;
     dispatchManagedTool: (name: string, params?: Record<string, unknown>) => Promise<RiftbornResponse>;
+    visibleTools: () => Array<{
+        name: string;
+    }>;
     sessionTracker: SessionTracker;
     contextPropagator: ContextPropagator;
     sceneChangeLog: SceneChangeLog;
@@ -25,4 +28,3 @@ export interface WorkflowHandlerDeps {
     pipelineTraceStore: PipelineTraceStore;
 }
 export declare function installWorkflowHandlers(deps: WorkflowHandlerDeps): void;
-//# sourceMappingURL=workflow-handlers.d.ts.map

@@ -65,4 +65,3 @@ export async function exchangeScopedSessionToken(config, request) {
         status: typeof payload.status === "string" ? payload.status : "",
     };
 }
-//# sourceMappingURL=session-token.js.map

@@ -286,10 +286,10 @@ struct FGameRulesDef
 
 /**
  * UGameSpecAsset - The ONLY source of truth for what game is being built
- * 
+ *
  * This is NOT genre-specific. Arena, FPS, RPG, etc. are just different
  * configurations of these primitives.
- * 
+ *
  * The compiler reads this and generates the UE project.
  */
 UCLASS(BlueprintType)
@@ -328,13 +328,13 @@ public:
 	FEntityDef* FindEntity(FName EntityID);
 	FAbilityDef* FindAbility(FName AbilityID);
 	FMapDef* FindMap(FName MapID);
-	
+
 	UFUNCTION(BlueprintCallable, Category = "Game Spec")
 	bool GetEntity(FName EntityID, FEntityDef& OutEntity);
-	
+
 	UFUNCTION(BlueprintCallable, Category = "Game Spec")
 	bool GetAbility(FName AbilityID, FAbilityDef& OutAbility);
-	
+
 	UFUNCTION(BlueprintCallable, Category = "Game Spec")
 	bool GetMap(FName MapID, FMapDef& OutMap);
 

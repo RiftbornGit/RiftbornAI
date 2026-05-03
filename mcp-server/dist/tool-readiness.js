@@ -9,7 +9,7 @@
  * `Bridge/toolbook/public_surface.json`; see `docs/READINESS_TRUTH.md`.
  *
  * Tiers:
- *   PRODUCTION  – Curated handler, tested, safe to call.
+ *   PRODUCTION  – Curated default-visible surface with a governed route and expected verification lane.
  *   BETA        – Handler exists but uses generated passthrough; works when UE is running.
  *   EXPERIMENTAL– Generated tool with no curated handler; may fail or have rough edges.
  *   STUB        – Known broken or unimplemented; hidden by default.
@@ -819,4 +819,3 @@ export function getReadinessSummary(tools, handlerNames, manualToolNames, genera
     }
     return summary;
 }
-//# sourceMappingURL=tool-readiness.js.map

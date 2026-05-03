@@ -14,6 +14,7 @@
  * identifies target tools → builds plan.
  */
 import { getToolDependencyGraph } from "./tool-dependency-graph.js";
+import { findDomainProofGaps, inferDomainsFromTask, } from "./domain-proof-contract.js";
 const MAX_GOAL_QUERY_LENGTH = 256;
 const BLOCKED_PLANNER_KEYS = new Set(["__proto__", "constructor", "prototype"]);
 function toSafeRecord(value) {
@@ -189,7 +190,7 @@ function gatherKnownParams(tool, contextSnapshot) {
 /**
  * Get a human-readable note for a plan step.
  */
-function stepNote(tool, deps) {
+function stepNote(deps) {
     if (deps.length === 0)
         return "No prerequisites — can call immediately.";
     const reasons = deps.map((d) => d.reason);
@@ -249,7 +250,7 @@ export function buildPlan(targets, sessionHistory, contextSnapshot = {}) {
             completed: isCompleted,
             alternatives,
             known_params: knownParams,
-            note: isCompleted ? "Already completed this session." : stepNote(tool, deps),
+            note: isCompleted ? "Already completed this session." : stepNote(deps),
         };
     });
     const completedCount = steps.filter((s) => s.completed).length;
@@ -262,6 +263,49 @@ export function buildPlan(targets, sessionHistory, contextSnapshot = {}) {
         estimated_calls: remainingCount,
     };
 }
+function augmentPlanWithProof(plan, domains, sessionHistory, contextSnapshot) {
+    if (domains.length === 0) {
+        return plan;
+    }
+    const completedTools = sessionHistory
+        .filter((entry) => entry.ok)
+        .map((entry) => entry.tool);
+    const plannedTools = plan.steps.map((step) => step.tool);
+    const proofGaps = findDomainProofGaps(domains, [...completedTools, ...plannedTools]);
+    if (proofGaps.length === 0) {
+        return {
+            ...plan,
+            proof_domains: domains,
+            proof_gaps: [],
+        };
+    }
+    const safeContextSnapshot = toSafeRecord(contextSnapshot);
+    const appended = new Set();
+    const proofSteps = [];
+    for (const gap of proofGaps) {
+        for (const tool of gap.missing_tools) {
+            if (appended.has(tool) || plannedTools.includes(tool)) {
+                continue;
+            }
+            appended.add(tool);
+            proofSteps.push({
+                tool,
+                completed: false,
+                alternatives: [],
+                known_params: gatherKnownParams(tool, safeContextSnapshot),
+                note: `Required by ${gap.label}: ${gap.guidance}`,
+            });
+        }
+    }
+    return {
+        ...plan,
+        steps: [...plan.steps, ...proofSteps],
+        remaining_count: plan.remaining_count + proofSteps.length,
+        estimated_calls: plan.estimated_calls + proofSteps.length,
+        proof_domains: domains,
+        proof_gaps: proofGaps,
+    };
+}
 /**
  * Build a plan from a natural-language goal string.
  * Resolves the goal to target tools, then builds the plan.
@@ -270,7 +314,9 @@ export function planFromGoal(goal, sessionHistory, contextSnapshot = {}) {
     const targets = resolveGoal(goal);
     if (targets.length === 0)
         return null;
-    return buildPlan(targets, sessionHistory, contextSnapshot);
+    const plan = buildPlan(targets, sessionHistory, contextSnapshot);
+    const domains = inferDomainsFromTask(goal);
+    return augmentPlanWithProof(plan, domains, sessionHistory, contextSnapshot);
 }
 /**
  * Convert a plan to a batch_execute-compatible step array.
@@ -290,4 +336,3 @@ export function planToBatchSteps(plan) {
 export function listGoals() {
     return Object.keys(GOAL_MAP).sort();
 }
-//# sourceMappingURL=call-planner.js.map

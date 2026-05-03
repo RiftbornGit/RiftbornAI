@@ -6,13 +6,13 @@
 
 /**
  * Asset Visual Intelligence Tools
- * 
+ *
  * Provides agent tools for understanding and querying assets visually:
  * - analyze_asset: Analyze what an asset IS (chair, rock, weapon, etc.)
  * - find_assets_visual: Search by visual description ("find all wooden chairs")
  * - get_asset_description: Get detailed visual description of an asset
  * - find_similar_assets: Find visually similar assets
- * 
+ *
  * These tools use Vision LLMs (LLaVA, etc.) to understand asset content
  */
 class RIFTBORNAI_API FAssetVisualIntelligenceTools
@@ -20,7 +20,7 @@ class RIFTBORNAI_API FAssetVisualIntelligenceTools
 public:
     /** Register all visual intelligence tools with the agent registry */
     static void RegisterTools();
-    
+
 private:
     // Tool implementations
     static FString Tool_AnalyzeAsset(const TMap<FString, FString>& Params);

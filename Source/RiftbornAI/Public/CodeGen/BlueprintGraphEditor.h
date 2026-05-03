@@ -83,14 +83,14 @@ struct FBPPinConnectionRequest
 
 /**
  * Blueprint Graph Editor - Create and edit Blueprint graphs programmatically
- * 
+ *
  * Features:
  * - Create nodes (functions, events, variables, branches)
  * - Connect pins with exec/data wires
  * - Position nodes with automatic layout
  * - Manhattan/Subway/Default wire routing styles
  * - Compile and validate Blueprints
- * 
+ *
  * Example usage:
  *   Editor->CreateBlueprint("BP_MyActor", "Actor");
  *   Editor->AddNode("BeginPlay", "Event");
@@ -108,7 +108,7 @@ public:
 
 	/**
 	 * Create a new Blueprint asset
-	 * 
+	 *
 	 * @param BlueprintName - Name of the Blueprint (e.g., "BP_MyActor")
 	 * @param ParentClassName - Parent class (e.g., "Actor", "Character", "Pawn")
 	 * @param PackagePath - Package path (e.g., "/Game/Blueprints")
@@ -119,7 +119,7 @@ public:
 
 	/**
 	 * Open existing Blueprint for editing
-	 * 
+	 *
 	 * @param BlueprintPath - Asset path to Blueprint
 	 * @return True if loaded successfully
 	 */
@@ -128,7 +128,7 @@ public:
 
 	/**
 	 * Check if a Blueprint is currently open for editing
-	 * 
+	 *
 	 * @return True if a Blueprint is open
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Blueprint Graph Editor")
@@ -136,7 +136,7 @@ public:
 
 	/**
 	 * Get the current Blueprint being edited
-	 * 
+	 *
 	 * @return The current Blueprint or nullptr
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Blueprint Graph Editor")
@@ -144,7 +144,7 @@ public:
 
 	/**
 	 * Add a node to the Blueprint graph
-	 * 
+	 *
 	 * @param NodeInfo - Information about the node to create
 	 * @return Index of created node (-1 if failed)
 	 */
@@ -153,7 +153,7 @@ public:
 
 	/**
 	 * Connect two nodes via their pins
-	 * 
+	 *
 	 * @param SourceNodeIndex - Index of source node
 	 * @param SourcePinName - Name of source pin (e.g., "exec", "ReturnValue")
 	 * @param TargetNodeIndex - Index of target node
@@ -165,7 +165,7 @@ public:
 
 	/**
 	 * Set wire routing style
-	 * 
+	 *
 	 * @param Style - Wire routing style (Default/Manhattan/Subway)
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Blueprint Graph Editor")
@@ -173,7 +173,7 @@ public:
 
 	/**
 	 * Auto-arrange nodes using force-directed layout
-	 * 
+	 *
 	 * @param Spacing - Spacing between nodes (default 400 units)
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Blueprint Graph Editor")
@@ -198,7 +198,7 @@ public:
 
 	/**
 	 * Save the Blueprint asset
-	 * 
+	 *
 	 * @return True if saved successfully
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Blueprint Graph Editor")
@@ -206,7 +206,7 @@ public:
 
 	/**
 	 * Get list of all nodes in graph
-	 * 
+	 *
 	 * @return Array of node information
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Blueprint Graph Editor")
@@ -214,7 +214,7 @@ public:
 
 	/**
 	 * Get list of all connections in graph
-	 * 
+	 *
 	 * @return Array of pin connections
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Blueprint Graph Editor")
@@ -228,7 +228,7 @@ public:
 
 	/**
 	 * Set a default value on a node's input pin
-	 * 
+	 *
 	 * @param NodeIndex - Index of the node
 	 * @param PinName - Name of the input pin
 	 * @param Value - String value to set
@@ -239,7 +239,7 @@ public:
 
 	/**
 	 * Add a variable to the Blueprint
-	 * 
+	 *
 	 * @param VariableName - Name of the variable
 	 * @param VariableType - Type (bool, int, float, FString, FVector, etc.)
 	 * @param DefaultValue - Optional default value as string
@@ -251,7 +251,7 @@ public:
 
 	/**
 	 * Add a custom function to the Blueprint
-	 * 
+	 *
 	 * @param FunctionName - Name of the function
 	 * @param ReturnType - Return type (void, bool, int, float, etc.)
 	 * @param bPureFunction - Whether this is a pure function (no side effects)

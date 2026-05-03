@@ -7,18 +7,18 @@
 
 /**
  * RiftbornAI Logging System
- * 
+ *
  * Provides a dedicated log category and convenience macros for logging
  * throughout the RiftbornAI plugin. All logs appear under LogRiftbornAI
  * category in the Output Log.
- * 
+ *
  * Macros:
  *   RIFTBORN_LOG(Verbosity, Format, ...)  - Generic log with verbosity
  *   RIFTBORN_LOG_ERROR(Format, ...)       - Error level (red)
- *   RIFTBORN_LOG_WARNING(Format, ...)     - Warning level (yellow) 
+ *   RIFTBORN_LOG_WARNING(Format, ...)     - Warning level (yellow)
  *   RIFTBORN_LOG_INFO(Format, ...)        - Normal info level
  *   RIFTBORN_LOG_VERBOSE(Format, ...)     - Verbose level (hidden by default)
- * 
+ *
  * Example:
  *   RIFTBORN_LOG_INFO(TEXT("Tool executed: %s"), *ToolName);
  *   RIFTBORN_LOG_ERROR(TEXT("Failed to load asset: %s"), *AssetPath);

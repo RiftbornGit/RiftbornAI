@@ -598,6 +598,7 @@ export const MANUAL_TOOLS = [
         name: "find_tools",
         description: "Search the tool registry by keyword. Returns matching tools with descriptions and parameter schemas sorted by relevance. " +
             "Use this to discover tools for a specific task instead of scanning the full tool list. " +
+            "On the governed runtime path, searches the current visible callable surface instead of advertising hidden tools. " +
             "Searches tool names, descriptions, and parameter names.",
         inputSchema: {
             type: "object",
@@ -620,6 +621,7 @@ export const MANUAL_TOOLS = [
         name: "get_workflow",
         description: "Get an ordered multi-step build sequence for a common task. " +
             "Returns the exact tools to call, in order, with key parameters. " +
+            "On the governed runtime path, workflows are annotated with whether every step is callable on the current visible surface. " +
             "Available workflows: landscape, character, blueprint, material, lighting, forest, arena. " +
             "Use query='list' to see all available workflows.",
         inputSchema: {
@@ -673,6 +675,7 @@ Maximum 10 steps per batch to prevent runaway sequences.`,
         description: "Given a goal (keyword or tool name), compute the ordered prerequisite chain needed to reach it. " +
             "Checks session history to skip already-completed steps and pre-fills known parameters from context. " +
             "Returns executable steps compatible with batch_execute. " +
+            "On the governed runtime path, plans reject hidden-by-readiness tools instead of silently returning uncallable steps, and goal='list' reports callable versus uncallable goals. " +
             "Use goal='list' to see all available goal keywords. " +
             "Examples: goal='grass' → create_landscape_grass_type → add_grass_variety; " +
             "goal='paint landscape' → create_landscape → add_landscape_layer → paint_landscape_layer.",
@@ -800,6 +803,42 @@ Maximum 10 steps per batch to prevent runaway sequences.`,
             },
         },
     },
+    // ======== Headless Harness Delegation ========
+    {
+        name: "spawn_subagent",
+        description: "Run a bounded child agent inside the headless harness and return a transcript summary. " +
+            "Use only when detailed read-only investigation can be delegated without blocking the parent workflow.",
+        inputSchema: {
+            type: "object",
+            properties: {
+                task: {
+                    type: "string",
+                    description: "Concrete child-agent task to run.",
+                },
+                profile: {
+                    type: "string",
+                    description: "Optional sub-agent profile name from the scenario. Default editor_assistant.",
+                },
+                include_scene_context: {
+                    type: "boolean",
+                    description: "If false, omit inherited scene-context guidance. Default true.",
+                },
+                max_iterations: {
+                    type: "number",
+                    description: "Optional child-agent iteration cap. Clamped by the harness.",
+                },
+                timeout_seconds: {
+                    type: "number",
+                    description: "Optional hard timeout in seconds. Clamped by the harness.",
+                },
+                system_prompt_addendum: {
+                    type: "string",
+                    description: "Optional extra instructions appended to the child run.",
+                },
+            },
+            required: ["task"],
+        },
+    },
     // ======== Dispatch Lifecycle / Rollback (Round 20) ========
     {
         name: "undo_last",
@@ -845,7 +884,7 @@ Maximum 10 steps per batch to prevent runaway sequences.`,
     // ============= Teaching Mode & Reports =============
     {
         name: "explain_tool_execution",
-        description: "Get a detailed explanation of what a tool does, its parameters, required inputs, and usage tips. Use this in teaching mode to help users understand the tool surface.",
+        description: "Get a detailed explanation of what a tool does, its parameters, required inputs, and usage tips. On the governed runtime path, this explains the current visible callable surface and rejects hidden-by-readiness tools instead of pretending they are callable. Use this in teaching mode to help users understand the tool surface.",
         inputSchema: {
             type: "object",
             properties: {
@@ -963,4 +1002,3 @@ export const CATEGORY_MAP = {
     benchmark: "Diagnostics",
     self: "Self-Improvement",
 };
-//# sourceMappingURL=manual-tools.js.map

@@ -41,7 +41,7 @@ struct RIFTBORNAI_API FProjectContextData
 
 	// Convert to compact string for injection
 	FString ToContextString() const;
-	
+
 	// Get only the most relevant bits (for token efficiency)
 	FString ToMinimalContextString() const;
 };
@@ -71,7 +71,7 @@ public:
 	// Cache management
 	void InvalidateCache();
 	bool IsCacheValid() const;
-	
+
 	// Get cached or refresh
 	const FProjectContextData& GetCachedContext();
 
@@ -95,12 +95,12 @@ class RIFTBORNAI_API FProjectContext
 {
 public:
 	FProjectContext() {}
-	
+
 	FString GatherContext() const
 	{
 		return FProjectContextGatherer::Get().GatherMinimalContext().ToContextString();
 	}
-	
+
 	FString GetContextString() const
 	{
 		return FProjectContextGatherer::Get().GetCachedContext().ToContextString();

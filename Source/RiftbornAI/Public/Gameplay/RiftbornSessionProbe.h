@@ -8,22 +8,22 @@
 
 /**
  * ARiftbornSessionProbe
- * 
+ *
  * Minimal actor placed in arena maps to prove PIE session started successfully.
  * Logs a sentinel line on BeginPlay that automation tests can detect.
- * 
+ *
  * Usage:
  *   1. Place this actor in your arena map
  *   2. Run PIE (manually or via automation test)
  *   3. Check log for: RIFTBORN_SESSION_BEGINPLAY
- * 
+ *
  * The automation test looks for this line to confirm the session is alive.
  */
 UCLASS(Blueprintable, Placeable, meta=(DisplayName="Riftborn Session Probe"))
 class RIFTBORNAI_API ARiftbornSessionProbe : public AActor
 {
 	GENERATED_BODY()
-	
+
 public:
 	ARiftbornSessionProbe();
 

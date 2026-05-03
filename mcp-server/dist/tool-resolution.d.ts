@@ -57,4 +57,3 @@ export declare function classifyCost(toolName: string): CostClass;
  * Overrides the prefix heuristic with real timing data.
  */
 export declare function classifyCostFromDuration(durationMs: number): CostClass;
-//# sourceMappingURL=tool-resolution.d.ts.map

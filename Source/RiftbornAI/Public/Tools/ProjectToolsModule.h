@@ -10,9 +10,9 @@
 /**
  * Project Tools Module
  * Provides tools for multi-project management and project context.
- * 
+ *
  * ENH-008: Multi-Project Support
- * 
+ *
  * Tools:
  * - register_project: Register an external Unreal project
  * - list_projects: List all registered projects
@@ -70,26 +70,26 @@ class RIFTBORNAI_API FProjectToolsModule : public TToolModuleBase<FProjectToolsM
 public:
 	/** Module name for registration */
 	static FString StaticModuleName() { return TEXT("ProjectTools"); }
-	
+
 	/** Register all Project tools with the registry */
 	virtual void RegisterTools(FClaudeToolRegistry& Registry) override;
-	
+
 	// =========================================================================
 	// Tool Implementations
 	// =========================================================================
-	
+
 	/** Register an external Unreal project */
 	static FClaudeToolResult Tool_RegisterProject(const FClaudeToolCall& Call);
-	
+
 	/** List all registered projects */
 	static FClaudeToolResult Tool_ListProjects(const FClaudeToolCall& Call);
-	
+
 	/** Switch active project context */
 	static FClaudeToolResult Tool_SwitchProject(const FClaudeToolCall& Call);
-	
+
 	/** Get detailed info about a project */
 	static FClaudeToolResult Tool_GetProjectInfo(const FClaudeToolCall& Call);
-	
+
 	/** Get current project context */
 	static FClaudeToolResult Tool_GetProjectContext(const FClaudeToolCall& Call);
 
@@ -293,23 +293,23 @@ public:
 
 	/** Deactivate an editor mode */
 	static FClaudeToolResult Tool_DeactivateEditorMode(const FClaudeToolCall& Call);
-	
+
 	/** Unregister a project */
 	static FClaudeToolResult Tool_UnregisterProject(const FClaudeToolCall& Call);
-	
+
 	/** Set a registered project setting */
 	static FClaudeToolResult Tool_SetProjectSetting(const FClaudeToolCall& Call);
-	
+
 	/** Get a registered project setting */
 	static FClaudeToolResult Tool_GetProjectSetting(const FClaudeToolCall& Call);
-	
+
 	/** Get recent lines from Unreal Engine output log */
 	static FClaudeToolResult Tool_GetRecentLogs(const FClaudeToolCall& Call);
-	
+
 	// =========================================================================
 	// Project Insights — Comprehensive Analysis (satellite: ProjectToolsModule_Insights.cpp)
 	// =========================================================================
-	
+
 	/** Generate a 7-module project insights report */
 	static FClaudeToolResult Tool_GenerateProjectInsights(const FClaudeToolCall& Call);
 };

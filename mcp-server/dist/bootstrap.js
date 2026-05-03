@@ -9,10 +9,10 @@
 import * as path from "path";
 import { ENV_TOKEN_NAMES, resolveBridgeAuthToken, } from "./auth-token.js";
 import { getBlockedToolNameSet, getInternalToolNameSet, } from "./surface-manifest.js";
-function isTruthyEnv(value) {
-    const normalized = (value || "").trim().toLowerCase();
-    return normalized === "1" || normalized === "true";
-}
+import { isTruthy, isTruthyEnv } from "./truthy.js";
+// Local truthy helpers were replaced by the shared `isTruthy` / `isTruthyEnv`
+// imported from ./truthy.js so MCP, Bridge, SessionTaint, and the C++ surface
+// (Source/RiftbornAI/Public/Core/EnvUtils.h) all agree on accepted values.
 function isLoopbackHost(host) {
     const normalized = host.trim().toLowerCase();
     return normalized === "localhost"
@@ -46,10 +46,10 @@ export function loadBootstrapConfig(entryFilename, overrides) {
     const entryDir = path.dirname(entryFilename);
     const authResolution = resolveBridgeAuthToken({
         env,
-        searchRoots: [cwd, entryDir],
+        searchRoots: overrides?.authSearchRoots ?? [cwd, entryDir],
     });
     const RIFTBORN_AUTH_TOKEN = authResolution.token;
-    const ALLOW_UNAUTHENTICATED_LOCAL = isTruthyEnv(env.RIFTBORN_ALLOW_UNAUTHENTICATED_LOCAL);
+    const ALLOW_UNAUTHENTICATED_LOCAL = isTruthy(env.RIFTBORN_ALLOW_UNAUTHENTICATED_LOCAL);
     const USING_DEV_BOOTSTRAP_TOKEN = RIFTBORN_AUTH_TOKEN.startsWith("riftborn_dev_");
     if (USING_DEV_BOOTSTRAP_TOKEN && !isLoopbackHost(RIFTBORN_HOST)) {
         throw new Error(`[RiftbornAI] Bootstrap dev tokens are loopback-only; refusing host ${RIFTBORN_HOST}. Configure a non-dev auth token for remote hosts.`);
@@ -92,16 +92,17 @@ export function loadBootstrapConfig(entryFilename, overrides) {
     if (!suppressAuthWarnings && RIFTBORN_AUTH_TOKEN && RIFTBORN_AUTH_TOKEN.startsWith("riftborn_dev_")) {
         console.error("[RiftbornAI] WARNING: Using a dev bootstrap token — the MCP client will exchange it for a short-lived session token.");
     }
-    const ENABLE_INTERNAL_TOOLS = env.RIFTBORN_ENABLE_INTERNAL_TOOLS === "true";
-    const ALLOW_HIDDEN_TOOLS = env.RIFTBORN_ALLOW_HIDDEN_TOOLS === "true";
+    const ENABLE_INTERNAL_TOOLS = isTruthyEnv(env, "RIFTBORN_ENABLE_INTERNAL_TOOLS");
+    const ALLOW_HIDDEN_TOOLS = isTruthyEnv(env, "RIFTBORN_ALLOW_HIDDEN_TOOLS");
     // Developer mode — exposes EVERY registered tool, bypassing the
     // locked beta-release surface. The shipped Beta build sets this false (the
     // default) so end users only see the hardened beta tool set. Developers
     // (the team building games on top of the plugin) flip it on with
-    // RIFTBORN_DEV_MODE=true and get the full ~700+ surface back. Same gate
-    // also implicitly enables internal tools and hidden-tool dispatch so
-    // it's a single switch instead of three.
-    const DEV_MODE = env.RIFTBORN_DEV_MODE === "true";
+    // RIFTBORN_DEV_MODE=1 (or true/yes/on) and get the full ~700+ surface back.
+    // Same gate also implicitly enables internal tools and hidden-tool dispatch
+    // so it's a single switch instead of three. Truthy parsing flows through
+    // `isTruthyEnv` and mirrors the C++ side in EnvUtils.h.
+    const DEV_MODE = isTruthyEnv(env, "RIFTBORN_DEV_MODE");
     return {
         RIFTBORN_HTTP_PORT,
         RIFTBORN_TCP_PORT,
@@ -117,4 +118,3 @@ export function loadBootstrapConfig(entryFilename, overrides) {
         BLOCKED_TOOLS: getBlockedToolNameSet(),
     };
 }
-//# sourceMappingURL=bootstrap.js.map

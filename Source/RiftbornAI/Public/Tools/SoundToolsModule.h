@@ -10,7 +10,7 @@
 /**
  * Sound Tools Module
  * Provides tools for working with audio assets and sound playback.
- * 
+ *
  * Tools included:
  * - create_sound_cue: Create a SoundCue from SoundWaves
  * - get_sound_info: Inspect authored SoundWave or SoundCue state
@@ -23,9 +23,9 @@ class RIFTBORNAI_API FSoundToolsModule : public TToolModuleBase<FSoundToolsModul
 {
 public:
     static FString StaticModuleName() { return TEXT("SoundTools"); }
-    
+
     virtual void RegisterTools(FClaudeToolRegistry& Registry) override;
-    
+
     // Tool implementations
     static FClaudeToolResult Tool_CreateSoundCue(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_GetSoundInfo(const FClaudeToolCall& Call);
@@ -34,5 +34,5 @@ public:
     static FClaudeToolResult Tool_SpawnAudioComponent(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_StopAllSounds(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_ListSounds(const FClaudeToolCall& Call);
-    
+
 };

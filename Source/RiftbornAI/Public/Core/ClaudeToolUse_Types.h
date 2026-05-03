@@ -370,6 +370,28 @@ struct FClaudeToolResult
 	// Not serialized to JSON result string, but available for internal use
 	TMap<FString, FString> Metadata;
 
+	// =========================================================================
+	// NEXT-ACTION HINTS (2026-04 — machine-readable recovery guidance)
+	// =========================================================================
+	// When a tool fails or returns a partial result, populate SuggestedNextTools
+	// with specific tool names the caller should try next (in priority order).
+	// The agentic loop surfaces these in the next-turn prompt as a structured
+	// block so the LLM doesn't have to parse prose error messages to recover.
+	//
+	// Example: scatter_foliage fails because mesh_path is a folder →
+	//   SuggestedNextTools = ["find_assets", "list_assets"]
+	// Example: spawn_actor fails because class_name doesn't resolve →
+	//   SuggestedNextTools = ["find_assets", "validate_asset_paths"]
+	//
+	// Optional: callers can populate SuggestedNextToolArgs to hint a concrete
+	// argument shape, e.g. {"find_assets": "{\"path_filter\":\"/Game/Foo\"}"}.
+	// =========================================================================
+	UPROPERTY(BlueprintReadWrite, Category = "Tool|Recovery")
+	TArray<FString> SuggestedNextTools;
+
+	/** Optional per-tool arg hints (key = tool name, value = JSON string with suggested args). */
+	TMap<FString, FString> SuggestedNextToolArgs;
+
 	// Witness data for PROOF mode - state change evidence for contract verification
 	// Tools populate this with their required witness keys (defined in tool contracts)
 	TMap<FString, FString> Witness;
@@ -533,6 +555,49 @@ struct FClaudeToolResult
     R.bSuccess = false;
     R.ErrorMessage = Message;
     R.Result = Message;
+    return R;
+  }
+
+  /**
+   * Factory for the "Missing required parameter X" error family. Returns a
+   * standardized message AND populates SuggestedNextTools so the LLM gets
+   * machine-readable discovery guidance in one step.
+   *
+   *   @param ToolName         Tool that was called (for the error prefix)
+   *   @param ParamName        The missing parameter
+   *   @param DiscoveryTools   Real tool names the LLM can call to find the
+   *                           right value. Must be registered tools — the
+   *                           caller is responsible for matching real names,
+   *                           this factory does not validate.
+   *   @param ExtraHint        Optional prose tail (e.g. "Pass either the full
+   *                           path as actor_id or the user-facing label as
+   *                           actor_name.")
+   */
+  static FClaudeToolResult MissingRequiredParam(
+      const FString& ToolName,
+      const FString& ParamName,
+      const TArray<FString>& DiscoveryTools = TArray<FString>(),
+      const FString& ExtraHint = FString())
+  {
+    FClaudeToolResult R;
+    R.bSuccess = false;
+
+    FString DiscoveryText;
+    if (DiscoveryTools.Num() > 0)
+    {
+      DiscoveryText = FString::Printf(
+          TEXT(" To discover a valid value, call: %s."),
+          *FString::Join(DiscoveryTools, TEXT(", ")));
+    }
+
+    R.ErrorMessage = FString::Printf(
+        TEXT("Missing required parameter '%s' for tool '%s'.%s%s%s"),
+        *ParamName, *ToolName,
+        *DiscoveryText,
+        ExtraHint.IsEmpty() ? TEXT("") : TEXT(" "),
+        *ExtraHint);
+    R.Result = R.ErrorMessage;
+    R.SuggestedNextTools = DiscoveryTools;
     return R;
   }
 };

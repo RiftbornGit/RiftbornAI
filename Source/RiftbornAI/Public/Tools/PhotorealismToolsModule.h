@@ -12,7 +12,7 @@
 
 /**
  * FPhotorealismToolsModule
- * 
+ *
  * Photorealism Tools — ecosystem growth simulation, per-instance material variation,
  */
 class RIFTBORNAI_API FPhotorealismToolsModule : public TToolModuleBase<FPhotorealismToolsModule>

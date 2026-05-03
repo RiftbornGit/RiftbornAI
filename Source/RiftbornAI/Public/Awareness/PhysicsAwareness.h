@@ -29,7 +29,7 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FPhysicsBodyInfo
 {
     GENERATED_BODY()
-    
+
     UPROPERTY() FString ActorName;
     UPROPERTY() FString ComponentName;
     UPROPERTY() EPhysicsBodyState State = EPhysicsBodyState::Static;
@@ -48,7 +48,7 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FConstraintInfo
 {
     GENERATED_BODY()
-    
+
     UPROPERTY() FString ConstraintName;
     UPROPERTY() FString ParentActor;
     UPROPERTY() FString ChildActor;
@@ -62,7 +62,7 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FPhysicsWorldState
 {
     GENERATED_BODY()
-    
+
     UPROPERTY() FVector Gravity = FVector(0, 0, -980.0f);
     UPROPERTY() int32 SimulatingBodies = 0;
     UPROPERTY() int32 SleepingBodies = 0;
@@ -78,30 +78,30 @@ class RIFTBORNAI_API FPhysicsAwareness
 {
 public:
     static FPhysicsAwareness& Get();
-    
+
     FPhysicsWorldState GetWorldState() const;
     FVector GetGravity() const;
-    
+
     TArray<FPhysicsBodyInfo> GetSimulatingBodies() const;
     TArray<FPhysicsBodyInfo> GetBodiesInRadius(const FVector& Center, float Radius) const;
     FPhysicsBodyInfo GetBodyInfo(AActor* Actor) const;
-    
+
     TArray<FConstraintInfo> GetConstraints() const;
     TArray<FConstraintInfo> GetBrokenConstraints() const;
-    
+
     bool IsSimulating(AActor* Actor) const;
     bool IsSleeping(AActor* Actor) const;
     FVector GetVelocity(AActor* Actor) const;
     float GetMass(AActor* Actor) const;
-    
+
     // Raycasts
     bool RaycastSingle(const FVector& Start, const FVector& End, FHitResult& OutHit) const;
     TArray<FHitResult> RaycastMulti(const FVector& Start, const FVector& End) const;
     bool SweepSingle(const FVector& Start, const FVector& End, float Radius, FHitResult& OutHit) const;
-    
+
     static FString BodyStateToString(EPhysicsBodyState State);
     static FString CollisionTypeToString(ECollisionType Type);
-    
+
 private:
     FPhysicsAwareness();
 };

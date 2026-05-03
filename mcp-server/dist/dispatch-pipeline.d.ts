@@ -65,6 +65,7 @@ export interface DispatchServices {
         inferred: Record<string, unknown>;
     };
     checkPrerequisite: (tool: string, args: Record<string, unknown>) => RiftbornResponse | null;
+    checkStatefulPrerequisite: (tool: string, args: Record<string, unknown>, execute: (t: string, p: Record<string, unknown>) => Promise<RiftbornResponse>) => Promise<RiftbornResponse | null>;
     checkDependencies: (tool: string, recent: any[]) => DependencyWarning | null;
     getDependencyGraph: () => ToolDependencyGraph;
     checkIdempotency: (tool: string, args: Record<string, unknown>, recent: any[]) => DuplicateWarning | null;
@@ -148,6 +149,7 @@ export declare function stageApplyDefaults(ctx: DispatchContext): void;
 export declare function stageValidate(ctx: DispatchContext): void;
 export declare function stageContextInject(ctx: DispatchContext): void;
 export declare function stagePrerequisite(ctx: DispatchContext): void;
+export declare function stageStatefulPrerequisite(ctx: DispatchContext): Promise<void>;
 export declare function stagePreExecAnalysis(ctx: DispatchContext): void;
 export declare function stageExecute(ctx: DispatchContext): Promise<void>;
 export declare function stageHandleFailure(ctx: DispatchContext): void;
@@ -163,4 +165,3 @@ export declare function stageFinalize(ctx: DispatchContext): void;
 export declare const DEFAULT_STAGES: DispatchStage[];
 /** Build a fresh DispatchContext ready for pipeline execution. */
 export declare function createDispatchContext(resolvedName: string, rawArgs: Record<string, unknown>, handler: (args: Record<string, unknown>) => Promise<RiftbornResponse>, services: DispatchServices, resolutionMeta?: Record<string, unknown>): DispatchContext;
-//# sourceMappingURL=dispatch-pipeline.d.ts.map

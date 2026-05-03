@@ -44,4 +44,19 @@ public:
     // with names + descriptions + params, instead of paying for the full
     // tool catalogue every turn. Wraps FClaudeToolRegistry::SuggestToolsForIntent.
     static FClaudeToolResult Tool_SearchToolsByPurpose(const FClaudeToolCall& Call);
+
+    // Thumbnail-vision classifier. For each asset_path, renders its thumbnail
+    // and asks GPT-5 vision to classify it semantically (canopy_tree, vine,
+    // rock, grass, flower, etc.) + estimate height. Caches to
+    // Saved/RiftbornAI/AssetClassifications.json so the classification is
+    // reused across conversations and sessions. Gives the LLM "eyes" for
+    // filename-agnostic asset understanding — eliminates the
+    // "SM_Hornbeam_PP_Vine scattered as a tree" class of mistakes.
+    static FClaudeToolResult Tool_ClassifyAssetThumbnails(const FClaudeToolCall& Call);
+
+    // Pre-flight asset health check. For each path returns
+    // {exists, loads_cleanly, has_material, has_collision, bounds,
+    //  triangle_count, warnings[]}. Lets the LLM catch broken paths BEFORE
+    // scatter_foliage or place_actor fails mid-plan. No vision — fast + sync.
+    static FClaudeToolResult Tool_ValidateAssetPaths(const FClaudeToolCall& Call);
 };

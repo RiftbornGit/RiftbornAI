@@ -1,6 +1,6 @@
 // Copyright RiftbornAI. All Rights Reserved.
 // Tool Contract - Data-driven policy from contracts.json
-// 
+//
 // CRITICAL: This is the SINGLE SOURCE OF TRUTH for tool policy.
 // Both C++ and Python read from the same contracts.json.
 // Do NOT duplicate policy logic in code.
@@ -78,19 +78,19 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FEvidenceBinding
 {
 	GENERATED_BODY()
-	
+
 	/** Binding key (e.g., "actor_guid", "asset_path", "blueprint_path") */
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	FString Key;
-	
+
 	/** Expected type (guid, path, name, int, bool, json) */
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	FString Type;
-	
+
 	/** Human-readable description */
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	FString Description;
-	
+
 	/** Is this binding required (for produces) or optional */
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	bool bRequired = true;
@@ -103,28 +103,34 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FToolPrecondition
 {
 	GENERATED_BODY()
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	FString ProbeName;       // e.g., "pie_state", "asset_exists"
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	FString Predicate;       // Predicate expression (for compatibility)
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	TMap<FString, FString> ProbeArgs;  // Arguments to pass to probe
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	FString ExpectedJson;    // Expected result (JSON string)
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	EPreconditionAction OnFail = EPreconditionAction::Block;
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	FString RepairTool;      // Tool to run if OnFail == Repair
-	
+
+	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
+	FString FailureCode;     // Stable machine-readable rejection code
+
+	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
+	FString RepairHint;      // Human-readable next step / repair guidance
+
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	FString SkipCondition;   // Expression to skip this precondition
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	FString Reason;          // Human-readable failure reason
 };
@@ -168,16 +174,16 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FToolFailureMode
 {
 	GENERATED_BODY()
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	FString ErrorCode;       // e.g., "actor_not_found"
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	FString Description;
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	FString RecoveryTool;    // Tool to run for recovery (empty if none)
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	bool bEscalate = false;  // If true, ask user
 };
@@ -189,13 +195,13 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FRecoveryChainStep
 {
 	GENERATED_BODY()
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	FString OnError;         // Error code that triggers this
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	TArray<FString> TryTools;// Tools to try in order
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	int32 MaxDepth = 2;      // Max chain depth
 };
@@ -207,68 +213,68 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FToolContract
 {
 	GENERATED_BODY()
-	
+
 	// Identity
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	FString ToolName;
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	FString DisplayName;
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	FString Description;
-	
+
 	// Classification
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	EContractRiskTier RiskTier = EContractRiskTier::Safe;
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	FString Category;
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	EToolCost Cost = EToolCost::Cheap;
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	EToolVisibility Visibility = EToolVisibility::Public;
-	
+
 	// Schema
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	FString ArgsSchemaJson;  // Full JSON schema for validation
-	
+
 	// =========================================================================
 	// EVIDENCE CONTRACTS (PROOF mode enforcement)
 	// =========================================================================
 	// These fields define what the tool MUST produce and CAN consume.
 	// In PROOF mode, success without required evidence = FAILURE.
-	
+
 	/** What this tool produces (output bindings available for chaining) */
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI|Evidence")
 	TArray<FEvidenceBinding> Produces;
-	
+
 	/** What this tool consumes (input bindings it expects from prior steps) */
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI|Evidence")
 	TArray<FEvidenceBinding> Consumes;
-	
+
 	/** Required witness keys that MUST appear in result for success */
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI|Evidence")
 	TArray<FString> RequiredWitness;
-	
+
 	/** Execution lane (C++ only, Python dev, etc.) */
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI|Execution")
 	EExecutionLane ExecutionLane = EExecutionLane::CppOnly;
-	
+
 	/** Determinism class */
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI|Execution")
 	EDeterminismClass Determinism = EDeterminismClass::Deterministic;
-	
+
 	/** Timeout in milliseconds (0 = default 30000) */
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI|Execution")
 	int32 TimeoutMs = 0;
-	
+
 	/** Declared side effects (files, assets, level, etc.) */
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI|Execution")
 	TArray<FString> SideEffects;
-	
+
 	// =========================================================================
 	// Governance
 	// =========================================================================
@@ -283,33 +289,33 @@ struct RIFTBORNAI_API FToolContract
 
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	TArray<FString> WitnessProbes;  // Probes to capture evidence
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	TMap<FString, FToolFailureMode> FailureModes;
-	
+
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	TArray<FRecoveryChainStep> RecoveryChain;
-	
+
 	// =========================================================================
 	// Legacy/Compatibility fields (used by some code paths)
 	// =========================================================================
-	
+
 	/** Whether this tool supports undo operations */
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	bool bUndoSupported = false;
-	
+
 	/** Whether this tool is mutating (modifies state) */
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	bool bIsMutating = false;
-	
+
 	/** Whether this tool requires proof mode */
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	bool bRequiresProofMode = false;
-	
+
 	/** Acceptance criteria for success (probe names) */
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	TArray<FString> AcceptanceCriteria;
-	
+
 	// Helpers
 	bool IsReadOnlyByRiskTier() const
 	{
@@ -330,13 +336,13 @@ struct RIFTBORNAI_API FToolContract
 		}
 	}
 
-	bool RequiresConfirmation() const 
-	{ 
+	bool RequiresConfirmation() const
+	{
 		return bRequiresConfirmation ||
-		       RiskTier == EContractRiskTier::Dangerous || 
-		       RiskTier == EContractRiskTier::Destructive; 
+		       RiskTier == EContractRiskTier::Dangerous ||
+		       RiskTier == EContractRiskTier::Destructive;
 	}
-	
+
 	bool CanAutoRepair() const
 	{
 		for (const FToolPrecondition& Pre : Preconditions)
@@ -348,7 +354,7 @@ struct RIFTBORNAI_API FToolContract
 		}
 		return false;
 	}
-	
+
 	/** Check if a result witness contains all required evidence keys */
 	bool ValidateWitness(const TMap<FString, FString>& Witness, TArray<FString>& OutMissing) const
 	{
@@ -362,7 +368,7 @@ struct RIFTBORNAI_API FToolContract
 		}
 		return OutMissing.Num() == 0;
 	}
-	
+
 	/** Check if all required produces bindings are present in witness */
 	bool ValidateProducedEvidence(const TMap<FString, FString>& Witness, TArray<FString>& OutMissing) const
 	{
@@ -376,13 +382,13 @@ struct RIFTBORNAI_API FToolContract
 		}
 		return OutMissing.Num() == 0;
 	}
-	
+
 	/** Get effective timeout (default 30000ms if not specified) */
 	int32 GetEffectiveTimeoutMs() const
 	{
 		return TimeoutMs > 0 ? TimeoutMs : 30000;
 	}
-	
+
 	// Convert contract risk tier to tool registry risk
 	EToolRisk ToToolRisk() const
 	{
@@ -397,71 +403,71 @@ struct RIFTBORNAI_API FToolContract
 			default: return EToolRisk::Unknown;
 		}
 	}
-	
+
 	/** PROOF mode requires undo capability declaration */
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	bool bCanUndo = false;
-	
+
 	/** PROOF mode requires postcondition probes */
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	TArray<FString> PostconditionProbes;
-	
+
 	/** Allowed predicate validators for this tool */
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	TArray<FString> AllowedPredicates;
-	
+
 	/** Evidence bindings for chaining (outputs) */
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	TArray<FString> EvidenceBindings;
-	
+
 	/** Execution lane: C++ only in PROOF mode */
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	bool bRequiresCppExecution = false;
-	
+
 	// =========================================================================
 	// Parse-time error tracking (2026-02-01)
 	// Unknown enum values are recorded here during parsing, then caught in validation
 	// This ensures rejection produces proper proof artifacts at execution time
 	// =========================================================================
-	
+
 	/** Parse errors encountered during contract loading */
 	TArray<FString> ParseErrors;
-	
+
 	/** Check if contract had parse errors (unknown enums, etc.) */
 	bool HasParseErrors() const { return ParseErrors.Num() > 0; }
-	
+
 	// =========================================================================
 	// Validation state (2026-02-01)
 	// Contracts MUST be validated before execution can proceed
 	// In PROOF mode, unvalidated contracts are execution-blocked
 	// =========================================================================
-	
+
 	/** Whether ValidateContract() has been called on this contract */
 	bool bValidated = false;
-	
+
 	/** Validation errors (populated by ValidateContract()) */
 	TArray<FString> ValidationErrors;
-	
+
 	/** Whether this contract is certified (no parse errors, no validation errors) */
 	bool IsCertified() const { return bValidated && ParseErrors.Num() == 0 && ValidationErrors.Num() == 0; }
-	
+
 	/** DEV mode: contract has errors but can execute in UNCERTIFIED lane */
 	bool bUncertified = false;
-	
+
 	// =========================================================================
 	// PROOF MODE BLOCKING (2026-02-02)
 	// Tools marked blocked_in_proof_mode MUST be denied at the central choke point
 	// This is NOT optional - it's enforced in GetExecutionDecision()
 	// =========================================================================
-	
+
 	/** Tool is BLOCKED in PROOF mode - cannot execute regardless of other checks */
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	bool bBlockedInProofMode = false;
-	
+
 	/** Tool is lab-only - allowed ONLY when RIFTBORN_LAB_MODE=1 */
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	bool bLabOnly = false;
-	
+
 	/** Tool requires explicit confirmation even in DEV mode */
 	UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
 	bool bRequiresConfirmation = false;
@@ -477,7 +483,7 @@ struct RIFTBORNAI_API FContractParseError
 	FString Field;          // Which field had the error (e.g., "classification.risk_tier")
 	FString Value;          // The invalid value found
 	FString Message;        // Human-readable error message
-	
+
 	FString ToString() const
 	{
 		return FString::Printf(TEXT("[%s] %s: '%s' - %s"), *ToolName, *Field, *Value, *Message);
@@ -516,11 +522,11 @@ struct RIFTBORNAI_API FStepExecutionContext
 	FString EditorSessionId;            // Session identifier
 	bool bProofModeEnabled = false;     // Was PROOF mode on?
 	bool bSessionTainted = false;       // Was session tainted?
-	
+
 	/** Build from plan step data */
-	static FStepExecutionContext FromStep(int32 InStepIndex, const FString& InToolUseId, 
+	static FStepExecutionContext FromStep(int32 InStepIndex, const FString& InToolUseId,
 		const TMap<FString, FString>& Args, int32 InSequenceId);
-	
+
 	/** Compute canonical args hash */
 	static FString ComputeArgsHash(const TMap<FString, FString>& Args);
 };
@@ -531,17 +537,17 @@ struct RIFTBORNAI_API FContractExecutionDecision
 	FString ToolName;
 	TArray<FString> Errors;   // Why execution was denied
 	bool bProofRequired = false; // If true, caller MUST emit rejection proof
-	
+
 	// Step context for detailed proofs (populated by caller before EmitRejectionProof)
 	FStepExecutionContext StepContext;
-	
+
 	// Proof tracking (set after EmitRejectionProof is called)
 	FString ProofBundleId;     // Non-empty if proof was emitted
-	
+
 	bool IsAllowed() const { return Decision == EContractDecision::Allowed; }
 	bool IsDenied() const { return Decision != EContractDecision::Allowed; }
 	bool HasProof() const { return !ProofBundleId.IsEmpty(); }
-	
+
 	/** Get reason code string for proof bundles */
 	FString GetReasonCode() const
 	{
@@ -559,13 +565,13 @@ struct RIFTBORNAI_API FContractExecutionDecision
 			default: return TEXT("UNKNOWN");
 		}
 	}
-	
+
 	/** Build human-readable summary */
 	FString GetSummary() const
 	{
 		if (IsAllowed()) return FString::Printf(TEXT("Tool '%s' execution ALLOWED"), *ToolName);
-		return FString::Printf(TEXT("Tool '%s' execution DENIED [%s]: %s"), 
-			*ToolName, *GetReasonCode(), 
+		return FString::Printf(TEXT("Tool '%s' execution DENIED [%s]: %s"),
+			*ToolName, *GetReasonCode(),
 			Errors.Num() > 0 ? *Errors[0] : TEXT("no details"));
 	}
 };
@@ -579,7 +585,7 @@ struct RIFTBORNAI_API FContractValidationResult
 	bool bValid = false;
 	TArray<FString> Errors;      // Fatal: blocks execution
 	TArray<FString> Warnings;    // Non-fatal in DEV mode
-	
+
 	bool HasErrors() const { return Errors.Num() > 0; }
 	bool HasWarnings() const { return Warnings.Num() > 0; }
 	bool IsValid() const { return bValid && !HasErrors(); }
@@ -597,14 +603,14 @@ struct RIFTBORNAI_API FContractsValidationResult
 	TArray<FContractValidationResult> ToolResults;
 	TArray<FString> GlobalErrors;
 	TArray<FString> GlobalWarnings;
-	
+
 	int32 GetValidCount() const
 	{
 		int32 Count = 0;
 		for (const auto& R : ToolResults) if (R.bValid) Count++;
 		return Count;
 	}
-	
+
 	int32 GetInvalidCount() const
 	{
 		return ToolResults.Num() - GetValidCount();
@@ -623,12 +629,12 @@ static const TArray<FString> PROOF_MODE_REQUIRED_FIELDS = {
 
 /**
  * Contract Registry - Singleton that loads and caches contracts.json
- * 
+ *
  * USAGE:
  *   FToolContractRegistry& Registry = FToolContractRegistry::Get();
  *   const FToolContract* Contract = Registry.GetContract("spawn_actor");
  *   if (Contract) { ... use preconditions, failure modes, etc ... }
- * 
+ *
  * The registry auto-reloads on file change if bWatchForChanges is true.
  */
 class RIFTBORNAI_API FToolContractRegistry
@@ -637,35 +643,35 @@ public:
 	~FToolContractRegistry() { StopWatching(); }
 
 	static FToolContractRegistry& Get();
-	
+
 	/**
 	 * Load contracts from JSON file
 	 * @param FilePath - Path to contracts.json (uses default if empty)
 	 * @return true if loaded successfully
 	 */
 	bool LoadContracts(const FString& FilePath = TEXT(""));
-	
+
 	/**
 	 * Reload contracts from disk
 	 */
 	bool ReloadContracts();
-	
+
 	/**
 	 * Get contract for a tool
 	 * @return nullptr if tool not in contracts
 	 */
 	const FToolContract* GetContract(const FString& ToolName) const;
-	
+
 	/**
 	 * Get all tool names with contracts
 	 */
 	TArray<FString> GetContractedTools() const;
-	
+
 	/**
 	 * Check if a tool has a contract
 	 */
 	bool HasContract(const FString& ToolName) const;
-	
+
 	/**
 	 * Check if a tool is read-only (non-mutating)
 	 * A tool is read-only if:
@@ -678,32 +684,32 @@ public:
 		if (!Contract) return false;  // No contract = not read-only (default deny)
 		return Contract->IsReadOnlyByRiskTier();
 	}
-	
+
 	/**
 	 * Get the contract file path
 	 */
 	FString GetContractFilePath() const { return ContractFilePath; }
-	
+
 	/**
 	 * Get contract version
 	 */
 	int32 GetContractVersion() const { return ContractVersion; }
-	
+
 	/**
 	 * Get schema version string
 	 */
 	FString GetSchemaVersion() const { return SchemaVersion; }
-	
+
 	/**
 	 * Check if contracts are loaded
 	 */
 	bool IsLoaded() const { return bLoaded; }
-	
+
 	/**
 	 * Enable/disable file watching
 	 */
 	void SetWatchForChanges(bool bWatch);
-	
+
 	/**
 	 * Check if PROOF mode is enabled (contracts mandatory)
 	 */
@@ -716,7 +722,7 @@ public:
 	 */
 	static bool SetProofModeEnabledForTests(bool bEnabled);
 #endif
-	
+
 	/**
 	 * Check if a tool can be executed given current mode
 	 * In PROOF mode: requires contract
@@ -727,23 +733,23 @@ public:
 	 * @deprecated Use GetExecutionDecision() for structured results with proof support
 	 */
 	bool CanExecuteTool(const FString& ToolName, FString& OutReason) const;
-	
+
 	/**
 	 * Get structured execution decision for a tool (2026-02-01)
 	 * This is the SINGLE AUTHORITY for execution permission.
-	 * 
+	 *
 	 * CRITICAL: In PROOF mode, if decision.bProofRequired is true,
 	 * the caller MUST emit a rejection proof via EmitRejectionProof().
-	 * 
+	 *
 	 * @param ToolName - Tool to check
 	 * @return Decision with reason code, errors, and proof requirement flag
 	 */
 	FContractExecutionDecision GetExecutionDecision(const FString& ToolName) const;
-	
+
 	/**
 	 * Emit a rejection proof bundle for a denied execution decision
 	 * MUST be called for every denial in PROOF mode where decision.bProofRequired is true
-	 * 
+	 *
 	 * @param Decision - The denial decision (must be IsDenied())
 	 * @param PlanHash - Hash of the plan that tried to execute (if available)
 	 * @param PlanHashKind - "canonical", "raw_fallback", or "canonicalization_failed"
@@ -756,59 +762,59 @@ public:
 		const FString& PlanHashKind = TEXT(""),
 		const FString& CanonicalizationError = TEXT("")
 	) const;
-	
+
 	/**
 	 * Validate all loaded contracts against schema requirements
 	 * In PROOF mode: hard fails on any validation error
 	 * @return Validation result with per-tool and global errors
 	 */
 	FContractsValidationResult ValidateContracts() const;
-	
+
 	/**
 	 * Validate a single contract and update its validation state
 	 * After calling this, Contract.bValidated will be true (even if validation failed)
 	 * and Contract.ValidationErrors will contain any errors found.
-	 * 
+	 *
 	 * @param Contract - Contract to validate (will be modified)
 	 * @param bStrictMode - If true (PROOF mode), enforce all requirements
 	 * @return Validation result for this contract
 	 */
 	FContractValidationResult ValidateContract(FToolContract& Contract, bool bStrictMode) const;
-	
+
 	/**
 	 * Validate a single contract (const version for compatibility)
 	 * NOTE: This version cannot update the contract's validation state.
 	 * Prefer the non-const version when possible.
 	 */
 	FContractValidationResult ValidateContract(const FToolContract& Contract, bool bStrictMode) const;
-	
+
 	/**
 	 * Get validation result (cached from last load)
 	 */
 	const FContractsValidationResult& GetValidationResult() const { return ValidationResult; }
-	
+
 	/**
 	 * Check if contracts passed validation
 	 */
 	bool IsValidated() const { return ValidationResult.bValid; }
-	
+
 	/**
 	 * Compute SHA256 hash of the entire loaded contract registry
 	 * This is included in proof bundles to bind proofs to specific governance configuration
 	 * @return Hex-encoded SHA256 hash
 	 */
 	FString ComputeRegistryHash() const;
-	
+
 	/**
 	 * Get the cached registry hash (computed at load time)
 	 */
 	FString GetRegistryHash() const { return RegistryHash; }
-	
+
 	/**
 	 * Validate all contracts (alias for ValidateContracts)
 	 */
 	FContractValidationResult ValidateAllContracts() const;
-	
+
 	/**
 	 * Validate a single contract (no strict mode parameter)
 	 */
@@ -816,15 +822,15 @@ public:
 
 private:
 	FToolContractRegistry();
-	
+
 	bool ParseContractsJson(const FString& JsonContent);
 	bool ParseToolContract(const TSharedPtr<FJsonObject>& ToolObj, FToolContract& OutContract);
 	EContractRiskTier ParseRiskTier(const FString& TierStr);
 	EPreconditionAction ParsePreconditionAction(const FString& ActionStr);
-	
+
 	/** Validate contracts at load time - called automatically by LoadContracts */
 	bool ValidateContractsOnLoad();
-	
+
 	TMap<FString, FToolContract> Contracts;
 	FString ContractFilePath;
 	FString SchemaVersion;

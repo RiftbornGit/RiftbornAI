@@ -1,10 +1,12 @@
 import fs from "fs";
 import path from "path";
+import { isTruthy } from "./truthy.js";
 export const ENV_TOKEN_NAMES = [
     "RIFTBORN_AUTH_TOKEN",
     "RIFTBORN_API_KEY",
     "RIFTBORN_DEV_TOKEN",
 ];
+export const DISABLE_TOKEN_FILE_DISCOVERY_ENV = "RIFTBORN_DISABLE_TOKEN_FILE_DISCOVERY";
 function uniquePaths(paths) {
     const seen = new Set();
     const out = [];
@@ -42,6 +44,9 @@ export function resolveBridgeAuthToken(options) {
             return { token, source: `env:${envName}`, searchedPaths: [] };
         }
     }
+    if (isTruthy(env[DISABLE_TOKEN_FILE_DISCOVERY_ENV])) {
+        return { token: "", source: "", searchedPaths: [] };
+    }
     const searchedPaths = buildTokenSearchPaths(searchRoots, env.RIFTBORN_DEV_TOKEN_FILE);
     for (const tokenPath of searchedPaths) {
         try {
@@ -58,4 +63,3 @@ export function resolveBridgeAuthToken(options) {
     }
     return { token: "", source: "", searchedPaths };
 }
-//# sourceMappingURL=auth-token.js.map

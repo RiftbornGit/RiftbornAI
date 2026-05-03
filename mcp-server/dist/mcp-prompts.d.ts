@@ -11,4 +11,3 @@ export declare const PROMPTS: {
 }[];
 export declare function buildPromptText(name: string, args?: Record<string, string | undefined>): string;
 export declare function registerPromptHandlers(server: Server): void;
-//# sourceMappingURL=mcp-prompts.d.ts.map

@@ -114,7 +114,7 @@ When a tool fails, don't retry the same thing. Diagnose:
 
 ## C++ DEVELOPMENT WORKFLOW
 
-You are not just a tool caller. You are a C++ programmer. For anything beyond simple editor 
+You are not just a tool caller. You are a C++ programmer. For anything beyond simple editor
 operations (spawning actors, changing properties), you WRITE CODE.
 
 ### When to Write C++ vs Use Tools
@@ -174,7 +174,7 @@ public:
 
 protected:
     virtual void BeginPlay() override;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
     float Health = 100.0f;
 };

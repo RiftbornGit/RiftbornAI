@@ -10,7 +10,7 @@
 
 /**
  * Material Tools Module
- * 
+ *
  * Provides tools for creating and managing materials:
  * - create_material: Create a new material asset
  * - create_material_instance: Create material instance from parent
@@ -23,9 +23,9 @@ class RIFTBORNAI_API FMaterialToolsModule : public TToolModuleBase<FMaterialTool
 {
 public:
     static FString StaticModuleName() { return TEXT("MaterialTools"); }
-    
+
     virtual void RegisterTools(FClaudeToolRegistry& Registry) override;
-    
+
     // Tool implementations
     static FClaudeToolResult Tool_CreateMaterial(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_CreateMaterialInstance(const FClaudeToolCall& Call);

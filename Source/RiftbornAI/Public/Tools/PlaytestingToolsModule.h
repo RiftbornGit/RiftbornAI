@@ -6,7 +6,7 @@
 
 /**
  * FPlaytestingToolsModule
- * 
+ *
  * Tool module providing specialized functionality.
  */
 class RIFTBORNAI_API FPlaytestingToolsModule : public TToolModuleBase<FPlaytestingToolsModule>
@@ -16,4 +16,5 @@ public:
 	virtual void RegisterTools(FClaudeToolRegistry& Registry) override;
 	static FClaudeToolResult Tool_RunAIPlaytester(const FClaudeToolCall& Call);
 	static FClaudeToolResult Tool_RecordPlayerHeatmap(const FClaudeToolCall& Call);
+	static FClaudeToolResult Tool_VerifyTraversalRouteInPIE(const FClaudeToolCall& Call);
 };

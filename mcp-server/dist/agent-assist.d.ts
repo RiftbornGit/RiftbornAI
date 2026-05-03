@@ -15,6 +15,7 @@ export interface EnrichedError {
     recovery_hint: string;
     retryable: boolean;
 }
+type DirectToolExecutor = (toolName: string, params: Record<string, unknown>) => Promise<RiftbornResponse>;
 /** Enrich a failed tool response with category, recovery hint, and retryable flag. */
 export declare function enrichError(toolName: string, response: RiftbornResponse): EnrichedError;
 /**
@@ -33,8 +34,9 @@ export declare function addWorkflowHint(toolName: string, response: RiftbornResp
  * Returns an EnrichedError if the call is guaranteed to fail, or null if it should proceed.
  */
 export declare function checkPrerequisite(toolName: string, params: Record<string, unknown>): EnrichedError | null;
+export declare function checkStatefulPrerequisite(toolName: string, params: Record<string, unknown>, executeToolDirect: DirectToolExecutor): Promise<EnrichedError | null>;
 /**
  * Add execution duration to a tool response.
  */
 export declare function addTiming(response: RiftbornResponse, startTime: number): RiftbornResponse;
-//# sourceMappingURL=agent-assist.d.ts.map
+export {};

@@ -57,19 +57,19 @@ struct RIFTBORNAI_API FStepVM
 	// Identity (stable across updates)
 	FGuid StepId;
 	int32 StepIndex = 0;
-	
+
 	// Tool info
 	FString ToolName;
 	FString Label;
 	FString Description;
-	
+
 	// Risk assessment
 	EToolRisk Risk = EToolRisk::Safe;
 	bool bNeedsConfirmation = false;
-	
+
 	// Execution state
 	EStepStatus Status = EStepStatus::Pending;
-	
+
 	// Evidence (populated after execution)
 	bool bCanUndo = false;
 	FString UndoToken;
@@ -77,22 +77,30 @@ struct RIFTBORNAI_API FStepVM
 	FString ProofBundleId;
 	FString ErrorMessage;
 	FString WitnessJson;
-	
+	FString FailureCode;
+	FString DiagnosisWhatFailed;
+	FString DiagnosisWhatChanged;
+	FString DiagnosisNextStep;
+	FString DiagnosisProofArtifactId;
+	bool bAutoRetryScheduled = false;
+	int32 RetryAttemptsUsed = 0;
+	int32 RetryBudgetTotal = 0;
+
 	// Brain predictions (if available)
 	float PSuccess = 0.0f;
 	float PCatastrophic = 0.0f;
 	bool bNeedsEscalation = false;
-	
+
 	FStepVM()
 	{
 		StepId = FGuid::NewGuid();
 	}
-	
+
 	// Helpers
 	bool IsTerminal() const
 	{
-		return Status == EStepStatus::Succeeded || 
-		       Status == EStepStatus::Failed || 
+		return Status == EStepStatus::Succeeded ||
+		       Status == EStepStatus::Failed ||
 		       Status == EStepStatus::Skipped ||
 		       Status == EStepStatus::Cancelled;
 	}
@@ -106,41 +114,41 @@ struct RIFTBORNAI_API FPlanVM
 	// Identity
 	FGuid PlanId;
 	FString ProposalId;  // For integrity verification
-	
+
 	// Content
 	FString GoalLine;       // What the user asked for
 	FString IntentSummary;  // AI's interpretation
 	FString PlanJson;       // Frozen plan for execution
 	FString PlanHash;       // Integrity hash
-	
+
 	// Steps (stable identity, mutable state)
 	TArray<TSharedPtr<FStepVM>> Steps;
-	
+
 	// Lifecycle state
 	EVMPlanState State = EVMPlanState::None;
 	FString StateReason;  // Why we're in this state (error message, etc.)
 	// Alias for StateReason (used by some UI code)
 	FString& CompletionReason = StateReason;
-	
+
 	// Execution tracking
 	int32 CurrentStepIndex = 0;
 	FDateTime ExecutedAt;
-	
+
 	// Undo support
 	FString OverallUndoToken;
 	TArray<FString> StepUndoTokens;
-	
+
 	// Risk assessment (computed from steps)
 	EToolRisk HighestRisk = EToolRisk::Safe;
 	bool bFullyReversible = true;
-	
+
 	FPlanVM()
 	{
 		PlanId = FGuid::NewGuid();
 	}
-	
+
 	// === Computed Properties ===
-	
+
 	int32 SucceededCount() const
 	{
 		int32 Count = 0;
@@ -153,7 +161,7 @@ struct RIFTBORNAI_API FPlanVM
 		}
 		return Count;
 	}
-	
+
 	int32 FailedCount() const
 	{
 		int32 Count = 0;
@@ -166,7 +174,7 @@ struct RIFTBORNAI_API FPlanVM
 		}
 		return Count;
 	}
-	
+
 	int32 CompletedCount() const
 	{
 		int32 Count = 0;
@@ -179,7 +187,7 @@ struct RIFTBORNAI_API FPlanVM
 		}
 		return Count;
 	}
-	
+
 	bool HasUndoableSteps() const
 	{
 		for (const auto& Step : Steps)
@@ -191,7 +199,7 @@ struct RIFTBORNAI_API FPlanVM
 		}
 		return false;
 	}
-	
+
 	bool IsComplete() const
 	{
 		return State == EVMPlanState::Completed ||
@@ -202,7 +210,7 @@ struct RIFTBORNAI_API FPlanVM
 		       State == EVMPlanState::RolledBack ||
 		       State == EVMPlanState::Cancelled;
 	}
-	
+
 	// Find step by ID
 	TSharedPtr<FStepVM> GetStep(const FGuid& StepId)
 	{
@@ -215,7 +223,7 @@ struct RIFTBORNAI_API FPlanVM
 		}
 		return nullptr;
 	}
-	
+
 	TSharedPtr<FStepVM> GetStep(int32 Index)
 	{
 		if (Steps.IsValidIndex(Index))
@@ -232,20 +240,20 @@ struct RIFTBORNAI_API FPlanVM
 struct RIFTBORNAI_API FChatMessageVM
 {
 	FGuid MessageId;
-	
+
 	enum class ESender : uint8 { User, Assistant, System };
 	ESender Sender = ESender::User;
-	
+
 	FString Content;
 	FDateTime Timestamp;
-	
+
 	// For assistant messages with thinking
 	TArray<FString> ThinkingSteps;
 	bool bIsStreaming = false;
-	
+
 	// For tool execution messages
 	TOptional<FGuid> RelatedPlanId;
-	
+
 	FChatMessageVM()
 	{
 		MessageId = FGuid::NewGuid();
@@ -259,10 +267,10 @@ struct RIFTBORNAI_API FChatMessageVM
 struct RIFTBORNAI_API FEscalationVM
 {
 	FGuid EscalationId;
-	
+
 	enum class EType : uint8 { StepFailed, ProbeFailed, CatastrophicRisk, HighRisk, NeedsConfirmation };
 	EType Type = EType::StepFailed;
-	
+
 	int32 StepIndex = -1;
 	FString StepName;
 	FString Reason;
@@ -270,13 +278,13 @@ struct RIFTBORNAI_API FEscalationVM
 	float RiskLevel = 0.0f;
 	FString RepairSuggestion;
 	TArray<FString> AvailableActions;  // "Retry", "Skip", "Abort", etc.
-	
+
 	// Resolution
 	bool bResolved = false;
 	FString Decision;
 	FString DecisionReason;
 	FDateTime DecisionTime;
-	
+
 	FEscalationVM()
 	{
 		EscalationId = FGuid::NewGuid();
@@ -294,10 +302,10 @@ DECLARE_MULTICAST_DELEGATE(FOnEscalationChanged);  // Generic escalation state c
 
 /**
  * FRiftbornCopilotViewModel - Pure state container for Copilot UI
- * 
+ *
  * Owns all display state. Mutations only through explicit methods.
  * Fires delegates on state changes for UI binding.
- * 
+ *
  * TESTABLE: No Slate dependencies. Can be unit tested.
  */
 class RIFTBORNAI_API FRiftbornCopilotViewModel : public TSharedFromThis<FRiftbornCopilotViewModel>
@@ -305,70 +313,74 @@ class RIFTBORNAI_API FRiftbornCopilotViewModel : public TSharedFromThis<FRiftbor
 public:
 	FRiftbornCopilotViewModel();
 	~FRiftbornCopilotViewModel();
-	
+
 	// === PLAN STATE ===
-	
+
 	/** Get current plan (may be null) */
 	TSharedPtr<FPlanVM> GetPlan() const { return CurrentPlan; }
-	
+
 	/** Set a new pending plan (replaces any existing) */
 	void SetPendingPlan(TSharedPtr<FPlanVM> Plan);
-	
+
 	/** Transition plan to executing state */
 	void BeginExecution();
-	
+
 	/** Update a step's status and evidence */
 	void UpdateStep(const FGuid& StepId, EStepStatus NewStatus, const FString& ResultSummary = TEXT(""), const FString& ErrorMessage = TEXT(""));
 	void UpdateStep(int32 StepIndex, EStepStatus NewStatus, const FString& ResultSummary = TEXT(""), const FString& ErrorMessage = TEXT(""));
-	
+
 	/** Set step's undo token */
 	void SetStepUndoToken(const FGuid& StepId, const FString& UndoToken);
 	void SetStepUndoToken(int32 StepIndex, const FString& UndoToken);
-	
+
+	/** Set step proof/evidence payload */
+	void SetStepEvidence(const FGuid& StepId, const FString& ProofBundleId, const FString& WitnessJson);
+	void SetStepEvidence(int32 StepIndex, const FString& ProofBundleId, const FString& WitnessJson);
+
 	/** Complete the plan with final state */
 	void CompletePlan(EVMPlanState FinalState, const FString& Reason = TEXT(""));
-	
+
 	/** Clear plan entirely */
 	void ClearPlan();
-	
+
 	// === CHAT STATE ===
-	
+
 	/** Get all messages */
 	const TArray<TSharedPtr<FChatMessageVM>>& GetMessages() const { return Messages; }
-	
+
 	/** Add a message */
 	void AddUserMessage(const FString& Content);
 	void AddAssistantMessage(const FString& Content);
 	void AddSystemMessage(const FString& Content);
-	
+
 	/** Clear chat */
 	void ClearChat();
-	
+
 	// === ESCALATION STATE ===
-	
+
 	/** Get active escalations */
 	const TArray<TSharedPtr<FEscalationVM>>& GetEscalations() const { return Escalations; }
-	
+
 	/** Add an escalation */
 	FGuid AddEscalation(const FEscalationVM& Escalation);
-	
+
 	/** Resolve an escalation */
 	void ResolveEscalation(const FGuid& EscalationId, const FString& Decision, const FString& Reason);
-	
+
 	// === DELEGATES ===
-	
+
 	FOnPlanChanged OnPlanChanged;
 	FOnStepChanged OnStepChanged;
 	FOnChatChanged OnChatChanged;
 	FOnEscalationAdded OnEscalationAdded;
 	FOnEscalationResolved OnEscalationResolved;
 	FOnEscalationChanged OnEscalationChanged;  // Generic escalation state changed
-	
+
 	// === STATE MACHINE INVARIANTS ===
-	
+
 	/** Check if plan transition is valid */
 	static bool IsValidTransition(EVMPlanState From, EVMPlanState To);
-	
+
 private:
 	TSharedPtr<FPlanVM> CurrentPlan;
 	TArray<TSharedPtr<FChatMessageVM>> Messages;

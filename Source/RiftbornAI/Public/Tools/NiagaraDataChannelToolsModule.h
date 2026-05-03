@@ -9,7 +9,7 @@
 
 /**
  * FNiagaraDataChannelToolsModule
- * 
+ *
  * Niagara Data Channel tools for gameplay-to-VFX data streaming.
  */
 class RIFTBORNAI_API FNiagaraDataChannelToolsModule : public TToolModuleBase<FNiagaraDataChannelToolsModule>

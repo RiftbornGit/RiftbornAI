@@ -20,7 +20,6 @@ left out.
 | Document | Description |
 | -------- | ----------- |
 | [../README.md](../README.md) | Public project overview |
-| [GOVERNANCE_AND_SECURITY.md](GOVERNANCE_AND_SECURITY.md) | Risk tiers, proofs, and confirmation rules |
 | [LLM_PROVIDERS.md](LLM_PROVIDERS.md) | Supported providers and failover policy |
 | [READINESS_TRUTH.md](READINESS_TRUTH.md) | Canonical readiness-truth contract and downstream chain |
 | [TOOL_AUTHORING.md](TOOL_AUTHORING.md) | SDK surface for third-party tool plugins |
@@ -64,6 +63,7 @@ Cross-track process docs:
 - [AI_School/TASK_INTAKE_AND_PREFLIGHT.md](AI_School/TASK_INTAKE_AND_PREFLIGHT.md)
 - [AI_School/TRACK_SELECTION.md](AI_School/TRACK_SELECTION.md)
 - [AI_School/VERIFICATION_LADDER.md](AI_School/VERIFICATION_LADDER.md)
+- [AI_School/DOMAIN_DEFINITION_OF_DONE.md](AI_School/DOMAIN_DEFINITION_OF_DONE.md)
 - [AI_School/TASK_PLAYBOOKS.md](AI_School/TASK_PLAYBOOKS.md)
 - [AI_School/COVERAGE_BOUNDARIES.md](AI_School/COVERAGE_BOUNDARIES.md)
 
@@ -72,7 +72,6 @@ Cross-track process docs:
 | Document | Description |
 | -------- | ----------- |
 | [../CHANGELOG.md](../CHANGELOG.md) | Release notes |
-| [../CONTRIBUTING.md](../CONTRIBUTING.md) | Contribution workflow |
 | [../SECURITY.md](../SECURITY.md) | Security disclosure policy |
 | [../EULA.md](../EULA.md) | Licensing notice |
 | [../COMMERCIAL_LICENSE.md](../COMMERCIAL_LICENSE.md) | Commercial license guidance |

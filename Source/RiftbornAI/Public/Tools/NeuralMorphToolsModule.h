@@ -9,7 +9,7 @@
 
 /**
  * FNeuralMorphToolsModule
- * 
+ *
  * Neural morph and ML deformer asset tools.
  */
 class RIFTBORNAI_API FNeuralMorphToolsModule : public TToolModuleBase<FNeuralMorphToolsModule>

@@ -49,4 +49,8 @@ public:
 
 private:
     static AWaterBody* FindWaterBodyByLabel(const FString& Label);
+    // If Label is empty or not found, returns the first water body in the level.
+    // Fills OutResolvedLabel with whatever label was actually used so callers
+    // can report it back to the LLM. Returns nullptr only when no water exists.
+    static AWaterBody* ResolveWaterBody(const FString& Label, FString& OutResolvedLabel);
 };

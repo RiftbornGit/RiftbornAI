@@ -9,7 +9,7 @@
 
 /**
  * Compatibility guards for optional plugin dependencies
- * 
+ *
  * Use these macros and functions to safely check for optional modules
  * before using their types or APIs.
  */

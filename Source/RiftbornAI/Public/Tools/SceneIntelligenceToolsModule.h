@@ -15,7 +15,7 @@
 
 /**
  * FSceneIntelligenceToolsModule
- * 
+ *
  * Scene Intelligence Tools Module
  */
 class RIFTBORNAI_API FSceneIntelligenceToolsModule : public TToolModuleBase<FSceneIntelligenceToolsModule>

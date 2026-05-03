@@ -15,6 +15,7 @@
 #include "Serialization/JsonSerializer.h"
 #include "ClaudeToolUse.h"  // For FClaudeToolCall in ToolUtils helpers
 #include "InputSanitization.h"
+#include "EngineUtils.h"   // TActorIterator for FindActorByLabelFuzzy
 
 // ============================================================================
 // Safe Package Creation Helper - Prevents partial load crashes (UE-234567)
@@ -76,7 +77,7 @@ inline FSafePackageResult CreatePackageSafe(const FString& InPackagePath, const 
             return Result;
         }
     }
-    
+
     // VALIDATION: Check if path maps to a valid filesystem path
     FString DiskPath;
     if (!FPackageName::TryConvertLongPackageNameToFilename(PackagePath, DiskPath))
@@ -101,7 +102,7 @@ inline FSafePackageResult CreatePackageSafe(const FString& InPackagePath, const 
         Result.ErrorMessage = FString::Printf(TEXT("%s already exists at: %s"), *AssetTypeName, *PackagePath);
         return Result;
     }
-    
+
     // Check if file exists on disk (extra safety)
     FString AssetPath = FPackageName::LongPackageNameToFilename(PackagePath, FPackageName::GetAssetPackageExtension());
     if (FPaths::FileExists(AssetPath))
@@ -265,6 +266,71 @@ namespace ToolUtils
     {
         UWorld* World = GEditor ? GEditor->GetEditorWorldContext().World() : nullptr;
         return FindActorByLabel(World, ActorLabel);
+    }
+
+    /**
+     * Fuzzy actor lookup — tolerant to LLM label drift.
+     * 1. Exact label or name match (fastest path)
+     * 2. Case-insensitive
+     * 3. Substring (either direction)
+     * 4. If OutNearby is non-null, fills with up to 10 candidate labels when
+     *    no match is found so callers can return helpful errors.
+     */
+    inline AActor* FindActorByLabelFuzzy(UWorld* World, const FString& ActorLabel,
+        TArray<FString>* OutNearby = nullptr)
+    {
+        if (!World) return nullptr;
+        if (!ActorLabel.IsEmpty())
+        {
+            if (AActor* Exact = FindActorByLabel(World, ActorLabel)) return Exact;
+        }
+
+        AActor* CaseInsensitive = nullptr;
+        AActor* Substring = nullptr;
+        int32 AllCount = 0;
+
+        for (TActorIterator<AActor> It(World); It; ++It)
+        {
+            AActor* A = *It;
+            if (!A || !A->IsA<AActor>()) continue;
+            const FString Label = A->GetActorLabel();
+            const FString Name = A->GetName();
+
+            if (!ActorLabel.IsEmpty())
+            {
+                if (!CaseInsensitive &&
+                    (Label.Equals(ActorLabel, ESearchCase::IgnoreCase) ||
+                     Name.Equals(ActorLabel, ESearchCase::IgnoreCase)))
+                {
+                    CaseInsensitive = A;
+                }
+                if (!Substring &&
+                    (Label.Contains(ActorLabel, ESearchCase::IgnoreCase) ||
+                     ActorLabel.Contains(Label, ESearchCase::IgnoreCase) ||
+                     Name.Contains(ActorLabel, ESearchCase::IgnoreCase) ||
+                     ActorLabel.Contains(Name, ESearchCase::IgnoreCase)))
+                {
+                    Substring = A;
+                }
+            }
+
+            if (OutNearby && OutNearby->Num() < 10 && !Label.IsEmpty())
+            {
+                OutNearby->AddUnique(Label);
+            }
+            ++AllCount;
+        }
+
+        if (CaseInsensitive) return CaseInsensitive;
+        if (Substring) return Substring;
+        return nullptr;
+    }
+
+    inline AActor* FindActorByLabelFuzzy(const FString& ActorLabel,
+        TArray<FString>* OutNearby = nullptr)
+    {
+        UWorld* World = GEditor ? GEditor->GetEditorWorldContext().World() : nullptr;
+        return FindActorByLabelFuzzy(World, ActorLabel, OutNearby);
     }
 }
 

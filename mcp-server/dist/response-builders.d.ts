@@ -16,4 +16,3 @@ export declare function buildSafeCatchResponse(enriched: RiftbornResponse, optio
     resolutionMeta?: Record<string, unknown> | null;
 }): RiftbornResponse;
 export declare function buildSafePlanWorkflowResponse(plan: Record<string, unknown>, batchSteps: unknown, parallelSafety: unknown): RiftbornResponse;
-//# sourceMappingURL=response-builders.d.ts.map

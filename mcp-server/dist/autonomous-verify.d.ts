@@ -16,6 +16,7 @@
 import type { SceneChange } from "./scene-safety.js";
 import type { Milestone } from "./session-intelligence.js";
 import type { RiftbornResponse } from "./riftborn-types.js";
+import { type DomainProofGap } from "./domain-proof-contract.js";
 export interface VerificationCheck {
     tool: string;
     params: Record<string, unknown>;
@@ -26,6 +27,8 @@ export interface VerificationPlan {
     checks: VerificationCheck[];
     generated_from: string;
     change_count: number;
+    proof_gaps?: DomainProofGap[];
+    domains_detected?: string[];
 }
 export interface CheckResult {
     label: string;
@@ -43,6 +46,8 @@ export interface VerificationReport {
     checks: CheckResult[];
     duration_ms: number;
     suggestion?: string;
+    proof_gaps?: DomainProofGap[];
+    domains_detected?: string[];
 }
 export interface PieSmokeResult {
     overall: "PASS" | "FAIL" | "CRASH";
@@ -58,6 +63,7 @@ export interface PlanInput {
     sceneChanges: SceneChange[];
     milestones?: Milestone[];
     context?: Record<string, string>;
+    recentTools?: string[];
 }
 export declare function generatePlan(input: PlanInput): VerificationPlan;
 export declare function runPlan(plan: VerificationPlan, dispatch: Dispatch, sceneChanges?: SceneChange[]): Promise<VerificationReport>;
@@ -69,4 +75,3 @@ export interface PieSmokeOptions {
 }
 export declare function pieSmokeTest(dispatch: Dispatch, opts?: PieSmokeOptions): Promise<PieSmokeResult>;
 export {};
-//# sourceMappingURL=autonomous-verify.d.ts.map

@@ -66,4 +66,3 @@ export declare function buildDigest(callNumber: number, progress: ProgressTracke
  * Attaches every `interval` calls, or when an error pattern is detected.
  */
 export declare function shouldAttachDigest(callNumber: number, interval: number, recentEntries: SessionEntry[]): boolean;
-//# sourceMappingURL=session-intelligence.d.ts.map

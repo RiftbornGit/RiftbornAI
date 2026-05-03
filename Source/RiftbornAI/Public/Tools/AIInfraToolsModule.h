@@ -9,7 +9,7 @@
 
 /**
  * FAIInfraToolsModule
- * 
+ *
  * AI Infrastructure Tools Module - NavMesh and AI Perception
  */
 class RIFTBORNAI_API FAIInfraToolsModule : public TToolModuleBase<FAIInfraToolsModule>

@@ -7,7 +7,7 @@
 
 /**
  * Input sanitization utilities for tool parameters.
- * 
+ *
  * SECURITY: All user-controllable inputs (labels, paths, asset names) MUST be
  * validated through these functions before use. This prevents:
  * - SSRF attacks via URL/scheme injection
@@ -25,7 +25,7 @@ namespace FInputSanitization
         bool bValid = false;
         FString Error;
         FString SanitizedValue;
-        
+
         static FValidationResult Ok(const FString& Value)
         {
             FValidationResult R;
@@ -33,7 +33,7 @@ namespace FInputSanitization
             R.SanitizedValue = Value;
             return R;
         }
-        
+
         static FValidationResult Fail(const FString& Reason)
         {
             FValidationResult R;
@@ -66,7 +66,7 @@ namespace FInputSanitization
             TEXT("jar:"),
             TEXT("expect:"),
         };
-        
+
         FString Lower = Input.ToLower();
         for (const TCHAR* Scheme : DangerousSchemes)
         {
@@ -83,7 +83,7 @@ namespace FInputSanitization
      */
     inline bool ContainsPathTraversal(const FString& Input)
     {
-        return Input.Contains(TEXT("..")) || 
+        return Input.Contains(TEXT("..")) ||
                Input.Contains(TEXT("\\..")) ||
                Input.Contains(TEXT("../")) ||
                Input.Contains(TEXT("/.."));
@@ -122,7 +122,7 @@ namespace FInputSanitization
     /**
      * Validate an actor label.
      * Labels should be simple identifiers, not URLs or paths.
-     * 
+     *
      * Allowed: alphanumeric, underscore, dash, dot, space, colon (for Unreal paths)
      * Max length: 256 characters
      */
@@ -132,44 +132,44 @@ namespace FInputSanitization
         {
             return FValidationResult::Fail(TEXT("Label cannot be empty"));
         }
-        
+
         if (Label.Len() > 256)
         {
             return FValidationResult::Fail(TEXT("Label too long (max 256 characters)"));
         }
-        
+
         // Check for URL schemes
         if (ContainsUrlScheme(Label))
         {
             return FValidationResult::Fail(TEXT("Invalid label format: URL schemes not allowed"));
         }
-        
+
         // Check for path traversal
         if (ContainsPathTraversal(Label))
         {
             return FValidationResult::Fail(TEXT("Invalid label format: path traversal not allowed"));
         }
-        
+
         // Check for control characters
         if (ContainsControlChars(Label))
         {
             return FValidationResult::Fail(TEXT("Invalid label format: control characters not allowed"));
         }
-        
+
         // Check for metadata endpoints
         if (ContainsMetadataEndpoint(Label))
         {
             return FValidationResult::Fail(TEXT("Invalid label format: reserved addresses not allowed"));
         }
-        
+
         // Character whitelist check
         for (TCHAR C : Label)
         {
-            bool bValid = FChar::IsAlnum(C) || 
-                         C == TEXT('_') || 
-                         C == TEXT('-') || 
-                         C == TEXT('.') || 
-                         C == TEXT(' ') || 
+            bool bValid = FChar::IsAlnum(C) ||
+                         C == TEXT('_') ||
+                         C == TEXT('-') ||
+                         C == TEXT('.') ||
+                         C == TEXT(' ') ||
                          C == TEXT(':') ||
                          C == TEXT('/') ||  // For Unreal paths like /Game/...
                          C == TEXT('(') ||  // For array indices
@@ -179,7 +179,7 @@ namespace FInputSanitization
                 return FValidationResult::Fail(TEXT("Invalid label format: contains forbidden characters"));
             }
         }
-        
+
         return FValidationResult::Ok(Label.TrimStartAndEnd());
     }
 
@@ -193,37 +193,37 @@ namespace FInputSanitization
         {
             return FValidationResult::Fail(TEXT("Path cannot be empty"));
         }
-        
+
         if (Path.Len() > 512)
         {
             return FValidationResult::Fail(TEXT("Path too long (max 512 characters)"));
         }
-        
+
         // Check for URL schemes
         if (ContainsUrlScheme(Path))
         {
             return FValidationResult::Fail(TEXT("Invalid path format: URL schemes not allowed"));
         }
-        
+
         // Check for path traversal
         if (ContainsPathTraversal(Path))
         {
             return FValidationResult::Fail(TEXT("Invalid path format: path traversal not allowed"));
         }
-        
+
         // Check for control characters
         if (ContainsControlChars(Path))
         {
             return FValidationResult::Fail(TEXT("Invalid path format: control characters not allowed"));
         }
-        
+
         // Must start with valid Unreal path root
         bool bValidRoot = Path.StartsWith(TEXT("/Game/")) ||
                          Path.StartsWith(TEXT("/Engine/")) ||
                          Path.StartsWith(TEXT("/Script/")) ||
                          Path.StartsWith(TEXT("/Temp/")) ||
                          Path.StartsWith(TEXT("/RiftbornAI/"));
-        
+
         if (!bValidRoot)
         {
             return FValidationResult::Fail(TEXT("Invalid path format: must start with valid asset root (/Game/, /Engine/, etc.)"));
@@ -242,24 +242,24 @@ namespace FInputSanitization
         {
             return FValidationResult::Fail(TEXT("Class name cannot be empty"));
         }
-        
+
         if (ClassName.Len() > 256)
         {
             return FValidationResult::Fail(TEXT("Class name too long (max 256 characters)"));
         }
-        
+
         // Check for URL schemes
         if (ContainsUrlScheme(ClassName))
         {
             return FValidationResult::Fail(TEXT("Invalid class name format: URL schemes not allowed"));
         }
-        
+
         // Check for control characters
         if (ContainsControlChars(ClassName))
         {
             return FValidationResult::Fail(TEXT("Invalid class name format: control characters not allowed"));
         }
-        
+
         return FValidationResult::Ok(ClassName.TrimStartAndEnd());
     }
 
@@ -305,28 +305,28 @@ namespace FInputSanitization
         {
             return FValidationResult::Fail(TEXT("File path cannot be empty"));
         }
-        
+
         if (FilePath.Len() > 1024)
         {
             return FValidationResult::Fail(TEXT("File path too long (max 1024 characters)"));
         }
-        
+
         // Check for URL schemes
         if (ContainsUrlScheme(FilePath))
         {
             return FValidationResult::Fail(TEXT("Invalid file path: URL schemes not allowed"));
         }
-        
+
         // Check for control characters
         if (ContainsControlChars(FilePath))
         {
             return FValidationResult::Fail(TEXT("Invalid file path: control characters not allowed"));
         }
-        
+
         // Normalize path
         FString NormalizedPath = FPaths::ConvertRelativePathToFull(FilePath);
         FPaths::NormalizeDirectoryName(NormalizedPath);
-        
+
         // Must be within project root
         FString NormalizedRoot = FPaths::ConvertRelativePathToFull(ProjectRoot);
         FPaths::NormalizeDirectoryName(NormalizedRoot);
@@ -355,7 +355,7 @@ namespace FInputSanitization
         {
             return FValidationResult::Fail(TEXT("Header value too long"));
         }
-        
+
         // Check for control characters including CRLF
         for (TCHAR C : Value)
         {
@@ -364,7 +364,7 @@ namespace FInputSanitization
                 return FValidationResult::Fail(TEXT("Header value contains control characters"));
             }
         }
-        
+
         return FValidationResult::Ok(Value.TrimStartAndEnd());
     }
 
@@ -378,10 +378,10 @@ namespace FInputSanitization
         {
             return TEXT("<empty>");
         }
-        
+
         FString Safe;
         int32 Count = 0;
-        
+
         for (TCHAR C : Input)
         {
             if (Count >= MaxLen)
@@ -389,7 +389,7 @@ namespace FInputSanitization
                 Safe += TEXT("...");
                 break;
             }
-            
+
             // Only allow safe printable ASCII
             if (C >= 0x20 && C < 0x7F && C != TEXT('<') && C != TEXT('>'))
             {
@@ -401,7 +401,7 @@ namespace FInputSanitization
             }
             Count++;
         }
-        
+
         return Safe;
     }
 }

@@ -11,7 +11,7 @@
 
 /**
  * AI Tools Module
- * 
+ *
  * Provides tools for AI and Behavior Trees:
  * - create_behavior_tree: Create a new behavior tree asset
  * - add_bt_task: Add a task node to behavior tree
@@ -26,9 +26,9 @@ class RIFTBORNAI_API FAIToolsModule : public TToolModuleBase<FAIToolsModule>
 {
 public:
     static FString StaticModuleName() { return TEXT("AITools"); }
-    
+
     virtual void RegisterTools(FClaudeToolRegistry& Registry) override;
-    
+
     // Tool implementations
     static FClaudeToolResult Tool_CreateBehaviorTree(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_AddBTTask(const FClaudeToolCall& Call);
@@ -38,5 +38,5 @@ public:
     static FClaudeToolResult Tool_SetBlackboardKey(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_RunBehaviorTree(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_GetAIInfo(const FClaudeToolCall& Call);
-    
+
 };

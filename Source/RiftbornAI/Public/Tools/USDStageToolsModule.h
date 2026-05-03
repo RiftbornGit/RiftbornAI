@@ -9,7 +9,7 @@
 
 /**
  * FUSDStageToolsModule
- * 
+ *
  * USD stage tools for live twin and staged import workflows.
  */
 class RIFTBORNAI_API FUSDStageToolsModule : public TToolModuleBase<FUSDStageToolsModule>

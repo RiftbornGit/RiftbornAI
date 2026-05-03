@@ -9,7 +9,7 @@
 
 /**
  * FGameplayCamerasToolsModule
- * 
+ *
  * Gameplay Camera asset and component orchestration tools.
  */
 class RIFTBORNAI_API FGameplayCamerasToolsModule : public TToolModuleBase<FGameplayCamerasToolsModule>

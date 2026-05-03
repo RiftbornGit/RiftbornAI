@@ -15,7 +15,7 @@ class RIFTBORNAI_API FWidgetToolsModule : public TToolModuleBase<FWidgetToolsMod
 {
 public:
     static FString StaticModuleName() { return TEXT("WidgetTools"); }
-    
+
     virtual void RegisterTools(FClaudeToolRegistry& Registry) override;
 
     // Tool implementations

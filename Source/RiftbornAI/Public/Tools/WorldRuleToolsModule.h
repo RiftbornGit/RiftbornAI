@@ -14,7 +14,7 @@
 UCLASS()
 /**
  * URiftbornWorldRuleSchema
- * 
+ *
  * Thin world-rule tools built on top of UE 5.7 World Conditions.
  */
 class RIFTBORNAI_API URiftbornWorldRuleSchema : public UWorldConditionSchema

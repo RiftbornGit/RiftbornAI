@@ -9,7 +9,7 @@
 
 /**
  * FControlRigAuthoringToolsModule
- * 
+ *
  * Control Rig and IK Retarget authoring tools.
  */
 class RIFTBORNAI_API FControlRigAuthoringToolsModule : public TToolModuleBase<FControlRigAuthoringToolsModule>

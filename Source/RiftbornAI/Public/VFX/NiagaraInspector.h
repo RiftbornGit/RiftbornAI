@@ -196,7 +196,7 @@ struct RIFTBORNAI_API FNiagaraSnapshotDiff
 
 /**
  * Niagara Inspector - Deep introspection for VFX learning
- * 
+ *
  * This class provides the observability layer required for Phase 1:
  * - Enumerate emitters and their modules
  * - Extract all parameter values

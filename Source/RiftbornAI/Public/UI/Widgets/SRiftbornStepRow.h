@@ -19,12 +19,12 @@ class FRiftbornCopilotController;
 
 /**
  * SRiftbornStepRow - Single step display in ListView
- * 
+ *
  * ARCHITECTURE:
  * - Holds weak reference to FStepVM (stable pointer from ViewModel)
  * - Queries step state on every Tick/Paint (no caching)
  * - Calls Controller for confirm/undo actions
- * 
+ *
  * This ensures the row always shows current truth without manual refresh.
  */
 class RIFTBORNAI_API SRiftbornStepRow : public SMultiColumnTableRow<TSharedPtr<FStepVM>>
@@ -42,41 +42,44 @@ public:
 
 private:
 	// === WIDGET BUILDERS ===
-	
+
 	/** Build status icon (checkmark, X, spinner, etc.) */
 	TSharedRef<SWidget> BuildStatusIcon();
-	
+
 	/** Build the main content (tool name, description) */
 	TSharedRef<SWidget> BuildContent();
-	
+
+	/** Build proof/rollback chips for completed steps */
+	TSharedRef<SWidget> BuildEvidenceRow();
+
 	/** Build action buttons (undo, confirm) */
 	TSharedRef<SWidget> BuildActions();
 
 	// === DYNAMIC GETTERS (called every frame) ===
-	
+
 	/** Get icon brush based on current status */
 	const FSlateBrush* GetStatusBrush() const;
-	
+
 	/** Get status color */
 	FSlateColor GetStatusColor() const;
-	
+
 	/** Get label text */
 	FText GetLabelText() const;
-	
+
 	/** Get result/error text */
 	FText GetResultText() const;
-	
+
 	/** Should show undo button? */
 	EVisibility GetUndoVisibility() const;
-	
+
 	/** Should show confirm button? */
 	EVisibility GetConfirmVisibility() const;
-	
+
 	/** Get risk indicator color */
 	FSlateColor GetRiskColor() const;
 
 	// === BUTTON HANDLERS ===
-	
+
 	FReply OnUndoClicked();
 	FReply OnConfirmClicked();
 

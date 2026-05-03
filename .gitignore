@@ -30,6 +30,7 @@ node_modules/
 mcp-server/src/
 mcp-server/tests/
 mcp-server/scripts/
+mcp-server/dist/**/*.map
 mcp-server/eslint.config.mjs
 mcp-server/tsconfig.json
 mcp-server/vitest.config.ts

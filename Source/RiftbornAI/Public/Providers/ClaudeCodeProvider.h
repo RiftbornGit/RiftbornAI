@@ -58,6 +58,9 @@ public:
 	virtual bool IsConfigured() const override;
 
 	virtual void SetSystemPrompt(const FString& Prompt) override { SystemPrompt = Prompt; }
+	virtual void BindConversationSession(const FString& SessionId, const FString& DisplayName = FString()) override;
+	virtual bool SupportsPersistentConversationSession() const override { return true; }
+	virtual FString GetPersistentConversationSessionLabel() const override;
 
 	// ============================================================================
 	// IAIProvider — Messaging
@@ -123,6 +126,9 @@ public:
 	/** Read the version Claude Code reports (best-effort, may be empty). */
 	static FString GetClaudeCodeVersion();
 
+	/** Bound Claude Code session identifier (UUID). Empty when unbound. */
+	FString GetBoundConversationSessionId() const { return BoundConversationSessionId; }
+
 private:
 	// ============================================================================
 	// Internals
@@ -149,6 +155,9 @@ private:
 	/** Quote a string for safe inclusion in the command line on Windows. */
 	static FString QuoteForCommandLine(const FString& In);
 
+	/** Normalize an external session identifier to a valid Claude UUID. */
+	static FString NormalizeConversationSessionId(const FString& InSessionId);
+
 	/** Cleanly tear down the active process if any. */
 	void EndCurrentInvocation();
 
@@ -156,6 +165,8 @@ private:
 	FString  Model;
 	FString  ClaudeCodePath;     // empty = auto-detect each invocation
 	FString  SystemPrompt;
+	FString  BoundConversationSessionId;
+	FString  BoundConversationDisplayName;
 
 	// Active invocation state
 	TSharedPtr<FInteractiveProcess> Process;
@@ -174,9 +185,9 @@ private:
 	TFunction<void(const FString&, const TMap<FString, FString>&, const FString&)> OnToolCallCallback;
 	TFunction<void(bool, const FString&)> OnCompleteCallback;
 
-	// Conversation history (we maintain on our side because each `claude --print`
-	// call is a fresh process and Claude Code's own session continuity isn't
-	// used in this provider).
+	// Legacy local history buffer kept for compatibility with the shared provider
+	// interface. Claude Code continuity now binds to the copilot session/thread
+	// ID through BindConversationSession().
 	TArray<TPair<FString, FString>> History;  // (role, content)
 
 	// Last-call tool tracking — populated for UI display only (we don't dispatch).

@@ -6,7 +6,7 @@
 
 /**
  * FAtmosphericRealismToolsModule
- * 
+ *
  * Tool module providing specialized functionality.
  */
 class RIFTBORNAI_API FAtmosphericRealismToolsModule : public TToolModuleBase<FAtmosphericRealismToolsModule>

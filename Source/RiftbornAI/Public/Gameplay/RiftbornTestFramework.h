@@ -17,7 +17,7 @@ struct FRiftbornTestResult
     FString FailureReason;
     double ExecutionTimeMs = 0.0;
     TArray<FString> Logs;
-    
+
     void Log(const FString& Message)
     {
         Logs.Add(Message);
@@ -47,13 +47,13 @@ public:
         : SuiteName(InSuiteName)
     {
     }
-    
+
     // Add a test case
     void AddTest(const FRiftbornToolTestCase& TestCase)
     {
         TestCases.Add(TestCase);
     }
-    
+
     // Add success test
     void AddSuccessTest(
         const FString& TestName,
@@ -67,7 +67,7 @@ public:
         Test.bExpectSuccess = true;
         TestCases.Add(Test);
     }
-    
+
     // Add failure test (expect specific error)
     void AddFailureTest(
         const FString& TestName,
@@ -83,41 +83,41 @@ public:
         Test.ExpectedErrorCode = ExpectedError;
         TestCases.Add(Test);
     }
-    
+
     // Run all tests
     TArray<FRiftbornTestResult> RunAll()
     {
         TArray<FRiftbornTestResult> Results;
-        
+
         for (const FRiftbornToolTestCase& Test : TestCases)
         {
             Results.Add(RunTest(Test));
         }
-        
+
         return Results;
     }
-    
+
     // Run a single test
     FRiftbornTestResult RunTest(const FRiftbornToolTestCase& Test)
     {
         FRiftbornTestResult Result;
         Result.TestName = FString::Printf(TEXT("%s::%s"), *SuiteName, *Test.TestName);
-        
+
         double StartTime = FPlatformTime::Seconds();
-        
+
         // Build tool call
         FClaudeToolCall Call;
         Call.ToolName = Test.ToolName;
         Call.Arguments = Test.Arguments;
         Call.ToolUseId = FGuid::NewGuid().ToString();
-        
+
         Result.Log(FString::Printf(TEXT("Executing tool: %s"), *Test.ToolName));
-        
+
         // Execute tool
         FClaudeToolResult ToolResult = FClaudeToolRegistry::Get().ExecuteTool(Call);
-        
+
         Result.ExecutionTimeMs = (FPlatformTime::Seconds() - StartTime) * 1000.0;
-        
+
         // Validate result
         if (Test.bExpectSuccess)
         {
@@ -138,7 +138,7 @@ public:
         {
             if (!ToolResult.bSuccess)
             {
-                if (Test.ExpectedErrorCode.IsEmpty() || 
+                if (Test.ExpectedErrorCode.IsEmpty() ||
                     ToolResult.ErrorMessage.Contains(Test.ExpectedErrorCode))
                 {
                     Result.bPassed = true;
@@ -158,7 +158,7 @@ public:
                 Result.FailureReason = TEXT("Expected failure but tool succeeded");
             }
         }
-        
+
         // Run custom validator if provided
         if (Result.bPassed && Test.CustomValidator)
         {
@@ -168,13 +168,13 @@ public:
                 Result.FailureReason = TEXT("Custom validation failed");
             }
         }
-        
+
         return Result;
     }
-    
+
     FString GetSuiteName() const { return SuiteName; }
     int32 GetTestCount() const { return TestCases.Num(); }
-    
+
 private:
     FString SuiteName;
     TArray<FRiftbornToolTestCase> TestCases;
@@ -191,68 +191,68 @@ public:
         static FRiftbornTestRunner Instance;
         return Instance;
     }
-    
+
     // Register a test suite
     void RegisterSuite(TSharedPtr<FRiftbornToolTestSuite> Suite)
     {
         Suites.Add(Suite);
     }
-    
+
     // Run all registered suites
     TArray<FRiftbornTestResult> RunAllSuites()
     {
         TArray<FRiftbornTestResult> AllResults;
-        
+
         for (const TSharedPtr<FRiftbornToolTestSuite>& Suite : Suites)
         {
             TArray<FRiftbornTestResult> SuiteResults = Suite->RunAll();
             AllResults.Append(SuiteResults);
         }
-        
+
         return AllResults;
     }
-    
+
     // Generate report
     FString GenerateReport(const TArray<FRiftbornTestResult>& Results)
     {
         int32 Passed = 0;
         int32 Failed = 0;
         double TotalTime = 0.0;
-        
+
         FString Report;
         Report += TEXT("═══════════════════════════════════════════\n");
         Report += TEXT("       RIFTBORN AI TEST REPORT\n");
         Report += TEXT("═══════════════════════════════════════════\n\n");
-        
+
         for (const FRiftbornTestResult& Result : Results)
         {
             if (Result.bPassed)
             {
                 Passed++;
-                Report += FString::Printf(TEXT("✓ PASS: %s (%.2fms)\n"), 
+                Report += FString::Printf(TEXT("✓ PASS: %s (%.2fms)\n"),
                     *Result.TestName, Result.ExecutionTimeMs);
             }
             else
             {
                 Failed++;
-                Report += FString::Printf(TEXT("✗ FAIL: %s (%.2fms)\n"), 
+                Report += FString::Printf(TEXT("✗ FAIL: %s (%.2fms)\n"),
                     *Result.TestName, Result.ExecutionTimeMs);
                 Report += FString::Printf(TEXT("  Reason: %s\n"), *Result.FailureReason);
             }
             TotalTime += Result.ExecutionTimeMs;
         }
-        
+
         Report += TEXT("\n═══════════════════════════════════════════\n");
-        Report += FString::Printf(TEXT("SUMMARY: %d passed, %d failed, %d total\n"), 
+        Report += FString::Printf(TEXT("SUMMARY: %d passed, %d failed, %d total\n"),
             Passed, Failed, Results.Num());
         Report += FString::Printf(TEXT("Total execution time: %.2fms\n"), TotalTime);
-        Report += FString::Printf(TEXT("Pass rate: %.1f%%\n"), 
+        Report += FString::Printf(TEXT("Pass rate: %.1f%%\n"),
             Results.Num() > 0 ? (float)Passed / Results.Num() * 100.0f : 0.0f);
         Report += TEXT("═══════════════════════════════════════════\n");
-        
+
         return Report;
     }
-    
+
 private:
     TArray<TSharedPtr<FRiftbornToolTestSuite>> Suites;
 };
@@ -266,7 +266,7 @@ namespace RiftbornTests
     inline TSharedPtr<FRiftbornToolTestSuite> CreateInputValidationSuite()
     {
         auto Suite = MakeShared<FRiftbornToolTestSuite>(TEXT("InputValidation"));
-        
+
         // Empty parameter tests
         Suite->AddFailureTest(
             TEXT("spawn_actor_empty_class"),
@@ -274,14 +274,14 @@ namespace RiftbornTests
             {}, // No arguments
             TEXT("required")
         );
-        
+
         Suite->AddFailureTest(
             TEXT("create_blueprint_empty_name"),
             TEXT("create_blueprint"),
             {{TEXT("parent_class"), TEXT("Actor")}}, // Missing name
             TEXT("required")
         );
-        
+
         // Invalid path tests
         Suite->AddFailureTest(
             TEXT("open_blueprint_invalid_path"),
@@ -289,22 +289,22 @@ namespace RiftbornTests
             {{TEXT("path"), TEXT("../../../etc/passwd")}},
             TEXT("Invalid")
         );
-        
+
         Suite->AddFailureTest(
             TEXT("find_assets_path_traversal"),
             TEXT("find_assets"),
             {{TEXT("search_query"), TEXT("../../Windows/System32")}},
             TEXT("")
         );
-        
+
         return Suite;
     }
-    
+
     // Null handling tests
     inline TSharedPtr<FRiftbornToolTestSuite> CreateNullHandlingSuite()
     {
         auto Suite = MakeShared<FRiftbornToolTestSuite>(TEXT("NullHandling"));
-        
+
         // Non-existent assets
         Suite->AddFailureTest(
             TEXT("open_nonexistent_blueprint"),
@@ -312,38 +312,38 @@ namespace RiftbornTests
             {{TEXT("path"), TEXT("/Game/NonExistent/BP_DoesNotExist")}},
             TEXT("not found")
         );
-        
+
         Suite->AddFailureTest(
             TEXT("delete_nonexistent_actor"),
             TEXT("delete_actor"),
             {{TEXT("label"), TEXT("Actor_That_Does_Not_Exist_12345")}},
             TEXT("")
         );
-        
+
         return Suite;
     }
-    
+
     // Basic functionality tests
     inline TSharedPtr<FRiftbornToolTestSuite> CreateBasicFunctionalitySuite()
     {
         auto Suite = MakeShared<FRiftbornToolTestSuite>(TEXT("BasicFunctionality"));
-        
+
         // List operations (should always work)
         Suite->AddSuccessTest(
             TEXT("get_level_actors"),
             TEXT("get_level_actors"),
             {}
         );
-        
+
         Suite->AddSuccessTest(
             TEXT("get_registered_tools"),
             TEXT("get_registered_tools"),
             {}
         );
-        
+
         return Suite;
     }
-    
+
     // Register all built-in test suites
     inline void RegisterBuiltInSuites()
     {

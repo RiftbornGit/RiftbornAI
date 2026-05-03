@@ -20,7 +20,7 @@ struct RIFTBORNAI_API FToolParameter
     bool bRequired;
     FString Type;  // string, int, float, bool, array
     FString DefaultValue;
-    
+
     FToolParameter() : bRequired(false) {}
     FToolParameter(const FString& InName, const FString& InDesc, bool bInRequired, const FString& InType)
         : Name(InName), Description(InDesc), bRequired(bInRequired), Type(InType)
@@ -35,9 +35,9 @@ struct RIFTBORNAI_API FToolResult
     bool bSuccess;
     FString Output;
     FString ErrorMessage;
-    
+
     FToolResult() : bSuccess(false) {}
-    
+
     static FToolResult Success(const FString& InOutput)
     {
         FToolResult Result;
@@ -45,7 +45,7 @@ struct RIFTBORNAI_API FToolResult
         Result.Output = InOutput;
         return Result;
     }
-    
+
     // Overload for JSON object results - serializes to string
     static FToolResult Success(TSharedPtr<FJsonObject> JsonResult)
     {
@@ -58,7 +58,7 @@ struct RIFTBORNAI_API FToolResult
         }
         return Result;
     }
-    
+
     static FToolResult Failure(const FString& Error)
     {
         FToolResult Result;
@@ -66,7 +66,7 @@ struct RIFTBORNAI_API FToolResult
         Result.ErrorMessage = Error;
         return Result;
     }
-    
+
     FString ToJson() const
     {
         TSharedRef<FJsonObject> JsonObj = MakeShared<FJsonObject>();
@@ -79,7 +79,7 @@ struct RIFTBORNAI_API FToolResult
         {
             JsonObj->SetStringField(TEXT("error"), ErrorMessage);
         }
-        
+
         FString OutputString;
         TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutputString);
         FJsonSerializer::Serialize(JsonObj, Writer);
@@ -95,22 +95,22 @@ class RIFTBORNAI_API FAgentTool
 {
 public:
     virtual ~FAgentTool() = default;
-    
+
     /** Get the unique name of this tool */
     virtual FString GetName() const = 0;
-    
+
     /** Get human-readable description of what this tool does */
     virtual FString GetDescription() const = 0;
-    
+
     /** Get the parameters this tool accepts */
     virtual TArray<FToolParameter> GetParameters() const = 0;
-    
+
     /** Get the permission tier required to execute this tool */
     virtual EToolPermissionTier GetPermissionTier() const { return EToolPermissionTier::ReadOnly; }
-    
+
     /** Execute the tool with given parameters */
     virtual FToolResult Execute(const TMap<FString, FString>& Parameters, UWorld* World) = 0;
-    
+
     /** Build JSON schema for this tool (for Claude API) */
     TSharedPtr<FJsonObject> BuildToolJson() const
     {
@@ -118,38 +118,38 @@ public:
         ToolObj->SetStringField(TEXT("name"), GetName());
         ToolObj->SetStringField(TEXT("description"), GetDescription());
         ToolObj->SetStringField(TEXT("permission_tier"), ToolPermissionTierToString(GetPermissionTier()));
-        
+
         // Build input schema
         TSharedRef<FJsonObject> InputSchema = MakeShared<FJsonObject>();
         InputSchema->SetStringField(TEXT("type"), TEXT("object"));
-        
+
         TSharedRef<FJsonObject> Properties = MakeShared<FJsonObject>();
         TArray<TSharedPtr<FJsonValue>> Required;
-        
+
         for (const FToolParameter& Param : GetParameters())
         {
             TSharedRef<FJsonObject> PropObj = MakeShared<FJsonObject>();
             PropObj->SetStringField(TEXT("type"), Param.Type);
             PropObj->SetStringField(TEXT("description"), Param.Description);
-            
+
             if (!Param.DefaultValue.IsEmpty())
             {
                 PropObj->SetStringField(TEXT("default"), Param.DefaultValue);
             }
-            
+
             Properties->SetObjectField(Param.Name, PropObj);
-            
+
             if (Param.bRequired)
             {
                 Required.Add(MakeShared<FJsonValueString>(Param.Name));
             }
         }
-        
+
         InputSchema->SetObjectField(TEXT("properties"), Properties);
         InputSchema->SetArrayField(TEXT("required"), Required);
-        
+
         ToolObj->SetObjectField(TEXT("input_schema"), InputSchema);
-        
+
         return ToolObj;
     }
 };
@@ -198,7 +198,7 @@ public:
         FScopeLock Lock(&ToolsLock);
         Tools.Remove(Name);
     }
-    
+
     /** Get a tool by name */
     TSharedPtr<FAgentTool> GetTool(const FString& Name) const
     {
@@ -223,7 +223,7 @@ public:
         {
             return FToolResult::Failure(FString::Printf(TEXT("Tool not found: %s"), *Name));
         }
-        
+
         // Check permission tier
         EToolPermissionTier ToolTier = Tool->GetPermissionTier();
         if (static_cast<uint8>(ToolTier) > static_cast<uint8>(MaxAllowedTier))
@@ -234,9 +234,9 @@ public:
                 *ToolPermissionTierToString(ToolTier),
                 *ToolPermissionTierToString(MaxAllowedTier)));
         }
-        
+
         // Block destructive by default (unless explicitly allowed)
-        if (RiftbornProductionFlags::BLOCK_DESTRUCTIVE_BY_DEFAULT && 
+        if (RiftbornProductionFlags::BLOCK_DESTRUCTIVE_BY_DEFAULT &&
             ToolTier >= EToolPermissionTier::Destructive &&
             MaxAllowedTier < EToolPermissionTier::Destructive)
         {
@@ -244,10 +244,10 @@ public:
                 TEXT("Destructive tool '%s' blocked by production safety flag"),
                 *Name));
         }
-        
+
         return Tool->Execute(Parameters, World);
     }
-    
+
     /** Build JSON array of all tools for Claude API */
     TArray<TSharedPtr<FJsonValue>> BuildToolsJson() const
     {
@@ -278,10 +278,10 @@ public:
         Tools.GetKeys(Names);
         return Names;
     }
-    
+
 private:
     FAgentToolRegistry() = default;
-    
+
     TMap<FString, TSharedPtr<FAgentTool>> Tools;
     mutable FCriticalSection ToolsLock;
 };

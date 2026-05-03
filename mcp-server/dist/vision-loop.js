@@ -177,6 +177,13 @@ Use this instead of calling tools directly when you want visual confirmation.`,
 // VISION LOOP HANDLERS — Implementation that chains existing tools
 // ============================================================================
 export function createVisionHandlers(executeTool, _httpRequest) {
+    const numberOrDefault = (value, fallback) => {
+        if (value == null) {
+            return fallback;
+        }
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : fallback;
+    };
     return {
         vision_observe: async (args) => {
             // 1. Optionally move camera
@@ -230,7 +237,7 @@ export function createVisionHandlers(executeTool, _httpRequest) {
         vision_inspect_actor: async (args) => {
             // 1. Focus camera on actor
             const focusResult = await executeTool("focus_actor", {
-                actor_label: args.actor_label
+                label: args.actor_label
             });
             if (!focusResult?.ok) {
                 return { ok: false, error: `focus_actor failed for '${args.actor_label}': ${focusResult?.error ?? "unknown"}` };
@@ -242,8 +249,8 @@ export function createVisionHandlers(executeTool, _httpRequest) {
             const yaw = angleMap[String(args.angle || "three_quarter")] ?? 45;
             const pitch = args.angle === "top" ? -80 : -20;
             const orbitResult = await executeTool("orbit_actor", {
-                target_label: args.actor_label,
-                distance: args.distance || 500,
+                label: args.actor_label,
+                distance: numberOrDefault(args.distance, 500),
                 yaw: yaw,
                 pitch: pitch
             });
@@ -310,17 +317,20 @@ export function createVisionHandlers(executeTool, _httpRequest) {
             };
         },
         vision_sweep: async (args) => {
-            const angles = Math.min(Math.max(2, args.angles || 4), 8);
+            const angles = Math.trunc(Math.min(Math.max(2, numberOrDefault(args.angles, 4)), 8));
             const results = [];
             let failedAngles = 0;
             for (let i = 0; i < angles; i++) {
                 const yaw = (360 / angles) * i;
                 // Set camera position
                 if (args.center) {
+                    const centerX = numberOrDefault(args.center.x, 0);
+                    const centerY = numberOrDefault(args.center.y, 0);
+                    const centerZ = numberOrDefault(args.center.z, 500);
                     const moveResult = await executeTool("set_viewport_location", {
-                        x: args.center.x + Math.cos(yaw * Math.PI / 180) * 2000,
-                        y: args.center.y + Math.sin(yaw * Math.PI / 180) * 2000,
-                        z: (args.center.z || 500) + 500,
+                        x: centerX + Math.cos(yaw * Math.PI / 180) * 2000,
+                        y: centerY + Math.sin(yaw * Math.PI / 180) * 2000,
+                        z: centerZ + 500,
                         pitch: -25,
                         yaw: yaw + 180 // Look toward center
                     });
@@ -432,4 +442,3 @@ async function applyCameraPreset(executeTool, preset) {
             return { ok: true };
     }
 }
-//# sourceMappingURL=vision-loop.js.map

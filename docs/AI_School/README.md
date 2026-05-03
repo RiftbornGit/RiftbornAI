@@ -9,6 +9,7 @@ The design-system and tool-reference docs describe supported surfaces. The Schoo
 - **[TASK_INTAKE_AND_PREFLIGHT.md](TASK_INTAKE_AND_PREFLIGHT.md)** — How to identify the real mutation, clear editor blockers, choose the implementation lane, and define proof before any substantial work starts.
 - **[TRACK_SELECTION.md](TRACK_SELECTION.md)** — How to choose the smallest correct set of tracks for mixed-domain work.
 - **[VERIFICATION_LADDER.md](VERIFICATION_LADDER.md)** — What counts as real proof before a task can be called done.
+- **[DOMAIN_DEFINITION_OF_DONE.md](DOMAIN_DEFINITION_OF_DONE.md)** — Minimum finish-line contracts for the primary authoring domains so workflows do not stop at compile-only proof.
 - **[TASK_PLAYBOOKS.md](TASK_PLAYBOOKS.md)** — Reusable multi-domain recipes for common feature slices such as abilities, traversal, playable areas, cinematics, and destructibles.
 - **[COVERAGE_BOUNDARIES.md](COVERAGE_BOUNDARIES.md)** — Why some design-system names are not yet documented as public AI School lanes.
 

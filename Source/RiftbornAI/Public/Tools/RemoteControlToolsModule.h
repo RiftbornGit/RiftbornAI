@@ -9,7 +9,7 @@
 
 /**
  * FRemoteControlToolsModule
- * 
+ *
  * Remote Control tools for exposing live editor/world controls.
  */
 class RIFTBORNAI_API FRemoteControlToolsModule : public TToolModuleBase<FRemoteControlToolsModule>

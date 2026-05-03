@@ -158,8 +158,9 @@ are gated by frame budget. Vision capture briefly stalls the renderer
 RiftbornAI never deletes or overwrites without an explicit confirmation.
 Mutating tools (anything beyond read-only inspection) go through the
 governance pipeline: risk-tiered policy, undo strategy declared at
-registration, optional confirmation tokens for destructive operations. See
-[`docs/GOVERNANCE_AND_SECURITY.md`](GOVERNANCE_AND_SECURITY.md).
+registration, optional confirmation tokens for destructive operations. The
+shipped tool-surface contract is summarized in
+[`docs/READINESS_TRUTH.md`](READINESS_TRUTH.md).
 
 ---
 

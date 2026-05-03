@@ -16,7 +16,7 @@ struct FToolCacheEntry
 	FClaudeToolResult Result;
 	FDateTime CachedAt;
 	float TTLSeconds;  // Time-to-live
-	
+
 	bool IsExpired() const
 	{
 		float ElapsedSeconds = (FDateTime::Now() - CachedAt).GetTotalSeconds();
@@ -68,7 +68,7 @@ public:
 
 private:
 	FToolResultCache();
-	
+
 	FString ComputeArgsHash(const TMap<FString, FString>& Args) const;
 	FString MakeCacheKey(const FString& ToolName, const FString& ArgsHash) const;
 	float GetTTLForTool(const FString& ToolName) const;
@@ -76,14 +76,14 @@ private:
 	void EvictOldestEntries(int32 CountToEvict);
 
 	TMap<FString, FToolCacheEntry> Cache;
-	
+
 	// Per-tool TTL settings (some tools change more frequently)
 	TMap<FString, float> ToolTTLOverrides;
-	
+
 	// Stats
 	int32 CacheHits = 0;
 	int32 CacheMisses = 0;
-	
+
 	// Settings
 	bool bCacheEnabled = true;
 	int32 MaxCacheEntries = 100;

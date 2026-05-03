@@ -138,7 +138,7 @@ const WORKFLOWS = {
     },
     character: {
         name: "Character Pipeline",
-        description: "Create a playable third-person character with mesh, animation, input, and camera.",
+        description: "Create a playable third-person character with mesh, animation, input, camera, and runtime proof.",
         steps: [
             {
                 tool: "create_character_from_third_person",
@@ -151,11 +151,16 @@ const WORKFLOWS = {
                 key_params: [],
                 notes: "One-shot setup. Creates GameMode if needed.",
             },
+            {
+                tool: "run_quick_playtest",
+                description: "Run a bounded PIE proof pass so the character is verified in runtime, not only authored.",
+                key_params: [],
+            },
         ],
     },
     blueprint: {
         name: "Blueprint Pipeline",
-        description: "Create a Blueprint with components, variables, events, and compile it.",
+        description: "Create a Blueprint with components, variables, events, compile it, and prove the behavior in runtime.",
         steps: [
             {
                 tool: "open_blueprint",
@@ -182,6 +187,11 @@ const WORKFLOWS = {
                 tool: "compile_blueprint",
                 description: "Compile and validate. Check for errors.",
                 key_params: ["blueprint_path"],
+            },
+            {
+                tool: "run_quick_playtest",
+                description: "Exercise the authored behavior in PIE. Compile success alone is not the finish line.",
+                key_params: [],
             },
         ],
     },
@@ -264,16 +274,17 @@ const WORKFLOWS = {
     },
     arena: {
         name: "Arena Pipeline",
-        description: "Build a playable arena with floor, walls, cover, lights, and navigation.",
+        description: "Build a playable arena with floor, walls, cover, lights, navigation, and runtime proof.",
         steps: [
             { tool: "create_landscape", description: "Arena floor terrain.", key_params: ["size"] },
             { tool: "spawn_actor", description: "Place wall segments around the perimeter.", key_params: ["actor_class", "label"], notes: "Repeat for each wall piece." },
             { tool: "spawn_actor", description: "Place cover objects (boxes, barriers).", key_params: ["actor_class", "label"], notes: "Repeat for each cover piece." },
             { tool: "create_light", description: "Arena lighting.", key_params: ["type", "label"] },
             { tool: "build_navmesh", description: "Generate navigation mesh for AI.", key_params: [] },
+            { tool: "get_navmesh_status", description: "Confirm the navigation mesh actually built and is usable.", key_params: [] },
             { tool: "create_character_from_third_person", description: "Create playable character.", key_params: ["name"] },
             { tool: "make_character_playable", description: "Set as default pawn.", key_params: [] },
-            { tool: "start_pie", description: "Playtest the arena.", key_params: [] },
+            { tool: "run_quick_playtest", description: "Playtest the arena in PIE so traversal and spawn assumptions are proven.", key_params: [] },
         ],
     },
 };
@@ -294,4 +305,3 @@ export function listWorkflows() {
         step_count: w.steps.length,
     }));
 }
-//# sourceMappingURL=tool-compression.js.map

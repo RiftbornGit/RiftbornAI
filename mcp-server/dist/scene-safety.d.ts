@@ -74,4 +74,3 @@ export declare class SceneChangeLog {
         counts: Record<string, number>;
     }): void;
 }
-//# sourceMappingURL=scene-safety.d.ts.map

@@ -48,28 +48,28 @@ struct RIFTBORNAI_API FAssetViolation
 {
     /** Asset path that has the violation */
     FString AssetPath;
-    
+
     /** Human-readable description */
     FString Description;
-    
+
     /** Category */
     EValidationCategory Category = EValidationCategory::Texture;
-    
+
     /** Severity */
     EValidationSeverity Severity = EValidationSeverity::Warning;
-    
+
     /** The metric name (e.g., "triangle_count", "texture_resolution") */
     FString MetricName;
-    
+
     /** Actual value */
     double ActualValue = 0.0;
-    
+
     /** Budget/limit value */
     double BudgetValue = 0.0;
-    
+
     /** Percentage over budget (negative = under budget) */
     double OverBudgetPercent = 0.0;
-    
+
     /** Suggested fix */
     FString SuggestedFix;
 };
@@ -84,7 +84,7 @@ struct RIFTBORNAI_API FAssetValidationBudgets
     bool bRequirePowerOfTwo = true;             // Enforce power-of-two dimensions
     bool bRequireSquare = false;                // Enforce square textures
     int64 MaxTextureSizeBytes = 16 * 1024 * 1024; // 16 MB max per texture
-    
+
     // === MESHES ===
     int32 MaxTrianglesLOD0 = 100000;            // Max tris for LOD0
     int32 MaxTrianglesLOD1 = 50000;             // Max tris for LOD1
@@ -92,34 +92,34 @@ struct RIFTBORNAI_API FAssetValidationBudgets
     int32 MaxVerticesLOD0 = 65535;              // 16-bit index buffer limit
     float MinLODReductionRatio = 0.4f;          // Each LOD should be ≤40% of previous
     int32 MinRequiredLODs = 2;                  // Minimum number of LODs
-    
+
     // === MATERIALS ===
     int32 MaxMaterialInstructions = 300;        // Max shader instructions
     int32 MaxTextureSamples = 16;               // Max texture samples per material
     int32 MaxMaterialPermutations = 64;         // Max shader permutations
-    
+
     // === MEMORY ===
     int64 MaxAssetMemoryMB = 256;               // Max estimated runtime memory per asset
     int64 TotalBudgetMB = 2048;                 // Total memory budget for validated scope
-    
+
     // === ANIMATION ===
     int32 MaxBoneCount = 256;                   // Max bones per skeleton
     int32 MaxAnimCurveCount = 100;              // Max curves per anim sequence
-    
+
     // === BLUEPRINT ===
     int32 MaxBlueprintNodes = 500;              // Max nodes per Blueprint graph
     int32 MaxCastChainDepth = 3;                // Max nested casts
-    
+
     // === NAMING ===
     /** Prefix rules: "StaticMesh" -> "SM_", "Texture2D" -> "T_", etc. */
     TMap<FString, FString> NamingPrefixRules;
-    
+
     /** Create default budgets for a target platform */
     static FAssetValidationBudgets DefaultPC()
     {
         return FAssetValidationBudgets(); // Defaults are PC-tuned
     }
-    
+
     static FAssetValidationBudgets DefaultConsole()
     {
         FAssetValidationBudgets B;
@@ -135,7 +135,7 @@ struct RIFTBORNAI_API FAssetValidationBudgets
         B.MaxBoneCount = 128;
         return B;
     }
-    
+
     static FAssetValidationBudgets DefaultMobile()
     {
         FAssetValidationBudgets B;
@@ -161,40 +161,40 @@ struct RIFTBORNAI_API FAssetValidationReport
 {
     /** Scope that was validated (e.g., "/Game/Characters/") */
     FString Scope;
-    
+
     /** All violations found */
     TArray<FAssetViolation> Violations;
-    
+
     /** Total assets scanned */
     int32 TotalAssetsScanned = 0;
-    
+
     /** Assets that passed all checks */
     int32 PassedCount = 0;
-    
+
     /** Assets with at least one warning */
     int32 WarningCount = 0;
-    
+
     /** Assets with at least one error */
     int32 ErrorCount = 0;
-    
+
     /** Assets with at least one critical violation */
     int32 CriticalCount = 0;
-    
+
     /** Total estimated memory usage of scanned assets (MB) */
     double TotalEstimatedMemoryMB = 0.0;
-    
+
     /** When the validation was run */
     FDateTime Timestamp;
-    
+
     /** Budgets used */
     FAssetValidationBudgets BudgetsUsed;
-    
+
     /** Duration of the validation scan */
     float DurationSeconds = 0.0f;
-    
+
     /** Did the scope pass validation? (No errors or criticals) */
     bool Passed() const { return ErrorCount == 0 && CriticalCount == 0; }
-    
+
     /** Get violations filtered by category */
     TArray<FAssetViolation> GetViolationsByCategory(EValidationCategory Cat) const
     {
@@ -205,7 +205,7 @@ struct RIFTBORNAI_API FAssetValidationReport
         }
         return Filtered;
     }
-    
+
     /** Get violations filtered by severity */
     TArray<FAssetViolation> GetViolationsBySeverity(EValidationSeverity Sev) const
     {
@@ -216,7 +216,7 @@ struct RIFTBORNAI_API FAssetValidationReport
         }
         return Filtered;
     }
-    
+
     /** Get summary string */
     FString GetSummary() const
     {
@@ -226,24 +226,24 @@ struct RIFTBORNAI_API FAssetValidationReport
             TotalEstimatedMemoryMB,
             Passed() ? TEXT("✓ PASSED") : TEXT("✗ FAILED"));
     }
-    
+
     /** Serialize to JSON for CI/CD integration */
     FString ToJson() const;
-    
+
     /** Save report to disk */
     bool SaveToFile(const FString& FilePath) const;
 };
 
 /**
  * FAssetValidationPipeline
- * 
+ *
  * Main entry point for bulk asset validation.
- * 
+ *
  * Usage:
  *   FAssetValidationPipeline Pipeline;
  *   Pipeline.SetBudgets(FAssetValidationBudgets::DefaultConsole());
  *   FAssetValidationReport Report = Pipeline.ValidateScope(TEXT("/Game/"));
- *   
+ *
  *   if (!Report.Passed())
  *   {
  *       for (auto& V : Report.GetViolationsBySeverity(EValidationSeverity::Error))
@@ -256,10 +256,10 @@ class RIFTBORNAI_API FAssetValidationPipeline
 {
 public:
     FAssetValidationPipeline();
-    
+
     /** Set validation budgets */
     void SetBudgets(const FAssetValidationBudgets& InBudgets) { Budgets = InBudgets; }
-    
+
     /** Get current budgets */
     const FAssetValidationBudgets& GetBudgets() const { return Budgets; }
 
@@ -267,7 +267,7 @@ public:
      *  Valid values: "PC", "PS5", "XSX", "Switch", "Mobile", "iOS", "Android"
      *  Empty string (default) disables platform-specific checks. */
     void SetTargetPlatform(const FString& Platform) { TargetPlatform = Platform; }
-    
+
     /**
      * Validate all assets under a given scope path.
      * @param ScopePath Content path like "/Game/Characters/" or "/Game/"
@@ -275,14 +275,14 @@ public:
      * @return Validation report with all violations
      */
     FAssetValidationReport ValidateScope(const FString& ScopePath, bool bRecursive = true);
-    
+
     /**
      * Validate a single asset by path.
      * @param AssetPath Full asset path (e.g., "/Game/Meshes/SM_Hero")
      * @return Violations for this single asset
      */
     TArray<FAssetViolation> ValidateAsset(const FString& AssetPath);
-    
+
     /**
      * Quick check: does this scope pass validation?
      * Stops on first error for speed.
@@ -295,7 +295,7 @@ public:
 private:
     FAssetValidationBudgets Budgets;
     FString TargetPlatform;  // For TRC/XR certification checks
-    
+
     // Per-asset-type validators
     TArray<FAssetViolation> ValidateTexture(const FString& AssetPath, class UTexture* Texture);
     TArray<FAssetViolation> ValidateStaticMesh(const FString& AssetPath, class UStaticMesh* Mesh);
@@ -316,7 +316,7 @@ private:
      * Checks textures for streaming mips, BC format compatibility,
      * meshes for vertex count within 16-bit index limits,
      * materials for mobile shader model compatibility, etc.
-     * 
+     *
      * @param AssetPath Asset being validated
      * @param Asset The loaded asset
      * @param InTargetPlatform "PS5", "XSX", "Switch", "Mobile"

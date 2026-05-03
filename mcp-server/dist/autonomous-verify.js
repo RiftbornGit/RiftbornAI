@@ -13,6 +13,7 @@
  *   verify_session  — auto-generate + run checks from session history
  *   smoke_test_pie  — start PIE → structural checks → stop PIE → report
  */
+import { findDomainProofGaps, inferDomainsFromHistory, } from "./domain-proof-contract.js";
 const CHANGE_VERIFIERS = {
     // Actor creates → assert exists
     spawn_actor: (c) => c.label ? [{
@@ -131,6 +132,7 @@ const PHASE_VERIFIERS = {
 export function generatePlan(input) {
     const checks = [];
     const seen = new Set();
+    const recentTools = input.recentTools ?? [];
     // 1. Generate checks from scene changes
     for (const change of input.sceneChanges) {
         const verifier = CHANGE_VERIFIERS[change.tool];
@@ -182,10 +184,14 @@ export function generatePlan(input) {
             checks.push(check);
         }
     }
+    const domains = inferDomainsFromHistory(input.sceneChanges, recentTools);
+    const proofGaps = findDomainProofGaps(domains, recentTools);
     return {
         checks,
         generated_from: "session_history",
         change_count: input.sceneChanges.length,
+        proof_gaps: proofGaps,
+        domains_detected: domains,
     };
 }
 // ────────────────────────────────────────────────────────────────────────────
@@ -242,6 +248,19 @@ export async function runPlan(plan, dispatch, sceneChanges = []) {
                 warned++;
         }
     }
+    for (const gap of plan.proof_gaps ?? []) {
+        results.push({
+            label: gap.label,
+            tool: "proof_contract",
+            passed: false,
+            error: `${gap.guidance} Missing: ${gap.missing_tools.join(", ")}`,
+            duration_ms: 0,
+        });
+        if (gap.severity === "error")
+            failed++;
+        else
+            warned++;
+    }
     const totalMs = Math.round(performance.now() - startTime);
     const overall = failed > 0 ? "FAIL" : warned > 0 ? "WARN" : "PASS";
     const report = {
@@ -252,10 +271,20 @@ export async function runPlan(plan, dispatch, sceneChanges = []) {
         warned,
         checks: results,
         duration_ms: totalMs,
+        proof_gaps: plan.proof_gaps,
+        domains_detected: plan.domains_detected,
     };
     if (failed > 0) {
-        const failedChecks = results.filter(r => !r.passed).map(r => r.label);
-        report.suggestion = `Fix: ${failedChecks.slice(0, 3).join(", ")}${failedChecks.length > 3 ? ` (+${failedChecks.length - 3} more)` : ""}`;
+        const proofGapSummary = (plan.proof_gaps ?? [])
+            .filter((gap) => gap.severity === "error")
+            .map((gap) => `${gap.label} -> ${gap.missing_tools.join(", ")}`);
+        if (proofGapSummary.length > 0) {
+            report.suggestion = `Proof requirements missing: ${proofGapSummary.slice(0, 2).join("; ")}${proofGapSummary.length > 2 ? ` (+${proofGapSummary.length - 2} more)` : ""}`;
+        }
+        else {
+            const failedChecks = results.filter(r => !r.passed).map(r => r.label);
+            report.suggestion = `Fix: ${failedChecks.slice(0, 3).join(", ")}${failedChecks.length > 3 ? ` (+${failedChecks.length - 3} more)` : ""}`;
+        }
     }
     return report;
 }
@@ -385,4 +414,3 @@ export async function pieSmokeTest(dispatch, opts = {}) {
         ...(isCrash ? { suggestion: "PIE crash detected. Run diagnose_crash()." } : {}),
     };
 }
-//# sourceMappingURL=autonomous-verify.js.map

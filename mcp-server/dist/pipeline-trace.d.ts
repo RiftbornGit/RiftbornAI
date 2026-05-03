@@ -118,4 +118,3 @@ export declare class PipelineTraceStore {
 export declare function buildTrace(ctx: DispatchContext & {
     traceRecorder: TraceRecorder;
 }, outcome: "success" | "earlyReturn" | "error", totalMs: number): PipelineTrace;
-//# sourceMappingURL=pipeline-trace.d.ts.map

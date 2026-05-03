@@ -66,4 +66,3 @@ export interface DuplicateWarning {
  * Returns a warning if the same tool+params was successfully called within windowMs.
  */
 export declare function checkIdempotency(toolName: string, params: Record<string, unknown>, sessionHistory: SessionEntry[], windowMs?: number): DuplicateWarning | null;
-//# sourceMappingURL=proactive-guards.d.ts.map

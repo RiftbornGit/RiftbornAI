@@ -10,7 +10,7 @@
 
 /**
  * FWorldAutomationToolsModule
- * 
+ *
  * World Automation Tools — screenshot-to-level, smart navmesh, interior decoration,
  */
 class RIFTBORNAI_API FWorldAutomationToolsModule : public TToolModuleBase<FWorldAutomationToolsModule>

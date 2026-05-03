@@ -14,13 +14,13 @@ class UHealthAttributeSet;
 
 /**
  * Example AI Character demonstrating RiftbornAI code generation.
- * 
+ *
  * Features:
  * - GAS integration with AbilitySystemComponent
  * - Health attribute with damage/healing
  * - Death handling
  * - Simple patrol behavior ready for Behavior Tree
- * 
+ *
  * Generated with: "Create an AI character with 100 health that can patrol"
  */
 UCLASS()

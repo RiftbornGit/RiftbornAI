@@ -136,9 +136,9 @@ struct RIFTBORNAI_API FRendererSpec
 
 /**
  * Niagara Builder - Atomic operations for VFX construction
- * 
+ *
  * Phase 2: Authoring Primitives
- * 
+ *
  * This class provides the "assembly language" for Niagara:
  * - CreateSystem: Create a new empty Niagara system
  * - CreateEmitter: Add an emitter to a system
@@ -146,7 +146,7 @@ struct RIFTBORNAI_API FRendererSpec
  * - RemoveModule: Remove a module from an emitter
  * - SetParam: Set a parameter value
  * - BindRenderer: Add and configure a renderer
- * 
+ *
  * All operations are deterministic and reversible.
  */
 UCLASS(BlueprintType)
@@ -265,7 +265,7 @@ public:
 	 * - User.SpawnRate parameter exposed and responsive
 	 * - Bright visible color
 	 * - No complex post-processing
-	 * 
+	 *
 	 * @return Loaded system, or nullptr if creation failed
 	 */
 	UFUNCTION(BlueprintCallable, Category = "RiftbornAI|NiagaraBuilder")
@@ -278,7 +278,7 @@ public:
 	 * 2. /Niagara/DefaultAssets/Templates/NS_SimpleSprite (engine)
 	 * 3. /Niagara/DefaultAssets/NS_SimpleSprite (engine alt)
 	 * 4. JumpPad (fallback with warning)
-	 * 
+	 *
 	 * @param OutWarning - Set if using a suboptimal template
 	 * @return Best available system, or nullptr if none found
 	 */

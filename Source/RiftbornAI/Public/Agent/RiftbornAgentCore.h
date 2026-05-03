@@ -120,8 +120,8 @@ struct RIFTBORNAI_API FProjectGraph
         bool bCompiles = true;
     };
     TMap<FString, FAssetNode> Assets;
-    
-    // Code Graph  
+
+    // Code Graph
     struct FCodeNode
     {
         FString FilePath;
@@ -135,7 +135,7 @@ struct RIFTBORNAI_API FProjectGraph
         FString LastCompileError;
     };
     TMap<FString, FCodeNode> Code;
-    
+
     // Level Graph
     struct FLevelNode
     {
@@ -147,7 +147,7 @@ struct RIFTBORNAI_API FProjectGraph
         bool bLoads = true;
     };
     TMap<FString, FLevelNode> Levels;
-    
+
     // System Configuration
     struct FSystemConfig
     {
@@ -158,7 +158,7 @@ struct RIFTBORNAI_API FProjectGraph
         TArray<FString> RequiredPlugins;
     };
     FSystemConfig Config;
-    
+
     // Health Status
     int32 TotalAssets = 0;
     int32 CompilingAssets = 0;
@@ -175,17 +175,17 @@ struct RIFTBORNAI_API FSkillIntentPattern
     // Core intent classification
     FString Verb;                       // SPAWN, CREATE, DELETE, MODIFY, QUERY
     FString ObjectType;                 // PRIMITIVE, BLUEPRINT, LEVEL, MATERIAL, ACTOR
-    
+
     // Extracted parameters (placeholders)
     TMap<FString, FString> Parameters;  // shape→cube, color→red, name→MyCube
-    
+
     // Pattern matching
     float Match(const FSkillIntentPattern& Other) const
     {
         float Score = 0.0f;
         if (Verb == Other.Verb) Score += 0.4f;
         if (ObjectType == Other.ObjectType) Score += 0.3f;
-        
+
         // Check parameter overlap
         int32 CommonParams = 0;
         for (const auto& Pair : Parameters)
@@ -228,7 +228,7 @@ struct RIFTBORNAI_API FParameterVocabulary
         }
         return FString();
     }
-    
+
     // Actor class vocabulary
     static FString ResolveActorClass(const FString& NaturalWord)
     {
@@ -257,7 +257,7 @@ struct RIFTBORNAI_API FParameterVocabulary
         }
         return FString();
     }
-    
+
     // Color vocabulary
     static FLinearColor ResolveColor(const FString& NaturalWord)
     {
@@ -290,17 +290,17 @@ struct RIFTBORNAI_API FLearnedSkill
 {
     FString Name;                       // "Create ability with cooldown"
     FString Intent;                     // Original request (for exact match fallback)
-    
+
     // === NEW: Pattern-based matching ===
     FSkillIntentPattern Pattern;             // Abstract pattern that generalizes
     TArray<FString> RequiredArgs;       // Args that MUST be provided (e.g., "class_name" for spawn)
     TMap<FString, FString> ArgTemplates;// Templates for args: "mesh" → "{shape}" placeholder
-    
+
     // === NEW: Applicability predicates ===
     TArray<FString> ApplicabilityRules; // "ObjectType==PRIMITIVE", "HasParameter:shape"
     bool bRequiresAssetResolution = false;  // Needs resolve_asset step first
     bool bRequiresBlueprintOpen = false;    // Needs open_blueprint step first
-    
+
     TArray<FPlannedAction> Actions;     // The sequence that worked
     float SuccessRate = 1.0f;           // How often this works
     int32 TimesUsed = 0;
@@ -309,14 +309,14 @@ struct RIFTBORNAI_API FLearnedSkill
     TArray<FString> Prerequisites;      // What must be true before this works
     TArray<FString> Postconditions;     // What should be true after
     FDateTime LastUsed;
-    
+
     // Check if this skill applies to a given intent pattern
     bool IsApplicable(const FSkillIntentPattern& QueryPattern) const
     {
         // Must match verb and object type
         if (Pattern.Verb != QueryPattern.Verb) return false;
         if (Pattern.ObjectType != QueryPattern.ObjectType) return false;
-        
+
         // Check applicability rules
         for (const FString& Rule : ApplicabilityRules)
         {
@@ -329,26 +329,26 @@ struct RIFTBORNAI_API FLearnedSkill
                 }
             }
         }
-        
+
         return true;
     }
-    
+
     // Bind template arguments from query pattern
     TMap<FString, FString> BindArguments(const FSkillIntentPattern& QueryPattern) const
     {
         TMap<FString, FString> BoundArgs;
-        
+
         for (const auto& Template : ArgTemplates)
         {
             FString Value = Template.Value;
-            
+
             // Replace placeholders like {shape} with actual values
             for (const auto& Param : QueryPattern.Parameters)
             {
                 FString Placeholder = FString::Printf(TEXT("{%s}"), *Param.Key);
                 Value = Value.Replace(*Placeholder, *Param.Value);
             }
-            
+
             // Resolve vocabulary if needed
             if (Template.Key == TEXT("mesh"))
             {
@@ -366,10 +366,10 @@ struct RIFTBORNAI_API FLearnedSkill
                     Value = Resolved;
                 }
             }
-            
+
             BoundArgs.Add(Template.Key, Value);
         }
-        
+
         return BoundArgs;
     }
 };
@@ -416,14 +416,14 @@ struct RIFTBORNAI_API FAgentTask
     FString UnderstandingContext;   // What we learned about the request
     FActionPlan Plan;
     EAgentState State = EAgentState::Idle;
-    
+
     // Execution tracking
     int32 CurrentStep = 0;
     int32 TotalSteps = 0;
     TArray<FString> ExecutionLog;
     TArray<UObject*> ModifiedAssets;
     TArray<FClaudeToolResult> ToolResults;  // Results from tool execution (for claims verification)
-    
+
     // Level 3 plan representation (agentic plan executor)
     FAgentPlan AgentPlan;
     bool bUseAgentPlan = false;
@@ -443,28 +443,28 @@ struct RIFTBORNAI_API FAgentTask
     FString SelectedStrategyId;
     FString SelectedStrategyFamily;
     FString UsedSkillName;  // Name of learned skill used (empty if LLM-planned)
-    
+
     // Timing for learning metrics
     FDateTime StartTime;
     float ExecutionTimeSeconds = 0.0f;
-    
+
     // Token usage tracking (for accurate metrics)
     int32 TokensUsed = 0;  // Total tokens consumed during this task
     int32 LLMCallCount = 0;  // Number of LLM API calls made
-    
+
     // Error tracking for invariant checking
     int32 ErrorCountBefore = -1;
     int32 ErrorCountAfter = -1;
-    
+
     // Verification
     FRiftbornPipelineResult VerificationResult;
     FReflectionResult ReflectionResult;
-    
+
     // Recovery
     int32 RetryCount = 0;
     int32 MaxRetries = 3;
     TArray<FString> AttemptedApproaches;
-    
+
     // Result
     bool bSuccess = false;
     FString Result;
@@ -477,12 +477,12 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FOnAgentTaskComplete, const FAgentTask&, bo
 
 /**
  * RiftbornAgentCore - The Central Intelligence
- * 
+ *
  * This is NOT:
  * - A chat history manager
  * - A UI widget
  * - A simple LLM wrapper
- * 
+ *
  * This IS:
  * - The decision-making engine
  * - The planner that breaks down complex tasks
@@ -494,34 +494,34 @@ class RIFTBORNAI_API FRiftbornAgentCore
 {
 public:
     static FRiftbornAgentCore& Get();
-    
+
     // =========================================================================
     // INITIALIZATION
     // =========================================================================
-    
+
     /** Initialize the agent with project understanding */
     void Initialize(const FString& ProjectPath);
-    
+
     /** Rebuild project graph (call after major changes) */
     void RefreshProjectGraph();
-    
+
     /** Get current project understanding */
     const FProjectGraph& GetProjectGraph() const { return ProjectGraph; }
-    
+
     // =========================================================================
     // TASK MANAGEMENT
     // =========================================================================
-    
+
     /** Start a new agent task (returns task ID) */
     FGuid StartTask(
         const FString& Request,
         const FString& Source = TEXT("user"),
         const FAgentGoal* GoalDefinition = nullptr,
         int32 RequestedMaxIterations = 0);
-    
+
     /** Get current task state */
     const FAgentTask* GetTask(const FGuid& TaskId) const;
-    
+
     /** Cancel a running task */
     void CancelTask(const FGuid& TaskId);
 
@@ -541,7 +541,7 @@ public:
             Callback(Pair.Value);
         }
     }
-    
+
     /** User confirms a pending action */
     void ConfirmAction(const FGuid& TaskId, bool bApproved);
 
@@ -593,81 +593,81 @@ public:
 
     /** Get last plan step count */
     int32 GetLastPlanStepCount() const { return LastPlanStepCount; }
-    
+
     // =========================================================================
     // SKILL SYSTEM
     // =========================================================================
-    
+
     /** Find relevant skills for a request */
     TArray<FLearnedSkill> FindRelevantSkills(const FString& Request, int32 MaxResults = 5);
-    
+
     /** Find skills by pattern matching (REAL GENERALIZATION) */
     TArray<FLearnedSkill> FindSkillsByPattern(const FSkillIntentPattern& Pattern, int32 MaxResults = 5);
-    
+
     /** Extract intent pattern from natural language request */
     static FSkillIntentPattern ExtractIntentPattern(const FString& Request);
-    
+
     /** Get all learned skills */
     const TArray<FLearnedSkill>& GetAllSkills() const { return LearnedSkills; }
-    
+
     /** Manually teach a skill */
     void TeachSkill(const FLearnedSkill& Skill);
-    
+
     /** Record skill failure for refinement */
     void RecordSkillFailure(const FString& SkillName, const FString& Reason);
-    
+
     // =========================================================================
     // DELEGATES
     // =========================================================================
-    
+
     FOnAgentStateChanged OnStateChanged;
     FOnAgentProgress OnProgress;
     FOnAgentTaskComplete OnTaskComplete;
-    
+
 private:
     FRiftbornAgentCore() = default;
-    
+
     // =========================================================================
     // AGENT LOOP PHASES
     // =========================================================================
-    
+
     /** Phase 1: Understand the request in project context */
     void ProcessUnderstanding(FAgentTask& Task);
-    
+
     /** Phase 2: Create multi-step plan */
     void ProcessPlanning(FAgentTask& Task);
-    
+
     /** Phase 3: Execute plan step by step */
     void ProcessExecution(FAgentTask& Task);
-    
+
     /** Phase 4: Verify changes work */
     void ProcessVerification(FAgentTask& Task);
-    
+
     /** Phase 5: If failed, analyze why */
     void ProcessReflection(FAgentTask& Task);
-    
+
     /** Phase 6: Learn from success or failure */
     void ProcessLearning(FAgentTask& Task);
-    
+
     // =========================================================================
     // INTERNAL HELPERS
     // =========================================================================
-    
+
     /** Execute a single tool call */
     bool ExecuteToolCall(const FPlannedAction& Action, FString& OutResult, FString& OutError, FClaudeToolResult* OutToolResult = nullptr);
-    
+
     /** Check invariants after action */
     FReflectionResult CheckInvariants(const FAgentTask& Task);
-    
+
     /** Perform root cause analysis */
     FString AnalyzeRootCause(const FAgentTask& Task, const TArray<FString>& Errors);
-    
+
     /** Try to automatically fix an issue */
     bool TryAutoFix(FAgentTask& Task, const FReflectionResult& Reflection);
 
     /** Record successful skill */
     void RecordSkill(const FAgentTask& Task);
-    
+
     /** Register default invariants */
     void RegisterDefaultInvariants();
 
@@ -676,41 +676,41 @@ private:
 
     /** Remove the self-driven ticker when no work remains */
     void ReleaseTickerIfIdle();
-    
+
     /** Update skill success/failure stats */
     void UpdateSkillStats(const FString& SkillName, bool bSuccess);
-    
+
     /** Build understanding context from project graph */
     FString BuildUnderstandingContext(const FString& Request);
-    
+
     /** Get relevant project context for request */
     TArray<FString> GetRelevantContext(const FString& Request);
-    
+
     /** Build action plan (handles compound requests) */
     FActionPlan BuildActionPlan(const FString& Request);
 
     /** Apply plan complexity limit (if configured) */
     void ApplyPlanComplexityLimit(FActionPlan& Plan);
-    
+
     /** Build agent plan from action plan */
     FAgentPlan BuildAgentPlanFromActionPlan(const FActionPlan& ActionPlan, const FString& Request);
-    
+
     /** Apply trust-based tool selection bias */
     void ApplyToolTrustBias(FActionPlan& Plan);
-    
+
     /** Check if tool has required args */
     bool IsToolCompatibleWithArgs(const FString& ToolName, const TMap<FString, FString>& Args) const;
-    
+
     /** Sync action plan statuses from agent plan */
     void SyncActionPlanStatusesFromAgentPlan(FAgentTask& Task, const FAgentPlan& Plan);
-    
+
     // =========================================================================
     // STATE
     // =========================================================================
-    
+
     FString ProjectPath;
     FProjectGraph ProjectGraph;
-    
+
     // Active tasks
     TMap<FGuid, FAgentTask> ActiveTasks;
     TMap<FGuid, FAgentTask> RecentTasks;
@@ -732,10 +732,10 @@ private:
         TFunction<void(EAgentState State, const FString& Message)> OnProgress;
     };
     TMap<FGuid, FAsyncCallbacks> AsyncCallbacks;
-    
+
     // Learned patterns
     TArray<FLearnedSkill> LearnedSkills;
-    
+
     // Invariants to always check
     TArray<TFunction<bool(const FAgentTask&)>> Invariants;
 
@@ -745,16 +745,16 @@ private:
 
     // Proactive scheduling
     float ProactiveOverridePriority = 0.75f;
-    
+
     // Persistence paths
     FString SkillsFilePath;
     FString GraphCachePath;
-    
+
     void LoadSkills();
     void SaveSkills();
     void LoadGraphCache();
     void SaveGraphCache();
-    
+
     /** Determine task family for metrics grouping */
     FString DetermineTaskFamily(const FString& Request) const;
 

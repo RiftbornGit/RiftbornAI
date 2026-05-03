@@ -90,10 +90,10 @@ public:
 	bool SaveSession(const FConversationSession& Session);
 	bool LoadSession(const FString& SessionId, FConversationSession& OutSession);
 	bool DeleteSession(const FString& SessionId);
-	
+
 	// Get all saved sessions (metadata only, not full messages)
 	TArray<FConversationSession> GetAllSessions();
-	
+
 	// Get recent sessions
 	TArray<FConversationSession> GetRecentSessions(int32 Count = 10);
 
@@ -116,7 +116,7 @@ public:
 
 private:
 	FConversationMemory();
-	
+
 	FString GetSessionsDirectory() const;
 	FString GetSessionFilePath(const FString& SessionId) const;
 	FString GenerateSessionId() const;

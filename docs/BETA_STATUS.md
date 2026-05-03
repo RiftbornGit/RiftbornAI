@@ -16,8 +16,9 @@ These surfaces have been used end-to-end in real builds and are safe to
 rely on for prototyping work:
 
 - **Beta workflow coverage**: the public beta package ships the governed
-  production MCP surface by default and also carries a curated 118-tool beta
-  workflow set for flagship authoring flows and hard-lock validation,
+  production MCP surface by default and also carries a curated 200-tool beta
+  workflow set for flagship authoring flows, editor-native repair/inspection
+  lanes, and hard-lock validation,
   including level/session flow controls like `open_level`,
   `place_player_start`, and `set_gamemode_override`.
 
@@ -91,7 +92,7 @@ check whether its dependency is enabled.
 It is useful for editor-time prototyping and content authoring inside UE 5.7.
 Current coverage is strongest for environments, lighting, materials,
 Blueprints, basic gameplay setup, cinematics, and blockouts. The curated
-118-tool beta workflow set is good enough to build and iterate on many core
+200-tool beta workflow set is good enough to build and iterate on many core
 editor tasks, but it is not a full game-production stack.
 
 **It cannot replace a full production team or do "everything":**

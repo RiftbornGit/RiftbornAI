@@ -49,7 +49,6 @@ export interface SceneDiff {
 export declare function parseVisionText(text: string): ParsedVisionResult;
 export declare class SceneDiffTracker {
     private lastSnapshot;
-    private lastTimestamp;
     /**
      * Record an actor list from an observation result.
      * Returns a diff if there was a previous snapshot, null otherwise.
@@ -76,4 +75,3 @@ export declare function extractVisionContext(toolName: string, result: unknown):
 export declare function enhanceVisionResponse(toolName: string, result: unknown, diffTracker?: SceneDiffTracker): unknown;
 /** Fields to keep for each vision-related tool in shapeResponse */
 export declare const VISION_KEEP_FIELDS: Record<string, string[]>;
-//# sourceMappingURL=vision-intelligence.d.ts.map

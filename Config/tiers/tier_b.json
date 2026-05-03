@@ -4,10 +4,10 @@
   "name": "Content Expansion",
   "version": "1.0.0",
   "purpose": "Add multiple weapons/enemies/items/rooms without breaking the loop",
-  
+
   "prerequisite_tier": "A",
   "prerequisite_check": "tier_a_promoted",
-  
+
   "allowed_operations": {
     "_inherits": "tier_a",
     "batch_entity_creation": {
@@ -30,7 +30,7 @@
     "delete_assets": false,
     "bulk_operations": false
   },
-  
+
   "required_outputs": {
     "content_variety": {
       "description": "Minimum content thresholds met",
@@ -51,7 +51,7 @@
       "verifier": "verify_progression"
     }
   },
-  
+
   "required_verifiers": [
     {
       "id": "tier_a_still_passes",
@@ -100,7 +100,7 @@
       "required": true
     }
   ],
-  
+
   "proof_requirements": {
     "trace_file": true,
     "replay_script": true,
@@ -109,14 +109,14 @@
     "content_manifest": true,
     "balance_report": true
   },
-  
+
   "rollback_semantics": {
     "default": "undo",
     "irreversible_requires": "user_ack",
     "max_undo_depth": 100,
     "batch_undo_supported": true
   },
-  
+
   "ci_recipes": [
     {
       "name": "tier_b_nightly",
@@ -131,7 +131,7 @@
       "required": true
     }
   ],
-  
+
   "promotion_requirements": {
     "tier_a_promoted": true,
     "min_confidence_score": 0.55,
@@ -141,7 +141,7 @@
     "proof_bundle_required": true,
     "replay_verified": true
   },
-  
+
   "definition_of_done": [
     "At least 3 weapons OR 3 enemies OR 10 items created",
     "All content spawns correctly in PIE",

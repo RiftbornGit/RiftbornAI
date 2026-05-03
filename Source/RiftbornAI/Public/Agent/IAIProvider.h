@@ -43,7 +43,7 @@ DECLARE_DELEGATE_ThreeParams(FOnAIToolCall, const FString& /*ToolName*/, const F
 
 /**
  * Abstract interface for AI providers (Claude, OpenAI, Ollama, etc.)
- * 
+ *
  * Implement this interface to add new AI backends without modifying existing code.
  * The interface supports both simple message passing and agentic tool use patterns.
  */
@@ -55,19 +55,19 @@ public:
 	// ============================================================================
 	// Configuration
 	// ============================================================================
-	
+
 	/** Set API credentials */
 	virtual void SetAPIKey(const FString& APIKey) = 0;
-	
+
 	/** Set the model to use */
 	virtual void SetModel(const FString& Model) = 0;
-	
+
 	/** Get the current model */
 	virtual FString GetModel() const = 0;
-	
+
 	/** Get the provider name (e.g., "Anthropic", "OpenAI", "Ollama") */
 	virtual FString GetProviderName() const = 0;
-	
+
 	/** Check if the provider is properly configured and ready */
 	virtual bool IsConfigured() const = 0;
 
@@ -78,10 +78,31 @@ public:
 	 */
 	virtual void SetSystemPrompt(const FString& Prompt) = 0;
 
+	/**
+	 * Bind the provider to an external conversation/session identifier owned by
+	 * the copilot UI. Providers with native session continuity can use this to
+	 * resume the same backend conversation across turns; others can ignore it.
+	 */
+	virtual void BindConversationSession(const FString& SessionId, const FString& DisplayName = FString())
+	{
+	}
+
+	/** Whether the provider has a native persisted conversation/session concept. */
+	virtual bool SupportsPersistentConversationSession() const
+	{
+		return false;
+	}
+
+	/** Human-readable label for the currently bound persistent session, if any. */
+	virtual FString GetPersistentConversationSessionLabel() const
+	{
+		return FString();
+	}
+
 	// ============================================================================
 	// Simple Messaging (Non-Agentic)
 	// ============================================================================
-	
+
 	/**
 	 * Send a simple message and get a response
 	 * @param Message - The user message
@@ -95,7 +116,7 @@ public:
 	// ============================================================================
 	// Agentic Tool Use
 	// ============================================================================
-	
+
 	/**
 	 * Send a message with tool use support (agentic mode)
 	 * The provider will execute tools and continue conversation automatically
@@ -110,7 +131,7 @@ public:
 		TFunction<void(bool bSuccess, const FString& Response, const FString& RequestId)> OnComplete,
 		TFunction<void(const FString& Status)> OnProgress = nullptr
 	) = 0;
-	
+
 	/**
 	 * Send a message with fine-grained streaming callbacks
 	 * @param Message - The user message
@@ -126,7 +147,7 @@ public:
 		TFunction<void(const FString& ToolName, const TMap<FString, FString>& Args, const FString& ToolUseId)> OnToolCall,
 		TFunction<void(bool bSuccess, const FString& Error)> OnComplete
 	) = 0;
-	
+
 	/**
 	 * Continue conversation after tool execution
 	 * @param ToolUseId - The tool use ID from OnToolCall
@@ -142,7 +163,7 @@ public:
 		TFunction<void(const FString& ToolName, const TMap<FString, FString>& Args, const FString& ToolUseId)> OnToolCall,
 		TFunction<void(bool bSuccess, const FString& Error)> OnComplete
 	) = 0;
-	
+
 	/** A single tool result entry for batch submission */
 	struct FToolResultEntry
 	{
@@ -150,7 +171,7 @@ public:
 		FString ToolName;
 		FString Result;
 	};
-	
+
 	/**
 	 * Continue conversation after executing multiple tools
 	 * Adds ALL tool results to conversation history in the provider's native format,
@@ -188,12 +209,12 @@ public:
 	// ============================================================================
 	// Multimodal (Vision)
 	// ============================================================================
-	
+
 	/**
 	 * Send a message with an attached image for multimodal analysis.
 	 * Providers that support vision (Claude, GPT-4o, Gemini) implement natively.
 	 * Others fall back to text-only with a note that the image was provided.
-	 * 
+	 *
 	 * @param Message - The user message / question about the image
 	 * @param ImagePath - Absolute path to the image file (PNG/JPEG)
 	 * @param OnToken - Called for each streaming token
@@ -209,27 +230,27 @@ public:
 	// ============================================================================
 	// State Management
 	// ============================================================================
-	
+
 	/** Clear conversation history */
 	virtual void ClearHistory() = 0;
-	
+
 	/** Cancel any in-flight requests */
 	virtual void CancelRequest() = 0;
-	
+
 	/** Check if a request was cancelled */
 	virtual bool IsCancelled() const = 0;
 
 	// ============================================================================
 	// Tool Call Tracking
 	// ============================================================================
-	
+
 	/**
 	 * Get the tool calls executed in the last SendMessageWithTools call
 	 * This allows callers to inspect what tools were used and their results
 	 * @return Array of tool calls with names, arguments, and results
 	 */
 	virtual const TArray<FClaudeToolCall>& GetLastToolCalls() const = 0;
-	
+
 	/**
 	 * Clear the last tool calls array
 	 */
@@ -238,7 +259,7 @@ public:
 	// ============================================================================
 	// Tool Result Tracking (Governance Data) - REQUEST-SCOPED
 	// ============================================================================
-	
+
 	/**
 	 * Get tool results for a specific request
 	 * This is the source of truth for governance/policy/undo/proof data.
@@ -247,19 +268,19 @@ public:
 	 * @return Array of tool results with governance fields populated
 	 */
 	virtual TArray<FClaudeToolResult> GetToolResultsForRequest(const FString& RequestId) const = 0;
-	
+
 	/**
 	 * Clear tool results for a specific request (call after UI has consumed them)
 	 * @param RequestId - The request ID to clear
 	 */
 	virtual void ClearToolResultsForRequest(const FString& RequestId) = 0;
-	
+
 	/**
 	 * @deprecated Use GetToolResultsForRequest instead
 	 * Get the tool results from the last SendMessageWithTools call
 	 */
 	virtual const TArray<FClaudeToolResult>& GetLastToolResults() const = 0;
-	
+
 	/**
 	 * @deprecated Use ClearToolResultsForRequest instead
 	 */
@@ -268,16 +289,33 @@ public:
 	// ============================================================================
 	// Token Tracking
 	// ============================================================================
-	
+
 	/** Get total input tokens used this session */
 	virtual int64 GetSessionInputTokens() const = 0;
-	
+
 	/** Get total output tokens used this session */
 	virtual int64 GetSessionOutputTokens() const = 0;
-	
+
+	/** Get prompt-cache creation tokens used this session (0 when unsupported) */
+	virtual int64 GetSessionPromptCacheCreationTokens() const { return 0; }
+
+	/** Get prompt-cache read tokens used this session (0 when unsupported) */
+	virtual int64 GetSessionPromptCacheReadTokens() const { return 0; }
+
+	/** Share of prompt-cache tokens served from cache (0-1, or -1 when unsupported / unused) */
+	virtual float GetSessionPromptCacheHitRate() const
+	{
+		const int64 CacheCreationTokens = GetSessionPromptCacheCreationTokens();
+		const int64 CacheReadTokens = GetSessionPromptCacheReadTokens();
+		const int64 TotalCacheTokens = CacheCreationTokens + CacheReadTokens;
+		return TotalCacheTokens > 0
+			? static_cast<float>(CacheReadTokens) / static_cast<float>(TotalCacheTokens)
+			: -1.0f;
+	}
+
 	/** Estimate session cost in USD */
 	virtual float EstimateSessionCost() const = 0;
-	
+
 	/** Reset session token counters */
 	virtual void ResetSessionTokens() = 0;
 };
@@ -290,15 +328,15 @@ class RIFTBORNAI_API FAIProviderFactory
 public:
 	/** Create a provider by name */
 	static TSharedPtr<IAIProvider> CreateProvider(const FString& ProviderName);
-	
+
 	/** Create the default provider based on settings */
 	static TSharedPtr<IAIProvider> CreateDefaultProvider();
-	
+
 	/**
 	 * Create a provider optimized for a specific query.
 	 * Uses TieredModelRouter to classify query complexity and select the best model.
 	 * Falls back to CreateDefaultProvider() if router is not configured.
-	 * 
+	 *
 	 * @param UserQuery The query that will be sent to this provider
 	 * @param ToolCount Number of tools available (more tools = heavier query)
 	 * @return Configured provider with appropriate model selected
@@ -317,7 +355,7 @@ public:
 		const FString& UserQuery,
 		int32 ToolCount = 0,
 		int32 ConversationTurnCount = 0);
-	
+
 	/** Get list of available provider names */
 	static TArray<FString> GetAvailableProviders();
 };

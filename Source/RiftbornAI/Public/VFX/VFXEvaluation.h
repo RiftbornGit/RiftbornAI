@@ -77,45 +77,45 @@ struct RIFTBORNAI_API FBlindTestConfig
 	TArray<FString> ExpectedEffects;  // What effects should be present
 
 	// ===== TARGET METRICS - Each category must have different values =====
-	
+
 	// Coverage target (0-1): How much of frame should have particles
 	// Fire: medium (0.2-0.4), Smoke: low-medium (0.1-0.3), Explosion: high then low
 	UPROPERTY(BlueprintReadWrite, Category = "RiftbornAI")
 	float TargetCoverage = 0.3f;
-	
+
 	// Edge density target: Higher = more detail/complexity
 	// Fire: high (flicker), Smoke: low (soft), Explosion: very high (debris)
 	UPROPERTY(BlueprintReadWrite, Category = "RiftbornAI")
 	float TargetEdgeDensity = 0.1f;
-	
+
 	// Brightness target (0-1): Overall luminance
 	// Fire: high (emissive), Smoke: low (dark), Explosion: flash then dark
 	UPROPERTY(BlueprintReadWrite, Category = "RiftbornAI")
 	float TargetBrightness = 0.5f;
-	
+
 	// Color variance target: Higher = more color variation
 	// Fire: low (orange-red), Smoke: very low (gray), Explosion: medium (flash colors)
 	UPROPERTY(BlueprintReadWrite, Category = "RiftbornAI")
 	float TargetColorVariance = 0.1f;
-	
+
 	// Motion energy: Temporal change between frames (higher = more movement)
 	// Fire: medium (flicker), Smoke: low (slow billow), Explosion: very high (rapid)
 	UPROPERTY(BlueprintReadWrite, Category = "RiftbornAI")
 	float TargetMotionEnergy = 0.2f;
-	
+
 	// Weights for scoring (how much each metric matters for this category)
 	UPROPERTY(BlueprintReadWrite, Category = "RiftbornAI")
 	float WeightCoverage = 1.0f;
-	
+
 	UPROPERTY(BlueprintReadWrite, Category = "RiftbornAI")
 	float WeightEdgeDensity = 1.0f;
-	
+
 	UPROPERTY(BlueprintReadWrite, Category = "RiftbornAI")
 	float WeightBrightness = 1.0f;
-	
+
 	UPROPERTY(BlueprintReadWrite, Category = "RiftbornAI")
 	float WeightColorVariance = 1.0f;
-	
+
 	UPROPERTY(BlueprintReadWrite, Category = "RiftbornAI")
 	float WeightMotionEnergy = 1.0f;
 
@@ -358,7 +358,7 @@ struct RIFTBORNAI_API FFailureTaxonomy
 
 /**
  * VFX Evaluation System - Phase 7 Implementation
- * 
+ *
  * Prove this isn't theatre. Evidence only.
  */
 UCLASS(BlueprintType)

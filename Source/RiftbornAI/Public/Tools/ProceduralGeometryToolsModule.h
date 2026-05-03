@@ -10,7 +10,7 @@
 
 /**
  * FProceduralGeometryToolsModule
- * 
+ *
  * Procedural Geometry Tools Module — SDF caves, L-system trees, SDF boolean architecture.
  */
 class RIFTBORNAI_API FProceduralGeometryToolsModule : public TToolModuleBase<FProceduralGeometryToolsModule>

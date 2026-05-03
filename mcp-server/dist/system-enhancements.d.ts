@@ -14,6 +14,7 @@
  *    Exposed as a resource for session introspection.
  */
 import type { RiftbornResponse } from "./riftborn-types.js";
+export declare function buildParamsKey(params: Record<string, unknown>): string;
 export declare class ReadCache {
     private cache;
     private ttlMs;
@@ -102,4 +103,3 @@ export declare class SessionTracker {
         totalErrors: number;
     }): void;
 }
-//# sourceMappingURL=system-enhancements.d.ts.map

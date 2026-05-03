@@ -10,7 +10,7 @@
 /**
  * DataTable Tools Module
  * Provides tools for creating and editing DataTable assets.
- * 
+ *
  * Tools included:
  * - create_datatable: Create a new DataTable from a row struct
  * - add_datatable_row: Add a row to a DataTable
@@ -23,9 +23,9 @@ class RIFTBORNAI_API FDataTableToolsModule : public TToolModuleBase<FDataTableTo
 {
 public:
     static FString StaticModuleName() { return TEXT("DataTableTools"); }
-    
+
     virtual void RegisterTools(FClaudeToolRegistry& Registry) override;
-    
+
     // Tool implementations
     static FClaudeToolResult Tool_CreateDataTable(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_AddDataTableRow(const FClaudeToolCall& Call);

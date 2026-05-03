@@ -45,4 +45,3 @@ export declare function listWorkflows(): Array<{
     description: string;
     step_count: number;
 }>;
-//# sourceMappingURL=tool-compression.d.ts.map

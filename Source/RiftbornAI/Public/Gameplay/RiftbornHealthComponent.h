@@ -73,7 +73,7 @@ public:
 	FOnRevive OnRevive;
 
 	// Functions
-	
+
 	/** Apply damage to this entity. Returns actual damage dealt. */
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	float TakeDamage(float DamageAmount, AActor* DamageSource = nullptr, AActor* DamageCauser = nullptr);

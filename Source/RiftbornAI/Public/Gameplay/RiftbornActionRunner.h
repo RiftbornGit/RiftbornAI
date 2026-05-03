@@ -42,7 +42,7 @@ public:
 	 * - Executes action
 	 * - Runs verification
 	 * - Commits or rolls back based on verification
-	 * 
+	 *
 	 * @param Action - Action to execute
 	 * @param Context - Action context
 	 * @return Result with success/failure
@@ -53,7 +53,7 @@ public:
 	/**
 	 * Run action from Python code string
 	 * Executes Python via bridge, wraps in transaction
-	 * 
+	 *
 	 * @param PythonCode - Python code to execute
 	 * @param ActionName - Name for this action (for undo)
 	 * @param RequestId - Request ID for tracking

@@ -99,14 +99,14 @@ struct RIFTBORNAI_API FRiftbornLogAlert
 
 /**
  * Log Watcher Subsystem
- * 
+ *
  * Captures UE output logs in real-time and provides:
  * - Circular buffer of recent logs (configurable size)
  * - Filtering by category, verbosity
  * - Build/compile event tracking
  * - HTTP endpoint for external tools
  * - Alert callbacks for specific patterns
- * 
+ *
  * This runs as an EngineSubsystem so it's available during PIE and editor.
  */
 UCLASS()
@@ -123,7 +123,7 @@ public:
     static URiftbornLogWatcher* Get();
 
     // ========== Log Capture ==========
-    
+
     /** Get recent logs as JSON array */
     UFUNCTION(BlueprintCallable, Category = "Riftborn|Logs")
     static FString GetRecentLogsAsJson(int32 MaxCount = 100, bool bClear = false);
@@ -162,13 +162,13 @@ public:
 
     /**
      * Inject a test message into a named Message Log category.
-     * 
+     *
      * SECURITY: This function is protected by multiple gates:
      * 1. RUNTIME: Requires RIFTBORN_TEST_MODE=1 environment variable
      * 2. IMPLEMENTATION: In shipping builds, immediately returns false
-     * 
+     *
      * Used for adversarial testing of the verification pipeline.
-     * 
+     *
      * @param LogName - The Message Log category (e.g., "AssetCheck", "LoadErrors", "MapCheck", "BlueprintLog")
      * @param Message - The message text to inject
      * @param Severity - "Error", "Warning", or "Info" (default: "Error")

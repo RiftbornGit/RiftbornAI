@@ -7,13 +7,13 @@
 
 /**
  * Dry-Run Mode Support for Destructive Operations
- * 
+ *
  * When dry_run=true, tools will:
  * 1. Validate all inputs
  * 2. Check permissions and preconditions
  * 3. Report what WOULD happen
  * 4. NOT execute the actual operation
- * 
+ *
  * This is a safety feature for:
  * - Previewing destructive operations
  * - Testing automation scripts
@@ -27,18 +27,18 @@ struct RIFTBORNAI_API FDryRunSettings
 {
     /** Global flag to force all operations into dry-run mode */
     static bool bGlobalDryRunMode;
-    
+
     /** Enable global dry-run mode (all destructive ops become previews) */
     static void EnableGlobalDryRun() { bGlobalDryRunMode = true; }
-    
+
     /** Disable global dry-run mode */
     static void DisableGlobalDryRun() { bGlobalDryRunMode = false; }
-    
+
     /** Check if dry-run is active (global or per-request) */
     static bool IsDryRunActive(const FClaudeToolCall& Call)
     {
         if (bGlobalDryRunMode) return true;
-        
+
         // Check for dry_run parameter in the call
         const FString* DryRun = Call.Arguments.Find(TEXT("dry_run"));
         if (DryRun && (DryRun->Equals(TEXT("true"), ESearchCase::IgnoreCase) || *DryRun == TEXT("1")))
@@ -61,21 +61,21 @@ public:
     {
         WouldPerform.Add(TEXT("Dry-run mode active - no changes will be made"));
     }
-    
+
     /** Add what the operation would do */
     FDryRunResult& WouldDo(const FString& Action)
     {
         WouldPerform.Add(Action);
         return *this;
     }
-    
+
     /** Add a validation check that passed */
     FDryRunResult& ValidationPassed(const FString& Check)
     {
         Validations.Add(FString::Printf(TEXT("✓ %s"), *Check));
         return *this;
     }
-    
+
     /** Add a validation check that failed */
     FDryRunResult& ValidationFailed(const FString& Check, const FString& Reason)
     {
@@ -83,21 +83,21 @@ public:
         bHasValidationErrors = true;
         return *this;
     }
-    
+
     /** Add a warning */
     FDryRunResult& Warning(const FString& Warning)
     {
         Warnings.Add(Warning);
         return *this;
     }
-    
+
     /** Add affected items (files, actors, assets, etc.) */
     FDryRunResult& AffectedItem(const FString& Item)
     {
         AffectedItems.Add(Item);
         return *this;
     }
-    
+
     /** Set the reversibility of the operation */
     FDryRunResult& IsReversible(bool bReversible, const FString& RevertMethod = TEXT(""))
     {
@@ -105,19 +105,19 @@ public:
         RevertMethodDescription = RevertMethod;
         return *this;
     }
-    
+
     /** Build the final result */
     FClaudeToolResult Build() const
     {
         FClaudeToolResult Result;
         Result.ToolUseId = ToolUseId;
         Result.bSuccess = !bHasValidationErrors;
-        
+
         TSharedPtr<FJsonObject> Json = MakeShared<FJsonObject>();
         Json->SetBoolField(TEXT("dry_run"), true);
         Json->SetBoolField(TEXT("would_succeed"), !bHasValidationErrors);
         Json->SetStringField(TEXT("tool"), ToolName);
-        
+
         // Add what would be performed
         TArray<TSharedPtr<FJsonValue>> WouldPerformArray;
         for (const FString& Action : WouldPerform)
@@ -125,7 +125,7 @@ public:
             WouldPerformArray.Add(MakeShared<FJsonValueString>(Action));
         }
         Json->SetArrayField(TEXT("would_perform"), WouldPerformArray);
-        
+
         // Add validations
         if (Validations.Num() > 0)
         {
@@ -136,7 +136,7 @@ public:
             }
             Json->SetArrayField(TEXT("validations"), ValidationsArray);
         }
-        
+
         // Add warnings
         if (Warnings.Num() > 0)
         {
@@ -147,7 +147,7 @@ public:
             }
             Json->SetArrayField(TEXT("warnings"), WarningsArray);
         }
-        
+
         // Add affected items
         if (AffectedItems.Num() > 0)
         {
@@ -159,7 +159,7 @@ public:
             Json->SetArrayField(TEXT("affected_items"), AffectedArray);
             Json->SetNumberField(TEXT("affected_count"), AffectedItems.Num());
         }
-        
+
         // Add reversibility info
         TSharedPtr<FJsonObject> ReversibilityJson = MakeShared<FJsonObject>();
         ReversibilityJson->SetBoolField(TEXT("reversible"), bCanBeReversed);
@@ -168,16 +168,16 @@ public:
             ReversibilityJson->SetStringField(TEXT("revert_method"), RevertMethodDescription);
         }
         Json->SetObjectField(TEXT("reversibility"), ReversibilityJson);
-        
+
         // Serialize
         FString JsonString;
         TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&JsonString);
         FJsonSerializer::Serialize(Json.ToSharedRef(), Writer);
-        
+
         Result.Result = JsonString;
         return Result;
     }
-    
+
 private:
     FString ToolName;
     FString ToolUseId;
@@ -224,7 +224,7 @@ namespace DestructiveTools
         TEXT("delete_animation_notify"),
         TEXT("remove_ai_task")
     };
-    
+
     /** Check if a tool name is destructive */
     inline bool IsDestructive(const FString& ToolName)
     {

@@ -11,6 +11,7 @@
  * The runner calls stages sequentially. If a stage sets earlyReturn,
  * the pipeline stops and returns that response.
  */
+import { buildParamsKey } from "./system-enhancements.js";
 import { createSanitizer, createToSafeRecord, createMergeSafeRecords } from "./sanitize-utils.js";
 const sanitizeMergeValue = createSanitizer();
 const toSafeRecord = createToSafeRecord(sanitizeMergeValue);
@@ -49,7 +50,7 @@ export function stageValidate(ctx) {
     const { services: s, resolvedName } = ctx;
     const error = s.validateParams(resolvedName, ctx.defaultedArgs);
     if (error) {
-        s.sessionRecord({ tool: resolvedName, ok: false, duration_ms: 0, timestamp: Date.now(), error: error.error });
+        s.sessionRecord({ tool: resolvedName, ok: false, duration_ms: 0, timestamp: Date.now(), error: error.error, paramsKey: buildParamsKey(ctx.defaultedArgs) });
         s.telemetryRecord("validation_fail", resolvedName);
         s.telemetryRecordCall(resolvedName, false, 0);
         ctx.traceRecorder?.annotate("validation_fail");
@@ -72,10 +73,22 @@ export function stagePrerequisite(ctx) {
     const { services: s, resolvedName } = ctx;
     const error = s.checkPrerequisite(resolvedName, ctx.finalParams);
     if (error) {
-        s.sessionRecord({ tool: resolvedName, ok: false, duration_ms: 0, timestamp: Date.now(), error: error.error });
+        s.sessionRecord({ tool: resolvedName, ok: false, duration_ms: 0, timestamp: Date.now(), error: error.error, paramsKey: buildParamsKey(ctx.finalParams) });
         s.telemetryRecord("prereq_block", resolvedName);
         s.telemetryRecordCall(resolvedName, false, 0);
         ctx.traceRecorder?.annotate("prereq_blocked");
+        ctx.earlyReturn = error;
+    }
+}
+// ── Stage: Stateful Prerequisite Check ─────────────────────────────────────
+export async function stageStatefulPrerequisite(ctx) {
+    const { services: s, resolvedName } = ctx;
+    const error = await s.checkStatefulPrerequisite(resolvedName, ctx.finalParams, s.executeToolDirect);
+    if (error) {
+        s.sessionRecord({ tool: resolvedName, ok: false, duration_ms: 0, timestamp: Date.now(), error: error.error, paramsKey: buildParamsKey(ctx.finalParams) });
+        s.telemetryRecord("stateful_prereq_block", resolvedName);
+        s.telemetryRecordCall(resolvedName, false, 0);
+        ctx.traceRecorder?.annotate("stateful_prereq_blocked");
         ctx.earlyReturn = error;
     }
 }
@@ -149,7 +162,7 @@ export function stageHandleFailure(ctx) {
         return;
     ctx.traceRecorder?.annotate("failure_path");
     const { services: s, resolvedName, durationMs } = ctx;
-    const failEntry = { tool: resolvedName, ok: false, duration_ms: durationMs, timestamp: Date.now(), error: ctx.rawResult.error };
+    const failEntry = { tool: resolvedName, ok: false, duration_ms: durationMs, timestamp: Date.now(), error: ctx.rawResult.error, paramsKey: buildParamsKey(ctx.finalParams) };
     s.sessionRecord(failEntry);
     s.latencyRecord(failEntry);
     s.throttleReport({ ok: false, duration_ms: durationMs, error: ctx.rawResult.error });
@@ -244,7 +257,7 @@ export function stageBuildMetadata(ctx) {
 // ── Stage: Record Success ──────────────────────────────────────────────────
 export function stageRecordSuccess(ctx) {
     const { services: s, resolvedName, durationMs } = ctx;
-    const sessionEntry = { tool: resolvedName, ok: true, duration_ms: durationMs, timestamp: Date.now(), cached: !!ctx.rawResult._cached };
+    const sessionEntry = { tool: resolvedName, ok: true, duration_ms: durationMs, timestamp: Date.now(), cached: !!ctx.rawResult._cached, paramsKey: buildParamsKey(ctx.finalParams) };
     s.sessionRecord(sessionEntry);
     s.latencyRecord(sessionEntry);
     s.throttleReport({ ok: true, duration_ms: durationMs });
@@ -335,6 +348,7 @@ export const DEFAULT_STAGES = [
     stageValidate,
     stageContextInject,
     stagePrerequisite,
+    stageStatefulPrerequisite,
     stagePreExecAnalysis,
     stageExecute,
     stageHandleFailure,
@@ -372,4 +386,3 @@ export function createDispatchContext(resolvedName, rawArgs, handler, services, 
         services,
     };
 }
-//# sourceMappingURL=dispatch-pipeline.js.map

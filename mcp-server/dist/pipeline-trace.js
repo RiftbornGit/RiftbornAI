@@ -292,4 +292,3 @@ export function buildTrace(ctx, outcome, totalMs) {
     }
     return trace;
 }
-//# sourceMappingURL=pipeline-trace.js.map

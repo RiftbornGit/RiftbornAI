@@ -6,7 +6,7 @@
 
 /**
  * FContentCreationToolsModule
- * 
+ *
  * Tool module providing specialized functionality.
  */
 class RIFTBORNAI_API FContentCreationToolsModule : public TToolModuleBase<FContentCreationToolsModule>

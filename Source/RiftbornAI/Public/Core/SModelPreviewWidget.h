@@ -27,7 +27,7 @@ public:
 
     /** Update preview with new model */
     void SetModelPath(const FString& InModelPath);
-    
+
     /** Get mesh statistics */
     struct FMeshStats
     {
@@ -56,19 +56,19 @@ private:
 
     /** Load and analyze mesh */
     void LoadMeshFile();
-    
+
     /** Analyze mesh and populate stats */
     FMeshStats AnalyzeMesh(UStaticMesh* Mesh);
-    
+
     /** Parse OBJ file for statistics (fallback when mesh not loaded) */
     FMeshStats ParseOBJFile(const FString& FilePath);
-    
+
     /** Parse FBX file metadata */
     FMeshStats ParseFBXFile(const FString& FilePath);
-    
+
     /** Generate stats display text */
     FText GetStatsText() const;
-    
+
     /** Button handlers */
     FReply OnAcceptClicked();
     FReply OnRejectClicked();

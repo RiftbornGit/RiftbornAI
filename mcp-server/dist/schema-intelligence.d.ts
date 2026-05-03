@@ -52,4 +52,3 @@ export declare class SchemaIntelligence {
  * (with suggested params) to fix the problem.
  */
 export declare function buildRecoveryAction(toolName: string, errorCategory: string, error: string): RecoveryAction | null;
-//# sourceMappingURL=schema-intelligence.d.ts.map

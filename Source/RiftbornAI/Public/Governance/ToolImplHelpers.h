@@ -30,25 +30,25 @@ inline bool ValidateAndSanitizePath(const FString& RelativePath, FString& OutFul
 			return false;
 		}
 	}
-	
+
 	if (RelativePath.Contains(TEXT("..")))
 	{
 		OutError = TEXT("Path traversal (..) not allowed - security violation");
 		return false;
 	}
-	
+
 	if (RelativePath.StartsWith(TEXT("\\\\")) || RelativePath.StartsWith(TEXT("//")))
 	{
 		OutError = TEXT("UNC/network paths not allowed - security violation");
 		return false;
 	}
-	
+
 	if (RelativePath.Len() > 1 && RelativePath[1] == TEXT(':'))
 	{
 		OutError = TEXT("Absolute paths not allowed - use relative paths from project directory");
 		return false;
 	}
-	
+
 	if (RelativePath.StartsWith(TEXT("/")))
 	{
 		OutError = TEXT("Absolute paths not allowed - use relative paths from project directory");
@@ -71,25 +71,25 @@ inline bool ValidateAndSanitizePath(const FString& RelativePath, FString& OutFul
 			return false;
 		}
 	}
-	
+
 	FString ProjectDir = FPaths::ProjectDir();
 	OutFullPath = ProjectDir / RelativePath;
-	
+
 	FPaths::CollapseRelativeDirectories(OutFullPath);
-	
+
 	FString NormalizedProjectDir = FPaths::ConvertRelativePathToFull(ProjectDir);
 	FString NormalizedFullPath = FPaths::ConvertRelativePathToFull(OutFullPath);
-	
+
 	FPaths::NormalizeDirectoryName(NormalizedProjectDir);
 	FPaths::NormalizeDirectoryName(NormalizedFullPath);
-	
+
 	if (!NormalizedFullPath.StartsWith(NormalizedProjectDir))
 	{
-		OutError = FString::Printf(TEXT("Path escapes project directory - security violation. Resolved: %s, Project: %s"), 
+		OutError = FString::Printf(TEXT("Path escapes project directory - security violation. Resolved: %s, Project: %s"),
 			*NormalizedFullPath, *NormalizedProjectDir);
 		return false;
 	}
-	
+
 	return true;
 }
 

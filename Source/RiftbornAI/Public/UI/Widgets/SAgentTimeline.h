@@ -32,22 +32,22 @@ struct FTimelineEventVM
 	FDateTime Timestamp;
 	bool bSuccess = true;
 	bool bExpanded = false;
-	
+
 	// For grouping
 	FString Category;  // "read", "edit", "build", "test", "verify"
-	
+
 	static FTimelineEventVM FromAgentEvent(const FAgentEvent& Event);
 };
 
 /**
  * SAgentTimeline - Real-time event visualization
- * 
+ *
  * ARCHITECTURE:
  * - Subscribes to FAgentEventStream for live updates
  * - Uses SListView with virtualization for performance
  * - Color-codes events by type
  * - Shows progress/state in header
- * 
+ *
  * USAGE:
  * - Embedded in main Copilot panel
  * - Shows "Observable Work" - what the agent is doing
@@ -62,10 +62,10 @@ public:
 
 	void Construct(const FArguments& InArgs);
 	virtual ~SAgentTimeline();
-	
+
 	/** Clear all events and reset */
 	void Clear();
-	
+
 	/** Bind to a new event stream */
 	void BindToStream(TSharedPtr<FAgentEventStream> Stream);
 
@@ -74,61 +74,61 @@ private:
 	TSharedPtr<FAgentEventStream> EventStream;
 	TWeakPtr<FAgentTaskRunner> WeakRunner;
 	FDelegateHandle StreamSubscriptionHandle;
-	
+
 	// === Display Data ===
 	TArray<TSharedPtr<FTimelineEventVM>> EventItems;
 	TSharedPtr<SListView<TSharedPtr<FTimelineEventVM>>> EventListView;
-	
+
 	// === State ===
 	ETaskRunnerState CurrentState = ETaskRunnerState::Idle;
 	int32 TotalEvents = 0;
 	int32 ErrorCount = 0;
 	bool bAutoScroll = true;
-	
+
 	// === ListView ===
-	
+
 	TSharedRef<ITableRow> GenerateEventRow(
 		TSharedPtr<FTimelineEventVM> Item,
 		const TSharedRef<STableViewBase>& OwnerTable);
-	
+
 	void OnEventSelectionChanged(
 		TSharedPtr<FTimelineEventVM> Selected,
 		ESelectInfo::Type SelectInfo);
 
 	// === Stream Handlers ===
-	
+
 	/** Called when new event arrives */
 	void OnEventReceived(const FAgentEvent& Event);
-	
+
 	/** Called when runner state changes */
 	void OnRunnerStateChanged(ETaskRunnerState NewState);
-	
+
 
 	// === UI Builders ===
-	
+
 	/** Header showing state and progress */
 	TSharedRef<SWidget> BuildHeader();
-	
+
 	/** Footer with controls */
 	TSharedRef<SWidget> BuildFooter();
-	
+
 	/** Update header to reflect current state */
 	void RefreshHeader();
 
 	// === Helpers ===
-	
+
 	/** Get icon for event type */
 	const FSlateBrush* GetEventIcon(EAgentEventType Type) const;
-	
+
 	/** Get color for event type */
 	FSlateColor GetEventColor(EAgentEventType Type) const;
-	
+
 	/** Get category label for event type */
 	FString GetEventCategory(EAgentEventType Type) const;
-	
+
 	/** Format timestamp relative to task start */
 	FText FormatRelativeTime(const FDateTime& Time) const;
-	
+
 	/** Scroll to bottom (if auto-scroll enabled) */
 	void ScrollToLatest();
 
@@ -136,7 +136,7 @@ private:
 	TSharedPtr<STextBlock> StateText;
 	TSharedPtr<STextBlock> ProgressText;
 	TSharedPtr<SProgressBar> ProgressBar;
-	
+
 	// Task start time for relative timestamps
 	FDateTime TaskStartTime;
 };
@@ -152,12 +152,12 @@ public:
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs, const TSharedRef<STableViewBase>& OwnerTable);
-	
+
 	virtual TSharedRef<SWidget> GenerateWidgetForColumn(const FName& ColumnName) override;
 
 private:
 	TSharedPtr<FTimelineEventVM> EventVM;
-	
+
 	FSlateColor GetRowColor() const;
 	const FSlateBrush* GetStatusIcon() const;
 };

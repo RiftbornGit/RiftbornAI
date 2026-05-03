@@ -106,7 +106,7 @@ public:
 		High,       // Significant changes, hard to undo
 		Critical    // Irreversible or dangerous
 	};
-	
+
 	static EDangerLevel GetToolDangerLevel(const FString& ToolName);
 	static FString GetDangerWarning(const FString& ToolName);
 
@@ -129,7 +129,7 @@ private:
 	TArray<FUndoableAction> ActionHistory;
 	TMap<FString, int32> ActionIdToIndex;  // For fast lookup
 	FString CurrentActionId;  // Action being recorded
-	
+
 	int32 MaxHistorySize = 50;
 	bool bEnabled = true;
 };
@@ -161,20 +161,20 @@ class RIFTBORNAI_API FActionHistory
 {
 public:
 	FActionHistory() {}
-	
+
 	// Record an action (simplified)
 	void RecordAction(const FString& ToolName, const TMap<FString, FString>& Args, const FString& Description)
 	{
 		FActionHistoryManager::Get().BeginAction(ToolName, Args);
 		// Note: Simplified - doesn't capture full before state
 	}
-	
+
 	// Check if undo is available
 	bool CanUndo() const
 	{
 		return FActionHistoryManager::Get().CanUndo();
 	}
-	
+
 	// Undo and return description
 	bool UndoLastAction(FString& OutDescription)
 	{
@@ -185,7 +185,7 @@ public:
 		}
 		return FActionHistoryManager::Get().UndoLastAction();
 	}
-	
+
 	// Get recent actions
 	TArray<FUndoableAction> GetRecentActions(int32 Count) const
 	{

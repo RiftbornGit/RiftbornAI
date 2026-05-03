@@ -7,8 +7,8 @@
  * All behavior is preserved verbatim; this file accepts its deps as a
  * single options bag instead of closing over module-scope globals.
  */
-import { enrichError, normalizeParams, addWorkflowHint, checkPrerequisite, addTiming } from "./agent-assist.js";
-import { normalizeResponse } from "./system-enhancements.js";
+import { enrichError, normalizeParams, addWorkflowHint, checkPrerequisite, checkStatefulPrerequisite, addTiming, } from "./agent-assist.js";
+import { buildParamsKey, normalizeResponse } from "./system-enhancements.js";
 import { shouldSmartRetry, shouldResetPipelineStateAfterTool } from "./pipeline-intelligence.js";
 import { buildRecoveryAction } from "./schema-intelligence.js";
 import { shapeResponse, classifyCostFromDuration } from "./tool-resolution.js";
@@ -33,6 +33,13 @@ export function createManagedDispatcher(deps) {
             toolHandlers: TOOL_HANDLERS,
             generatedToolNames: GENERATED_TOOL_NAMES,
             toolResolver: requireToolResolver(),
+            access: {
+                blockedTools: BLOCKED_TOOLS,
+                internalOnlyTools: INTERNAL_ONLY_TOOLS,
+                visibleToolNames: getVisibleToolNames(),
+                enableInternalTools,
+                allowHiddenTools,
+            },
         });
         if ("ok" in resolution) {
             return resolution;
@@ -64,6 +71,7 @@ export function createManagedDispatcher(deps) {
             validateParams: (t, a) => requireSchemaIntel().validateParams(t, a),
             contextInject: (t, a) => contextPropagator.inject(t, a),
             checkPrerequisite: (t, a) => checkPrerequisite(t, a),
+            checkStatefulPrerequisite: (t, a, exec) => checkStatefulPrerequisite(t, a, exec),
             checkDependencies: (t, r) => checkDependencies(t, r),
             getDependencyGraph: () => getToolDependencyGraph(),
             checkIdempotency: (t, a, r) => checkIdempotency(t, a, r),
@@ -143,7 +151,7 @@ export function createManagedDispatcher(deps) {
             const totalMs = Math.round((performance.now() - (tracedCtx.startTime || performance.now())) * 100) / 100;
             pipelineTraceStore.record(buildTrace(tracedCtx, "error", totalMs));
             const errMsg = error instanceof Error ? error.message : String(error);
-            sessionTracker.record({ tool: resolvedName, ok: false, duration_ms: 0, timestamp: Date.now(), error: errMsg });
+            sessionTracker.record({ tool: resolvedName, ok: false, duration_ms: 0, timestamp: Date.now(), error: errMsg, paramsKey: buildParamsKey(rawArgs) });
             adaptiveThrottle.reportOutcome({ ok: false, duration_ms: 0, error: errMsg });
             const enriched = enrichError(resolvedName, { ok: false, error: errMsg });
             const diagBlock = shouldAttachDiagnostics(enriched.error_category, getCallCount())
@@ -169,4 +177,3 @@ export function createManagedDispatcher(deps) {
     }
     return dispatchManagedTool;
 }
-//# sourceMappingURL=dispatcher.js.map

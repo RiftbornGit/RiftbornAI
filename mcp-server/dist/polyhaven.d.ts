@@ -11,4 +11,3 @@ export declare function searchPolyhaven(query: string, assetType?: "textures" | 
 export declare function downloadPolyhavenTexture(assetId: string, resolution?: "1k" | "2k" | "4k", format?: "jpg" | "png" | "exr"): Promise<RiftbornResponse>;
 export declare const POLYHAVEN_TOOLS: Tool[];
 export declare function createPolyhavenHandlers(): Record<string, (args: Record<string, unknown>) => Promise<RiftbornResponse>>;
-//# sourceMappingURL=polyhaven.d.ts.map

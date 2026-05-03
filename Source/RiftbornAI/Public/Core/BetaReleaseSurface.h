@@ -35,11 +35,11 @@ namespace RiftbornBetaReleaseSurface
 	/** True when the running build should enforce the beta-release lock.
 	 *
 	 *  Resolution order:
-	 *    1. Env var `RIFTBORN_DEV_MODE=true`            → false (dev override)
-	 *    2. `URiftbornSettings::bDeveloperMode = true`  → false (dev override)
-	 *    3. Env var `RIFTBORN_BETA_RELEASE_LOCK=false`  → false (explicit unlock)
-	 *    4. Env var `RIFTBORN_BETA_RELEASE_LOCK=true`   → true  (explicit lock)
-	 *    5. `URiftbornSettings::bBetaReleaseLockActive` → that value
+	 *    1. Env var `RIFTBORN_DEV_MODE` truthy (1/true/yes/on) → false (dev override)
+	 *    2. `URiftbornSettings::bDeveloperMode = true`         → false (dev override)
+	 *    3. Env var `RIFTBORN_BETA_RELEASE_LOCK=false`         → false (explicit unlock)
+	 *    4. Env var `RIFTBORN_BETA_RELEASE_LOCK=true`          → true  (explicit lock)
+	 *    5. `URiftbornSettings::bBetaReleaseLockActive`        → that value
 	 *    6. Default → false (no lock — safe default for source builds)
 	 *
 	 *  The shipped Beta build sets the setting to true at install time so

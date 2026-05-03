@@ -9,7 +9,7 @@
 
 /**
  * FPipelineToolsModule
- * 
+ *
  * Pipeline Tools — auto-LOD, cinematic sequence generation, blueprint prefab creation.
  */
 class RIFTBORNAI_API FPipelineToolsModule : public TToolModuleBase<FPipelineToolsModule>

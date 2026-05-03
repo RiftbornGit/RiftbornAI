@@ -9,7 +9,7 @@
 
 /**
  * Gameplay Evidence Tools Module
- * 
+ *
  * Provides tools for Tier-A gameplay loop verification:
  * - get_arena_game_state: Read GameState properties from PIE
  * - get_gameplay_evidence: Comprehensive evidence snapshot for proof bundles
@@ -42,7 +42,7 @@ private:
 	{
 		Registry.RegisterTool(Tool, Handler);
 	}
-	
+
 	// Nonce overlay state
 	static FString CurrentNonce;
 	static bool bNonceOverlayActive;

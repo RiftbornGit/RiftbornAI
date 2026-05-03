@@ -35,6 +35,9 @@ public:
 	/** Get the resolved absolute path to the rules directory. */
 	FString GetResolvedRulesDirectory() const;
 
+	/** Get the resolved absolute path to the user/studio rules directory. */
+	FString GetResolvedUserRulesDirectory() const;
+
 	/** Get count of currently loaded rules. */
 	int32 GetLoadedRuleCount() const;
 

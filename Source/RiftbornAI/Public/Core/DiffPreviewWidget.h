@@ -61,14 +61,14 @@ private:
     FString TitleText;
     FSimpleDelegate OnAcceptDelegate;
     FSimpleDelegate OnRejectDelegate;
-    
+
     TSharedRef<SWidget> BuildDiffView(const FDiffEntry& Diff);
     TSharedRef<SWidget> BuildFileDiffHeader(const FDiffEntry& Diff);
     TSharedRef<SWidget> BuildDiffLines(const FDiffEntry& Diff);
-    
+
     FReply OnAcceptClicked();
     FReply OnRejectClicked();
-    
+
     // Diff line styling
     FSlateColor GetLineColor(bool bAdded, bool bRemoved) const;
     FLinearColor GetLineBackground(bool bAdded, bool bRemoved) const;

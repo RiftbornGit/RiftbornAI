@@ -19,7 +19,7 @@ struct FSafeExecutionResult
     FString ErrorCode;
     double ExecutionTimeMs = 0.0;
     FString StackTrace;
-    
+
     static FSafeExecutionResult Success(const FString& InResult)
     {
         FSafeExecutionResult R;
@@ -27,7 +27,7 @@ struct FSafeExecutionResult
         R.Result = InResult;
         return R;
     }
-    
+
     static FSafeExecutionResult Failure(const FString& Code, const FString& Message)
     {
         FSafeExecutionResult R;
@@ -49,27 +49,27 @@ struct FExecutionStats
     FThreadSafeCounter TimeoutExecutions;
     TAtomic<double> TotalExecutionTimeMs;
     TAtomic<double> MaxExecutionTimeMs;
-    
+
     void RecordExecution(bool bSuccess, bool bTimeout, double TimeMs)
     {
         TotalExecutions.Increment();
         if (bSuccess) SuccessfulExecutions.Increment();
         else if (bTimeout) TimeoutExecutions.Increment();
         else FailedExecutions.Increment();
-        
+
         TotalExecutionTimeMs.Store(TotalExecutionTimeMs.Load() + TimeMs);
         if (TimeMs > MaxExecutionTimeMs.Load())
         {
             MaxExecutionTimeMs.Store(TimeMs);
         }
     }
-    
+
     double GetAverageTimeMs() const
     {
         int32 Total = TotalExecutions.GetValue();
         return Total > 0 ? TotalExecutionTimeMs.Load() / Total : 0.0;
     }
-    
+
     double GetSuccessRate() const
     {
         int32 Total = TotalExecutions.GetValue();
@@ -90,33 +90,33 @@ namespace RiftbornValidation
             OutError = TEXT("Path is empty");
             return false;
         }
-        
+
         // Must start with /Game/, /Engine/, or /Script/
-        if (!Path.StartsWith(TEXT("/Game/")) && 
-            !Path.StartsWith(TEXT("/Engine/")) && 
+        if (!Path.StartsWith(TEXT("/Game/")) &&
+            !Path.StartsWith(TEXT("/Engine/")) &&
             !Path.StartsWith(TEXT("/Script/")))
         {
             OutError = FString::Printf(TEXT("Invalid path prefix. Must start with /Game/, /Engine/, or /Script/. Got: %s"), *Path.Left(50));
             return false;
         }
-        
+
         // Check for path traversal attacks
         if (Path.Contains(TEXT("..")) || Path.Contains(TEXT("./")) || Path.Contains(TEXT("\\")))
         {
             OutError = TEXT("Path contains invalid traversal characters");
             return false;
         }
-        
+
         // Check for null bytes
         if (Path.Contains(TEXT("\0")))
         {
             OutError = TEXT("Path contains null bytes");
             return false;
         }
-        
+
         return true;
     }
-    
+
     // Validate a filesystem path (for sandboxed operations only)
     inline bool IsValidFilePath(const FString& Path, const FString& AllowedRoot, FString& OutError)
     {
@@ -125,28 +125,28 @@ namespace RiftbornValidation
             OutError = TEXT("File path is empty");
             return false;
         }
-        
+
         // Normalize path
         FString NormalizedPath = FPaths::ConvertRelativePathToFull(Path);
         FString NormalizedRoot = FPaths::ConvertRelativePathToFull(AllowedRoot);
-        
+
         // Must be under allowed root
         if (!NormalizedPath.StartsWith(NormalizedRoot))
         {
             OutError = FString::Printf(TEXT("Path is outside allowed directory: %s"), *AllowedRoot);
             return false;
         }
-        
+
         // Check for path traversal
         if (Path.Contains(TEXT("..")))
         {
             OutError = TEXT("Path traversal (..) not allowed");
             return false;
         }
-        
+
         return true;
     }
-    
+
     // Validate string input (general purpose)
     inline bool IsValidString(const FString& Input, int32 MaxLength, FString& OutError)
     {
@@ -155,30 +155,30 @@ namespace RiftbornValidation
             OutError = FString::Printf(TEXT("String exceeds maximum length of %d characters"), MaxLength);
             return false;
         }
-        
+
         // Check for null bytes
         if (Input.Contains(TEXT("\0")))
         {
             OutError = TEXT("String contains null bytes");
             return false;
         }
-        
+
         return true;
     }
-    
+
     // Validate numeric range
     template<typename T>
     inline bool IsInRange(T Value, T Min, T Max, const FString& ParamName, FString& OutError)
     {
         if (Value < Min || Value > Max)
         {
-            OutError = FString::Printf(TEXT("%s must be between %s and %s"), 
+            OutError = FString::Printf(TEXT("%s must be between %s and %s"),
                 *ParamName, *LexToString(Min), *LexToString(Max));
             return false;
         }
         return true;
     }
-    
+
     // Validate required parameter exists
     inline bool RequireParameter(const TMap<FString, FString>& Args, const FString& ParamName, FString& OutError)
     {
@@ -199,7 +199,7 @@ class FRiftbornSafeExecutor
 public:
     // Default timeout in seconds
     static constexpr double DefaultTimeoutSeconds = 30.0;
-    
+
     // Execute a function safely with full error handling
     template<typename Func>
     static FSafeExecutionResult Execute(
@@ -209,18 +209,18 @@ public:
     {
         FSafeExecutionResult Result;
         double StartTime = FPlatformTime::Seconds();
-        
+
         RIFTBORN_LOG(Log, TEXT("SafeExec: Starting '%s' (timeout: %.1fs)"), *OperationName, TimeoutSeconds);
-        
+
         // Note: UE4/5 doesn't have standard C++ exceptions enabled by default
         // We use structured error checking instead
-        
+
         // Execute the function
         bool bTimedOut = false;
         FString ExecutionResult;
         FString ExecutionError;
         bool bSuccess = false;
-        
+
         // Timeout enforcement: We use a watchdog timer approach.
         // Full preemptive timeout requires running in a separate thread, which is
         // problematic for UE API calls that must run on the game thread.
@@ -231,9 +231,9 @@ public:
         // 4. Tools should call CheckTimeout() periodically for cooperative cancellation
         //
         // For truly async operations, use ExecuteAsync() with a cancellation token.
-        
+
         bSuccess = Function(ExecutionResult, ExecutionError);
-        
+
         // Post-hoc timeout detection
         double ElapsedSeconds = FPlatformTime::Seconds() - StartTime;
         if (ElapsedSeconds > TimeoutSeconds)
@@ -242,9 +242,9 @@ public:
             RIFTBORN_LOG(Warning, TEXT("SafeExec: '%s' exceeded timeout (%.1fs > %.1fs) - marking as timeout"),
                 *OperationName, ElapsedSeconds, TimeoutSeconds);
         }
-        
+
         Result.ExecutionTimeMs = (FPlatformTime::Seconds() - StartTime) * 1000.0;
-        
+
         if (bSuccess)
         {
             Result.bSuccess = true;
@@ -256,16 +256,16 @@ public:
             Result.bSuccess = false;
             Result.ErrorMessage = ExecutionError;
             Result.ErrorCode = TEXT("EXECUTION_FAILED");
-            RIFTBORN_LOG(Warning, TEXT("SafeExec: '%s' failed in %.2fms: %s"), 
+            RIFTBORN_LOG(Warning, TEXT("SafeExec: '%s' failed in %.2fms: %s"),
                 *OperationName, Result.ExecutionTimeMs, *ExecutionError);
         }
-        
+
         // Update global stats
         GetStats().RecordExecution(bSuccess, bTimedOut, Result.ExecutionTimeMs);
-        
+
         return Result;
     }
-    
+
     // Execute with retry logic
     template<typename Func>
     static FSafeExecutionResult ExecuteWithRetry(
@@ -276,42 +276,42 @@ public:
         double TimeoutSeconds = DefaultTimeoutSeconds)
     {
         FSafeExecutionResult Result;
-        
+
         for (int32 Attempt = 0; Attempt <= MaxRetries; Attempt++)
         {
             if (Attempt > 0)
             {
-                RIFTBORN_LOG(Log, TEXT("SafeExec: Retrying '%s' (attempt %d/%d)"), 
+                RIFTBORN_LOG(Log, TEXT("SafeExec: Retrying '%s' (attempt %d/%d)"),
                     *OperationName, Attempt + 1, MaxRetries + 1);
                 FPlatformProcess::Sleep(RetryDelaySeconds);
             }
-            
+
             Result = Execute(OperationName, Forward<Func>(Function), TimeoutSeconds);
-            
+
             if (Result.bSuccess)
             {
                 return Result;
             }
-            
+
             // Don't retry on validation errors or permanent failures
-            if (Result.ErrorCode == TEXT("VALIDATION_ERROR") || 
+            if (Result.ErrorCode == TEXT("VALIDATION_ERROR") ||
                 Result.ErrorCode == TEXT("NOT_FOUND") ||
                 Result.ErrorCode == TEXT("PERMISSION_DENIED"))
             {
                 break;
             }
         }
-        
+
         return Result;
     }
-    
+
     // Get global execution statistics
     static FExecutionStats& GetStats()
     {
         static FExecutionStats Stats;
         return Stats;
     }
-    
+
     // Cooperative timeout context for long-running operations
     // Tools can call CheckTimeout() periodically to enable cooperative cancellation
     struct FTimeoutContext
@@ -319,53 +319,53 @@ public:
         double StartTime = 0.0;
         double TimeoutSeconds = 30.0;
         bool bCancelled = false;
-        
+
         FTimeoutContext(double InTimeoutSeconds = 30.0)
             : StartTime(FPlatformTime::Seconds())
             , TimeoutSeconds(InTimeoutSeconds)
             , bCancelled(false)
         {
         }
-        
+
         // Check if operation should be cancelled (call periodically in loops)
         bool ShouldCancel() const
         {
             if (bCancelled) return true;
             return (FPlatformTime::Seconds() - StartTime) > TimeoutSeconds;
         }
-        
+
         // Get remaining time
         double GetRemainingSeconds() const
         {
             double Elapsed = FPlatformTime::Seconds() - StartTime;
             return FMath::Max(0.0, TimeoutSeconds - Elapsed);
         }
-        
+
         // Request cancellation
         void Cancel() { bCancelled = true; }
     };
-    
+
     // Thread-local timeout context for cooperative cancellation
     static FTimeoutContext*& GetCurrentTimeoutContext()
     {
         static thread_local FTimeoutContext* Context = nullptr;
         return Context;
     }
-    
+
     // Check if current operation should be cancelled (call from within tools)
     static bool CheckTimeout()
     {
         FTimeoutContext* Ctx = GetCurrentTimeoutContext();
         return Ctx ? Ctx->ShouldCancel() : false;
     }
-    
+
     // Get remaining time for current operation
     static double GetRemainingTime()
     {
         FTimeoutContext* Ctx = GetCurrentTimeoutContext();
         return Ctx ? Ctx->GetRemainingSeconds() : DBL_MAX;
     }
-    
+
     // Generate stats report
     static FString GetStatsReport()
     {
@@ -397,7 +397,7 @@ public:
         Open,       // Failing, reject all calls
         HalfOpen    // Testing if service recovered
     };
-    
+
     FRiftbornCircuitBreakerGuard(
         const FString& InServiceName,
         int32 InFailureThreshold = 5,
@@ -410,17 +410,17 @@ public:
         , LastFailureTime(0)
     {
     }
-    
+
     // Check if request should be allowed
     bool AllowRequest()
     {
         FScopeLock Lock(&CriticalSection);
-        
+
         switch (CurrentState)
         {
             case EState::Closed:
                 return true;
-                
+
             case EState::Open:
             {
                 double Now = FPlatformTime::Seconds();
@@ -432,19 +432,19 @@ public:
                 }
                 return false;
             }
-            
+
             case EState::HalfOpen:
                 return true; // Allow test request
         }
-        
+
         return false;
     }
-    
+
     // Record successful call
     void RecordSuccess()
     {
         FScopeLock Lock(&CriticalSection);
-        
+
         if (CurrentState == EState::HalfOpen)
         {
             CurrentState = EState::Closed;
@@ -452,26 +452,26 @@ public:
             RIFTBORN_LOG(Log, TEXT("CircuitBreaker '%s': Recovered, transitioning to Closed"), *ServiceName);
         }
     }
-    
+
     // Record failed call
     void RecordFailure()
     {
         FScopeLock Lock(&CriticalSection);
-        
+
         FailureCount++;
         LastFailureTime = FPlatformTime::Seconds();
-        
+
         if (CurrentState == EState::HalfOpen || FailureCount >= FailureThreshold)
         {
             CurrentState = EState::Open;
-            RIFTBORN_LOG(Warning, TEXT("CircuitBreaker '%s': Opening circuit after %d failures"), 
+            RIFTBORN_LOG(Warning, TEXT("CircuitBreaker '%s': Opening circuit after %d failures"),
                 *ServiceName, FailureCount);
         }
     }
-    
+
     EState GetState() const { return CurrentState; }
     int32 GetFailureCount() const { return FailureCount; }
-    
+
 private:
     FString ServiceName;
     int32 FailureThreshold;
@@ -493,36 +493,36 @@ public:
         , WindowSeconds(InWindowSeconds)
     {
     }
-    
+
     // Check if request should be allowed, returns true if allowed
     bool TryAcquire()
     {
         FScopeLock Lock(&CriticalSection);
-        
+
         double Now = FPlatformTime::Seconds();
-        
+
         // Remove expired timestamps
         while (RequestTimestamps.Num() > 0 && Now - RequestTimestamps[0] > WindowSeconds)
         {
             RequestTimestamps.RemoveAt(0);
         }
-        
+
         // Check if under limit
         if (RequestTimestamps.Num() < MaxRequests)
         {
             RequestTimestamps.Add(Now);
             return true;
         }
-        
+
         return false;
     }
-    
+
     // Get remaining requests in window
     int32 GetRemainingRequests() const
     {
         return FMath::Max(0, MaxRequests - RequestTimestamps.Num());
     }
-    
+
     // Get time until next request allowed (in seconds)
     double GetTimeUntilAvailable() const
     {
@@ -530,12 +530,12 @@ public:
         {
             return 0.0;
         }
-        
+
         double Now = FPlatformTime::Seconds();
         double OldestRequest = RequestTimestamps[0];
         return FMath::Max(0.0, WindowSeconds - (Now - OldestRequest));
     }
-    
+
 private:
     int32 MaxRequests;
     double WindowSeconds;

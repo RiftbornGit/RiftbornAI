@@ -6,7 +6,7 @@
 
 /**
  * FOptimizationToolsModule
- * 
+ *
  * Tool module providing specialized functionality.
  */
 class RIFTBORNAI_API FOptimizationToolsModule : public TToolModuleBase<FOptimizationToolsModule>

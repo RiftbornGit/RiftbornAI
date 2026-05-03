@@ -9,7 +9,7 @@
 
 /**
  * FNPCLifecycleToolsModule
- * 
+ *
  * NPC lifecycle helpers: spawn a Character, optionally wire AI control, then configure patrol.
  */
 class RIFTBORNAI_API FNPCLifecycleToolsModule : public TToolModuleBase<FNPCLifecycleToolsModule>

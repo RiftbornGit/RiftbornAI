@@ -88,7 +88,7 @@ struct FRiftbornJournalRecoveryResult
 
 /**
  * Transaction journal subsystem - Write-ahead log for crash recovery.
- * 
+ *
  * ARCHITECTURE:
  * - Before any action executes, we write a journal entry to disk
  * - Entry includes: ActionId, AffectedAssets, State (Pending)
@@ -96,13 +96,13 @@ struct FRiftbornJournalRecoveryResult
  * - On success/rollback, we update state to Committed/RolledBack
  * - On editor startup, we check for Pending/InProgress entries
  * - Any incomplete entries are automatically rolled back via snapshots
- * 
+ *
  * INVARIANTS:
  * 1. Every action is journaled BEFORE execution
  * 2. Journal entries are NEVER deleted, only marked complete
  * 3. Recovery is IDEMPOTENT (safe to run multiple times)
  * 4. Journal is append-only (no in-place edits to prevent corruption)
- * 
+ *
  * FILE STRUCTURE:
  * {ProjectSaved}/RiftbornAI/Journal/
  *   active/

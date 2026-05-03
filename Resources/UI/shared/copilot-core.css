@@ -9,53 +9,53 @@
     --bg-0: #0b0e11;
     --bg-1: #11151b;
     --bg-2: #161c23;
-    
+
     /* Panel surfaces */
     --panel: rgba(18, 22, 28, 0.94);
     --panel-2: #1b222b;
     --panel-3: #232c36;
-    
+
     /* Borders & dividers */
     --border: rgba(255, 255, 255, 0.08);
     --border-hover: rgba(255, 255, 255, 0.18);
-    
+
     /* Text hierarchy */
     --text-0: #f5f5f2;
     --text-1: #d5dbe2;
     --text-2: #9aa5b1;
     --text-3: #6f7a87;
-    
+
     /* Accent colors */
     --accent: #ffb85c;
     --accent-hover: #ffc87a;
     --accent-2: #5fe6d0;
-    
+
     /* Semantic colors */
     --success: #77e1a0;
     --error: #ff6b6b;
     --warning: #f7c66b;
     --info: #68c6ff;
-    
+
     /* Shadows */
     --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.38);
     --shadow-strong: 0 24px 70px rgba(0, 0, 0, 0.5);
     --shadow-glow: 0 0 22px rgba(95, 230, 208, 0.25);
-    
+
     /* Focus ring */
     --focus-ring: 0 0 0 2px var(--bg-0), 0 0 0 4px var(--accent);
-    
+
     /* Animation durations */
     --duration-fast: 0.15s;
     --duration-normal: 0.25s;
     --duration-slow: 0.4s;
-    
+
     /* Border radius */
     --radius-sm: 6px;
     --radius-md: 10px;
     --radius-lg: 14px;
     --radius-xl: 18px;
     --radius-full: 999px;
-    
+
     /* Spacing scale */
     --space-xs: 4px;
     --space-sm: 8px;
@@ -210,7 +210,7 @@ body.theme-light::after {
     padding: var(--space-sm) var(--space-lg);
     border-radius: var(--radius-md);
     cursor: pointer;
-    transition: 
+    transition:
         transform var(--duration-fast) ease,
         box-shadow var(--duration-fast) ease,
         background var(--duration-fast) ease,
@@ -698,13 +698,13 @@ body.theme-light ::-webkit-scrollbar-thumb:hover {
 }
 
 @keyframes typing-bounce {
-    0%, 80%, 100% { 
-        transform: scale(0.8); 
-        opacity: 0.5; 
+    0%, 80%, 100% {
+        transform: scale(0.8);
+        opacity: 0.5;
     }
-    40% { 
-        transform: scale(1); 
-        opacity: 1; 
+    40% {
+        transform: scale(1);
+        opacity: 1;
     }
 }
 
@@ -729,7 +729,7 @@ body.theme-light ::-webkit-scrollbar-thumb:hover {
     .message {
         max-width: 95%;
     }
-    
+
     .metrics-bar {
         flex-wrap: wrap;
         gap: var(--space-sm);

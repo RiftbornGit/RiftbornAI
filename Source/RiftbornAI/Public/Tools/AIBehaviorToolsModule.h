@@ -6,7 +6,7 @@
 
 /**
  * FAIBehaviorToolsModule
- * 
+ *
  * Tool module providing specialized functionality.
  */
 class RIFTBORNAI_API FAIBehaviorToolsModule : public TToolModuleBase<FAIBehaviorToolsModule>

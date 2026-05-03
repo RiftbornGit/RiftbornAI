@@ -8,7 +8,7 @@
 
 /**
  * Function signature for claim verifiers
- * 
+ *
  * @param Claim - The claim to verify (read predicate + args)
  * @param OutReason - Set to explanation if verification fails or is unavailable
  * @param OutEvidence - Set to evidence JSON if verification succeeds
@@ -19,7 +19,7 @@ using FClaimVerifierFn = TFunction<bool(const FToolClaim& Claim, FString& OutRea
 
 /**
  * Registry of claim predicates and their verifiers
- * 
+ *
  * The One Rule: No claim without a verification method. No action without a claim.
  * - If you can't test it, you can't claim it
  * - If you claim it, you must say how to test it
@@ -44,11 +44,11 @@ public:
 
     /**
      * Verify a claim
-     * 
+     *
      * @param Claim - The claim to verify (will be modified with Status and StatusReason)
      * @param EvidenceOut - Collected evidence if verification succeeds
      * @return true if claim is verified, false if refuted or unverifiable
-     * 
+     *
      * Sets Claim.Status to:
      * - Verified: predicate satisfied, evidence collected
      * - Refuted: predicate failed, reason provided
@@ -75,7 +75,7 @@ public:
 
 private:
     FClaimVerifierRegistry() = default;
-    
+
     TMap<FString, FClaimVerifierFn> Verifiers;
     mutable FCriticalSection VerifiersLock;
 };
@@ -114,18 +114,18 @@ namespace ClaimBuilder
         const TSharedPtr<FJsonObject>& Args,
         const FString& VerifyMethod = TEXT("metric_check")
     );
-    
+
     // Convenience helpers for common spawn_actor claims
-    
+
     /** Create actor.exists claim */
     RIFTBORNAI_API FToolClaim ActorExists(const FString& ActorLabel);
-    
+
     /** Create actor.transform claim (location with tolerance) */
     RIFTBORNAI_API FToolClaim ActorAtLocation(const FString& ActorLabel, const FVector& Location, float Tolerance = 1.0f);
-    
+
     /** Create actor.class_is claim */
     RIFTBORNAI_API FToolClaim ActorClassIs(const FString& ActorLabel, const FString& ExpectedClass);
-    
+
     /** Create world.gamemode_override_is claim */
     RIFTBORNAI_API FToolClaim WorldGameModeIs(const FString& ExpectedGameModeClass);
 }

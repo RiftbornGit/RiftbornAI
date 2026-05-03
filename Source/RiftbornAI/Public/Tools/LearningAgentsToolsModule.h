@@ -9,7 +9,7 @@
 
 /**
  * FLearningAgentsToolsModule
- * 
+ *
  * Learning Agents inspection and imitation-training controls.
  */
 class RIFTBORNAI_API FLearningAgentsToolsModule : public TToolModuleBase<FLearningAgentsToolsModule>

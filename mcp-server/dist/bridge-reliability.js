@@ -228,14 +228,18 @@ export function stripProtoKeys(obj) {
     for (const [key, value] of Object.entries(obj)) {
         if (PROTO_BLOCKED.has(key))
             continue;
-        if (value !== null && typeof value === "object" && !Array.isArray(value)) {
-            out[key] = stripProtoKeys(value);
-        }
-        else {
-            out[key] = value;
-        }
+        out[key] = stripProtoValue(value);
     }
     return out;
+}
+function stripProtoValue(value) {
+    if (Array.isArray(value)) {
+        return value.map(stripProtoValue);
+    }
+    if (value !== null && typeof value === "object") {
+        return stripProtoKeys(value);
+    }
+    return value;
 }
 async function extractBridgeErrorBody(response) {
     const contentLength = response.headers.get("content-length");
@@ -624,4 +628,3 @@ export class BridgeHealthMonitor {
         }
     }
 }
-//# sourceMappingURL=bridge-reliability.js.map

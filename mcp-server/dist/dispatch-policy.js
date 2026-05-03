@@ -22,14 +22,18 @@ export function getToolAccessError(name, access) {
 function isCallableTool(name, toolHandlers, generatedToolNames) {
     return Boolean(toolHandlers[name]) || generatedToolNames.has(name);
 }
-export function resolveToolInvocation({ name, toolHandlers, generatedToolNames, toolResolver, }) {
+function isAccessibleCallableTool(name, toolHandlers, generatedToolNames, access) {
+    return isCallableTool(name, toolHandlers, generatedToolNames)
+        && !getToolAccessError(name, access);
+}
+export function resolveToolInvocation({ name, toolHandlers, generatedToolNames, toolResolver, access, }) {
     if (isCallableTool(name, toolHandlers, generatedToolNames)) {
         return { resolvedName: name };
     }
     const resolution = toolResolver.resolve(name);
     if (resolution.resolved &&
         (resolution.confidence === "alias" || resolution.confidence === "high") &&
-        isCallableTool(resolution.resolved, toolHandlers, generatedToolNames)) {
+        isAccessibleCallableTool(resolution.resolved, toolHandlers, generatedToolNames, access)) {
         // SECURITY: Re-check access control after fuzzy resolution.
         // Without this, a blocked tool could be reached via a typo variant
         // (e.g., "blocked_too1" resolves to "blocked_tool" and bypasses the
@@ -46,12 +50,12 @@ export function resolveToolInvocation({ name, toolHandlers, generatedToolNames, 
             },
         };
     }
-    const suggestions = resolution.suggestions.length > 0
-        ? ` Did you mean: ${resolution.suggestions.join(", ")}?`
+    const visibleSuggestions = resolution.suggestions.filter((candidate) => isAccessibleCallableTool(candidate, toolHandlers, generatedToolNames, access));
+    const suggestions = visibleSuggestions.length > 0
+        ? ` Did you mean: ${visibleSuggestions.join(", ")}?`
         : "";
     return {
         ok: false,
         error: `Unknown tool: ${name}.${suggestions}`,
     };
 }
-//# sourceMappingURL=dispatch-policy.js.map

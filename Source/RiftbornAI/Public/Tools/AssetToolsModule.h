@@ -10,7 +10,7 @@
 
 /**
  * Riftborn Asset Tools Module
- * 
+ *
  * Provides tools for managing Unreal Engine assets:
  * - delete_asset: Remove assets from project
  * - rename_asset: Rename assets with reference updates
@@ -18,16 +18,16 @@
  * - move_asset: Relocate assets between folders
  * - find_assets: Search assets by name/type/path
  * - get_asset_info: Get detailed asset metadata
- * 
+ *
  * NOTE: Named FRiftbornAssetToolsModule to avoid collision with UE's FAssetToolsModule
  */
 class RIFTBORNAI_API FRiftbornAssetToolsModule : public TToolModuleBase<FRiftbornAssetToolsModule>
 {
 public:
     static FString StaticModuleName() { return TEXT("AssetTools"); }
-    
+
     virtual void RegisterTools(FClaudeToolRegistry& Registry) override;
-    
+
     // Tool implementations
     static FClaudeToolResult Tool_DeleteAsset(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_RenameAsset(const FClaudeToolCall& Call);

@@ -7,12 +7,12 @@
 
 /**
  * Macros for simplified tool registration
- * 
+ *
  * Usage:
  *   RIFTBORN_TOOL_BEGIN("spawn_actor", "Spawn an actor in the level")
  *       RIFTBORN_PARAM_STRING_REQ("class_name", "Actor class or Blueprint path")
  *       RIFTBORN_PARAM_NUMBER_OPT("x", "X position", "0")
- *       RIFTBORN_PARAM_NUMBER_OPT("y", "Y position", "0") 
+ *       RIFTBORN_PARAM_NUMBER_OPT("y", "Y position", "0")
  *       RIFTBORN_PARAM_NUMBER_OPT("z", "Z position", "0")
  *   RIFTBORN_TOOL_END(Tool_SpawnActor)
  */
@@ -29,7 +29,28 @@ inline FClaudeToolParameter MakeToolParam(const FString& Name, EClaudeToolParamT
 	return Param;
 }
 
-// Begin tool definition - pass raw string literals 
+// Enum-constrained string parameter. Declares the set of valid values so that
+// (a) the JSON schema the LLM sees advertises them upfront as `enum`, and
+// (b) the governance validator rejects unknown values early with a "did you
+// mean X?" suggestion — no per-tool inline synonym list needed.
+inline FClaudeToolParameter MakeToolParamEnum(
+	const FString& Name,
+	const FString& Description,
+	const TArray<FString>& AllowedValues,
+	bool bRequired,
+	const FString& Default = TEXT(""))
+{
+	FClaudeToolParameter Param;
+	Param.Name = Name;
+	Param.Type = EClaudeToolParamType::String;
+	Param.Description = Description;
+	Param.bRequired = bRequired;
+	Param.DefaultValue = Default;
+	Param.AllowedValues = AllowedValues;
+	return Param;
+}
+
+// Begin tool definition - pass raw string literals
 // Example: RIFTBORN_TOOL_BEGIN("spawn_actor", "Spawn an actor in the level")
 #define RIFTBORN_TOOL_BEGIN(ToolName, Description) \
 	{ \
@@ -197,9 +218,9 @@ inline FClaudeToolResult MakeErrorResult(const FString& ToolUseId, const FString
 // ============================================================================
 // STRICT REGISTRATION MACROS - Force explicit Risk/Visibility
 // ============================================================================
-// 
+//
 // These macros REQUIRE Risk to be set. Use for new tools.
-// 
+//
 // Usage:
 //   RIFTBORN_TOOL_STRICT_BEGIN("spawn_actor", "Spawn an actor", Mutation, Public)
 //       RIFTBORN_PARAM_STRING_REQ("class_name", "Actor class")

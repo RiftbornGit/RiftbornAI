@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
  * RiftbornAI MCP Server — Global Installer
- * 
+ *
  * Registers the RiftbornAI MCP server in user-global configs for:
  *   - Claude Desktop
  *   - VS Code (user profile)
  *   - Cursor (global)
  *   - Windsurf (global)
- * 
+ *
  * Usage:
  *   node Scripts/install-mcp.mjs                   # install to all platforms
  *   node Scripts/install-mcp.mjs --uninstall        # remove from all platforms

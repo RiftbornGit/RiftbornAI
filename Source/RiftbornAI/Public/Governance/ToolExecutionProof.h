@@ -216,12 +216,12 @@ struct RIFTBORNAI_API FTEPEnvironment
 
 /**
  * Tool Execution Proof (TEP) v1.0.0
- * 
+ *
  * The canonical, atomic proof bundle for a single governed mutation attempt.
  * This is the fundamental audit and replay unit for governed execution.
- * 
+ *
  * FROZEN SPEC - Breaking changes require version bump.
- * 
+ *
  * Key invariants:
  * - One TEP = One tool invocation = One ExecCtx
  * - ExecCtx is embedded (not just referenced)
@@ -237,7 +237,7 @@ struct RIFTBORNAI_API FToolExecutionProof
     // =========================================================================
     // SCHEMA VERSION
     // =========================================================================
-    
+
     /** Schema version - const "1.0.0" */
     UPROPERTY(BlueprintReadOnly, Category = "TEP")
     FString SchemaVersion = TEXT("1.0.0");

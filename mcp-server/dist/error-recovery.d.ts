@@ -72,4 +72,3 @@ export declare function detectRepeatedFailures(toolName: string, error: string, 
 export declare function gatherDiagnosticContext(input: DiagnosticInput): DiagnosticContext;
 /** Whether diagnostics should be attached for this error category. */
 export declare function shouldAttachDiagnostics(category: string, callCount: number): boolean;
-//# sourceMappingURL=error-recovery.d.ts.map

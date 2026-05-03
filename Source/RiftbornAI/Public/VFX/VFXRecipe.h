@@ -44,23 +44,23 @@ enum class ERecipeStepType : uint8
 	// System-level ops
 	CloneSystem,        // Clone from template
 	CreateSystem,       // Create empty system
-	
+
 	// Emitter ops
 	AddEmitter,         // Add emitter from template
 	RemoveEmitter,      // Remove emitter by index
-	
+
 	// Module ops
 	AddModule,          // Add module to emitter
 	RemoveModule,       // Remove module from emitter
-	
+
 	// Parameter ops
 	SetParam,           // Set parameter value
 	BindParam,          // Bind to input variable
-	
+
 	// Renderer ops
 	SetRenderer,        // Configure renderer
 	SetMaterial,        // Set material on renderer
-	
+
 	// Compile/Save
 	Compile,            // Compile system
 	Save                // Save to disk
@@ -257,9 +257,9 @@ struct RIFTBORNAI_API FRecipeMutation
 
 /**
  * VFX Recipe Builder - Creates and executes VFX recipes
- * 
+ *
  * Phase 4: Executable Recipe System
- * 
+ *
  * This class provides:
  * - InspectToRecipe: Convert existing Niagara system to recipe
  * - ExecuteRecipe: Replay recipe to create new system

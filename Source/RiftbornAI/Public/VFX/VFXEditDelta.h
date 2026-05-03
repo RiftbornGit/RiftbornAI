@@ -188,9 +188,9 @@ struct RIFTBORNAI_API FEditDeltaDataset
 
 /**
  * VFX Edit Tracker - Captures human VFX editing patterns
- * 
+ *
  * Phase 6: Editor-Introspective Learning
- * 
+ *
  * Key Principle: Learn from WHAT humans do, not WHAT they say.
  * - Track parameter changes as they happen
  * - Capture before/after snapshots

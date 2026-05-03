@@ -10,7 +10,7 @@
 /**
  * Transform Tools Module
  * Provides tools for manipulating actor transforms (position, rotation, scale).
- * 
+ *
  * Tools included:
  * - move_actor: Move an actor to a new location
  * - rotate_actor: Rotate an actor
@@ -25,9 +25,9 @@ class RIFTBORNAI_API FTransformToolsModule : public TToolModuleBase<FTransformTo
 {
 public:
     static FString StaticModuleName() { return TEXT("TransformTools"); }
-    
+
     virtual void RegisterTools(FClaudeToolRegistry& Registry) override;
-    
+
     // Tool implementations
     static FClaudeToolResult Tool_MoveActor(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_RotateActor(const FClaudeToolCall& Call);
@@ -37,7 +37,7 @@ public:
     static FClaudeToolResult Tool_SelectActor(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_FocusActor(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_OrbitActor(const FClaudeToolCall& Call);
-    
+
 private:
     // Helper functions to resolve live editor actors from grounded ids or labels.
     static AActor* FindActorByPath(const FString& ActorPath);

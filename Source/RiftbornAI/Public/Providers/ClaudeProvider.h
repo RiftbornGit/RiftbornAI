@@ -19,7 +19,7 @@ public:
     // ============================================================================
     // IAIProvider - Configuration
     // ============================================================================
-    
+
     virtual void SetAPIKey(const FString& InAPIKey) override { APIKey = InAPIKey; }
     virtual void SetModel(const FString& InModel) override { Model = InModel; }
     virtual FString GetModel() const override { return Model; }
@@ -29,7 +29,7 @@ public:
     // ============================================================================
     // IAIProvider - Simple Messaging
     // ============================================================================
-    
+
     virtual void SendMessage(
         const FString& Message,
         TFunction<void(bool bSuccess, const FString& Response)> OnComplete
@@ -38,14 +38,14 @@ public:
     // ============================================================================
     // IAIProvider - Agentic Tool Use
     // ============================================================================
-    
+
     virtual void SendMessageWithTools(
         const FString& Message,
         const FString& RequestId,
         TFunction<void(bool bSuccess, const FString& Response, const FString& RequestId)> OnComplete,
         TFunction<void(const FString& Status)> OnProgress = nullptr
     ) override;
-    
+
     virtual void SendMessageStreaming(
         const FString& Message,
         const TArray<TSharedPtr<FJsonValue>>& Tools,
@@ -53,7 +53,7 @@ public:
         TFunction<void(const FString& ToolName, const TMap<FString, FString>& Args, const FString& ToolUseId)> OnToolCall,
         TFunction<void(bool bSuccess, const FString& Error)> OnComplete
     ) override;
-    
+
     virtual void ContinueWithToolResult(
         const FString& ToolUseId,
         const FString& Result,
@@ -62,7 +62,7 @@ public:
         TFunction<void(const FString& ToolName, const TMap<FString, FString>& Args, const FString& ToolUseId)> OnToolCall,
         TFunction<void(bool bSuccess, const FString& Error)> OnComplete
     ) override;
-    
+
     virtual void ContinueWithMultipleToolResults(
         const TArray<FToolResultEntry>& ToolResults,
         const TArray<TSharedPtr<FJsonValue>>& Tools,
@@ -74,7 +74,7 @@ public:
     // ============================================================================
     // IAIProvider - State Management
     // ============================================================================
-    
+
     virtual void ClearHistory() override;
     virtual void CancelRequest() override;
     virtual bool IsCancelled() const override { return bCancelled; }
@@ -82,7 +82,7 @@ public:
     // ============================================================================
     // IAIProvider - Multimodal (Vision)
     // ============================================================================
-    
+
     virtual void SendMessageWithImage(
         const FString& Message,
         const FString& ImagePath,
@@ -93,26 +93,28 @@ public:
     // ============================================================================
     // IAIProvider - Token Tracking
     // ============================================================================
-    
+
     virtual int64 GetSessionInputTokens() const override { return TotalInputTokens; }
     virtual int64 GetSessionOutputTokens() const override { return TotalOutputTokens; }
+    virtual int64 GetSessionPromptCacheCreationTokens() const override { return TotalCacheCreationTokens; }
+    virtual int64 GetSessionPromptCacheReadTokens() const override { return TotalCacheReadTokens; }
     virtual float EstimateSessionCost() const override;
     virtual void ResetSessionTokens() override;
 
     // ============================================================================
     // IAIProvider - Tool Call Tracking
     // ============================================================================
-    
+
     virtual const TArray<FClaudeToolCall>& GetLastToolCalls() const override { return LastToolCalls; }
     virtual void ClearLastToolCalls() override { LastToolCalls.Empty(); }
 
     // ============================================================================
     // IAIProvider - Tool Result Tracking (Request-Scoped)
     // ============================================================================
-    
+
     virtual TArray<FClaudeToolResult> GetToolResultsForRequest(const FString& RequestId) const override;
     virtual void ClearToolResultsForRequest(const FString& RequestId) override;
-    
+
     // Deprecated legacy API
     virtual const TArray<FClaudeToolResult>& GetLastToolResults() const override { return EmptyResults; }
     virtual void ClearLastToolResults() override {}
@@ -120,26 +122,26 @@ public:
     // ============================================================================
     // Claude-specific Methods
     // ============================================================================
-    
+
     virtual void SetSystemPrompt(const FString& Prompt) override;
     FString GetSystemPrompt() const { return SystemPrompt; }
-    
+
     void SetEndpoint(const FString& Endpoint) { APIEndpoint = Endpoint; }
     void SetMaxTokens(int32 Tokens) { MaxTokens = Tokens; }
-    
+
     // ============================================================================
     // History Management (Simple, Effective)
     // ============================================================================
-    
+
     /** Compact a tool result to a one-line state delta (the RIGHT way to save tokens) */
     static FString CompactToolResult(const FString& ToolName, const FString& RawResult);
-    
+
     /** Keep only last N tool exchanges in detail, collapse older ones */
     void PruneHistorySimple(int32 KeepLastN = 5);
-    
+
     /** Get count of tool result messages in history */
     int32 CountToolResults() const;
-    
+
     void SetTemperature(float Temp) { Temperature = Temp; }
 
 private:
@@ -151,7 +153,7 @@ private:
     int32 MaxTokens;
     float Temperature;
     float RequestTimeout;
-    
+
     // State
     bool bRequestInProgress;
     bool bCancelled;
@@ -166,25 +168,25 @@ private:
 
     // Conversation history for context
     TArray<TSharedPtr<FJsonObject>> ConversationHistory;
-    
+
     // Tool call tracking
     TArray<FClaudeToolCall> LastToolCalls;
-    
+
     // Request-scoped tool results
     mutable FCriticalSection ToolResultsLock;
     TMap<FString, TArray<FClaudeToolResult>> ToolResultsByRequest;
     static inline TArray<FClaudeToolResult> EmptyResults;
     FString CurrentRequestId;
-    
+
     // HTTP request handle for cancellation
     TSharedPtr<class IHttpRequest> CurrentRequest;
-    
+
     // Helper methods
     TSharedPtr<class FJsonObject> BuildRequestPayload(
         const FString& Message,
         const TArray<TSharedPtr<FJsonValue>>* Tools = nullptr
     );
-    
+
     void ProcessResponse(
         TSharedPtr<class IHttpResponse, ESPMode::ThreadSafe> Response,
         bool bWasSuccessful,
@@ -192,9 +194,9 @@ private:
         TFunction<void(const FString& ToolName, const TMap<FString, FString>& Args, const FString& ToolUseId)> OnToolCall,
         TFunction<void(bool bSuccess, const FString& Error)> OnComplete
     );
-    
+
     TArray<TSharedPtr<FJsonValue>> ConvertToolsToClaudeFormat(const TArray<FClaudeTool>& Tools);
-    
+
     // Model-aware cost calculation
     // Returns cost per 1K tokens based on the configured Model string
     float GetInputTokenCostPer1K() const;

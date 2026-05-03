@@ -129,9 +129,9 @@ struct RIFTBORNAI_API FMutationBias
 
 /**
  * VFX Heuristics Engine - Guides mutation and generation
- * 
+ *
  * Phase 5: Weak-Prior Ingestion
- * 
+ *
  * Key Principle: Heuristics guide SEARCH, not EXECUTION.
  * Tutorial knowledge constrains exploration, never authors directly.
  */

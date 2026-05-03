@@ -18,6 +18,10 @@ import { getWorkflow, listWorkflows } from "./tool-compression.js";
 import { createSanitizer, PROTO_BLOCKED_KEYS } from "./sanitize-utils.js";
 const MAX_JSON_PARSE_LENGTH = 64 * 1024;
 const sanitizeParsedJson = createSanitizer();
+function numberOrDefault(value, fallback) {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? numeric : fallback;
+}
 // ---------------------------------------------------------------------------
 // Output Chaining — captures tool outputs and injects into later steps
 // ---------------------------------------------------------------------------
@@ -151,7 +155,7 @@ function getIterationItems(toolName, userParams) {
                 layer_name: String(l),
                 center_x: 0,
                 center_y: 0,
-                radius: Number(userParams.paint_radius) || 20000,
+                radius: numberOrDefault(userParams.paint_radius, 20000),
                 strength: i === 0 ? 1.0 : 0.0,
             }));
         }
@@ -162,7 +166,7 @@ function getIterationItems(toolName, userParams) {
             return meshes.map((m) => {
                 if (typeof m === "string")
                     return { mesh: m, density: 200 };
-                return { mesh: m.mesh, density: m.density || 200 };
+                return { mesh: m.mesh, density: numberOrDefault(m.density, 200) };
             });
         }
     }
@@ -333,8 +337,8 @@ const PPV_MARKERS = ["PostProcessVolume"];
 const FOG_MARKERS = ["ExponentialHeightFog"];
 const SKY_MARKERS = ["SkyAtmosphere", "BP_Sky_Sphere"];
 export async function queryScene(executeTool, options = {}) {
-    const radius = Math.min(options.radius || 100000, 500000);
-    const maxActors = Math.min(options.max_actors || 200, 1000);
+    const radius = Math.min(numberOrDefault(options.radius, 100000), 500000);
+    const maxActors = Math.min(numberOrDefault(options.max_actors, 200), 1000);
     // Run parallel queries
     const [levelResult, actorsResult] = await Promise.all([
         executeTool("get_current_level", {}).catch(() => ({
@@ -408,4 +412,3 @@ function safeJsonParse(s) {
         return null;
     }
 }
-//# sourceMappingURL=compound-operations.js.map

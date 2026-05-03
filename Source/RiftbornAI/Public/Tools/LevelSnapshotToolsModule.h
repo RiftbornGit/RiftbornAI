@@ -9,7 +9,7 @@
 
 /**
  * FLevelSnapshotToolsModule
- * 
+ *
  * Level Snapshot tools for world-state capture and restoration.
  */
 class RIFTBORNAI_API FLevelSnapshotToolsModule : public TToolModuleBase<FLevelSnapshotToolsModule>

@@ -56,7 +56,15 @@ interface FetchResponseLike {
     text(): Promise<string>;
 }
 type FetchLike = (input: string, init?: RequestInit) => Promise<FetchResponseLike>;
+/** True iff contracts.json could not be loaded — exposed so MCP startup
+ *  can fail closed (refuse to start) rather than route through with a
+ *  permissive default that misclassifies mutating tools as safe. */
+export declare function isContractsMissing(): boolean;
 export declare function getToolRiskTier(toolName: string): RiskTier;
+/** Throws when contracts.json is missing or unparseable. Call from MCP
+ *  startup; without contracts the server cannot make safe routing
+ *  decisions, so refusing to start is the only correct behavior. */
+export declare function assertContractsLoaded(): void;
 export declare function requiresGovernedExecution(toolName: string): boolean;
 export declare function canonicalArgsJson(value: unknown): string;
 export declare function hashArgs(args: Record<string, unknown>): string;
@@ -80,4 +88,3 @@ export declare class GovernedExecutionClient {
 export declare function getGovernedRouteTimeoutMs(toolName: string, baseTimeoutMs: number): number;
 export declare function resetGovernedExecutionStateForTest(): void;
 export {};
-//# sourceMappingURL=governed-execution.d.ts.map

@@ -47,7 +47,7 @@ struct FDungeonRoom
 	FIntPoint Position;      // Grid position
 	FIntPoint Size;          // Room dimensions
 	TArray<int32> ConnectedRooms;
-	
+
 	// Content
 	int32 EnemyCount = 0;
 	int32 TreasureCount = 0;
@@ -76,13 +76,13 @@ struct FDungeonLayout
 	FString Name;
 	int32 Seed = 0;
 	FIntPoint GridSize;
-	
+
 	TArray<FDungeonRoom> Rooms;
 	TArray<FDungeonCorridor> Corridors;
-	
+
 	int32 StartRoomId = 0;
 	int32 BossRoomId = -1;
-	
+
 	// Metadata
 	int32 FloorNumber = 1;
 	FString Theme;           // "cave", "castle", "forest"
@@ -96,24 +96,24 @@ struct FDungeonParams
 {
 	EDungeonAlgorithm Algorithm = EDungeonAlgorithm::BSP;
 	int32 Seed = 0;          // 0 = random
-	
+
 	// Size
 	FIntPoint GridSize = FIntPoint(50, 50);
 	int32 MinRooms = 5;
 	int32 MaxRooms = 12;
 	FIntPoint MinRoomSize = FIntPoint(4, 4);
 	FIntPoint MaxRoomSize = FIntPoint(10, 10);
-	
+
 	// Room distribution
 	float ShopChance = 0.15f;
 	float TreasureChance = 0.2f;
 	float SecretChance = 0.1f;
 	bool bGuaranteeBossRoom = true;
-	
+
 	// Content
 	int32 BaseEnemiesPerRoom = 3;
 	float EnemyScalePerFloor = 0.2f;
-	
+
 	// Style
 	FString Theme = TEXT("dungeon");
 	int32 CorridorWidth = 2;
@@ -139,19 +139,19 @@ struct FTerrainParams
 	FIntPoint Size = FIntPoint(1009, 1009);  // Landscape-friendly size
 	float MinHeight = -100.0f;
 	float MaxHeight = 500.0f;
-	
+
 	// Noise
 	float NoiseScale = 0.01f;
 	int32 Octaves = 4;
 	float Persistence = 0.5f;
 	float Lacunarity = 2.0f;
-	
+
 	// Features
 	bool bHasMountains = true;
 	bool bHasRivers = false;
 	bool bHasLakes = false;
 	float FlatAreaPercent = 0.3f;
-	
+
 	// Biomes
 	TArray<FString> Biomes;  // "grass", "desert", "snow"
 };
@@ -189,54 +189,54 @@ class RIFTBORNAI_API FProceduralGenerator
 {
 public:
 	static FProceduralGenerator& Get();
-	
+
 	// ========================================================================
 	// DUNGEON GENERATION
 	// ========================================================================
-	
+
 	/**
 	 * Generate a dungeon layout from parameters
 	 */
 	FDungeonLayout GenerateDungeon(const FDungeonParams& Params);
-	
+
 	/**
 	 * Generate a dungeon from natural language
 	 */
 	FDungeonLayout GenerateDungeonFromDescription(const FString& Description);
-	
+
 	/**
 	 * Convert dungeon layout to spawn instructions
 	 */
 	FString GetDungeonSpawnInstructions(const FDungeonLayout& Layout);
-	
+
 	/**
 	 * Generate C++ code for runtime dungeon generation
 	 */
 	FString GenerateDungeonGeneratorCode(const FDungeonParams& Params);
-	
+
 	// ========================================================================
 	// TERRAIN GENERATION
 	// ========================================================================
-	
+
 	/**
 	 * Generate terrain heightmap data
 	 */
 	FTerrainResult GenerateTerrain(const FTerrainParams& Params);
-	
+
 	/**
 	 * Generate terrain from natural language
 	 */
 	FTerrainResult GenerateTerrainFromDescription(const FString& Description);
-	
+
 	// ========================================================================
 	// PROP PLACEMENT
 	// ========================================================================
-	
+
 	/**
 	 * Generate prop placements for an area
 	 */
 	TArray<FPropPlacement> GeneratePropPlacements(const FPropParams& Params, const FBox& Area);
-	
+
 	/**
 	 * Scatter props from description
 	 */
@@ -246,26 +246,26 @@ private:
 	// BSP dungeon generation
 	FDungeonLayout GenerateBSP(const FDungeonParams& Params);
 	void BSPSplit(TArray<FIntRect>& Partitions, const FIntRect& Area, int32 Depth, int32 MaxDepth, const FDungeonParams& Params);
-	
+
 	// Room and corridor generation
 	FDungeonLayout GenerateRoomAndCorridor(const FDungeonParams& Params);
 	FDungeonCorridor ConnectRooms(const FDungeonRoom& A, const FDungeonRoom& B, int32 Width);
-	
+
 	// Random walk (cave-like)
 	FDungeonLayout GenerateRandomWalk(const FDungeonParams& Params);
-	
+
 	// Room type assignment
 	void AssignRoomTypes(FDungeonLayout& Layout, const FDungeonParams& Params);
 	void PopulateRooms(FDungeonLayout& Layout, const FDungeonParams& Params);
-	
+
 	// Terrain helpers
 	TArray<float> GenerateHeightmap(const FTerrainParams& Params);
 	float PerlinNoise(float X, float Y, int32 Octaves, float Persistence, float Lacunarity);
-	
+
 	// Parsing
 	FDungeonParams ParseDungeonDescription(const FString& Description);
 	FTerrainParams ParseTerrainDescription(const FString& Description);
-	
+
 	// Random
 	FRandomStream Random;
 };

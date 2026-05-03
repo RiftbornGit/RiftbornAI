@@ -7,7 +7,7 @@
 
 /**
  * ActionableInsights - Automated game analysis with fix recommendations
- * 
+ *
  * Goes beyond just reporting state - provides actual actionable fixes:
  * - "Here's what's wrong and here's exactly how to fix it"
  * - Code snippets, Blueprint node suggestions, property changes
@@ -25,7 +25,7 @@ enum class EIssueSeverity : uint8
     Info        // Just FYI
 };
 
-// Issue category 
+// Issue category
 UENUM()
 enum class EIssueCategory : uint8
 {
@@ -52,7 +52,7 @@ struct RIFTBORNAI_API FGameIssue
     TArray<FString> Fixes;      // Step by step fixes
     FString CodeSnippet;        // Example fix code
     float EstimatedFixTimeMinutes;
-    
+
     TSharedPtr<FJsonObject> ToJson() const;
 };
 
@@ -72,7 +72,7 @@ public:
     virtual FString GetDescription() const override;
     virtual TArray<FToolParameter> GetParameters() const override;
     virtual FToolResult Execute(const TMap<FString, FString>& Parameters, UWorld* World) override;
-    
+
 private:
     TArray<FGameIssue> AnalyzeFPS(UWorld* World);
     TArray<FGameIssue> AnalyzeDrawCalls(UWorld* World);
@@ -81,7 +81,7 @@ private:
 };
 
 /**
- * Tool: analyze_gameplay_issues  
+ * Tool: analyze_gameplay_issues
  * Find broken gameplay systems with fixes
  */
 class RIFTBORNAI_API FAnalyzeGameplayIssuesTool : public FAgentTool

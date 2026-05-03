@@ -10,7 +10,7 @@
 /**
  * Level Tools Module
  * Provides tools for working with actors and levels.
- * 
+ *
  * Tools:
  * - spawn_actor: Spawn an actor in the level
  * - get_level_actors: List level actors with structured inventory data
@@ -28,32 +28,32 @@ class RIFTBORNAI_API FLevelToolsModule : public TToolModuleBase<FLevelToolsModul
 public:
     /** Module name for registration */
     static FString StaticModuleName() { return TEXT("LevelTools"); }
-    
+
     /** Register all Level tools with the registry */
     virtual void RegisterTools(FClaudeToolRegistry& Registry) override;
-    
+
     // =========================================================================
     // Tool Implementations
     // =========================================================================
-    
+
     /** Spawn an actor in the current level */
     static FClaudeToolResult Tool_SpawnActor(const FClaudeToolCall& Call);
-    
+
     /** Internal implementation that runs on game thread */
     static FClaudeToolResult Tool_SpawnActor_Internal(const FClaudeToolCall& Call);
-    
+
     /** Get list of all actors in the level */
     static FClaudeToolResult Tool_GetLevelActors(const FClaudeToolCall& Call);
-    
+
     /** Delete an actor from the level */
     static FClaudeToolResult Tool_DeleteActor(const FClaudeToolCall& Call);
-    
+
     /** Delete all actors from the level (optionally skip defaults or player-related) */
     static FClaudeToolResult Tool_DeleteAllActors(const FClaudeToolCall& Call);
-    
+
     /** Set a property on an actor */
     static FClaudeToolResult Tool_SetActorProperty(const FClaudeToolCall& Call);
-    
+
     /** Get detailed information about an actor */
     static FClaudeToolResult Tool_GetActorInfo(const FClaudeToolCall& Call);
 
@@ -68,22 +68,22 @@ public:
 
     /** Spawn a StaticMeshActor with an explicit mesh assignment */
     static FClaudeToolResult Tool_CreateStaticMeshActor(const FClaudeToolCall& Call);
-    
+
     /** Save the current level */
     static FClaudeToolResult Tool_SaveLevel(const FClaudeToolCall& Call);
-    
+
     /** Load/open a level */
     static FClaudeToolResult Tool_LoadLevel(const FClaudeToolCall& Call);
-    
+
     /** Get current level info */
     static FClaudeToolResult Tool_GetCurrentLevel(const FClaudeToolCall& Call);
-    
+
     /** Create basic geometry (floor, wall, cube, etc) */
     static FClaudeToolResult Tool_CreateBasicGeometry(const FClaudeToolCall& Call);
-    
+
     /** Find actor by label and return structured info */
     static FClaudeToolResult Tool_FindActorByLabel(const FClaudeToolCall& Call);
-    
+
     /** Assert that an actor with given label exists (useful for verification) */
     static FClaudeToolResult Tool_AssertActorExists(const FClaudeToolCall& Call);
 
@@ -96,20 +96,20 @@ public:
     // =========================================================================
     // PIE Runtime Tools - Work in running PIE session
     // =========================================================================
-    
+
     /** Spawn actor in PIE world (not editor) */
     static FClaudeToolResult Tool_SpawnActorPIE(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_SpawnActorPIE_Internal(const FClaudeToolCall& Call);
-    
+
     /** Set actor transform in PIE world */
     static FClaudeToolResult Tool_SetActorTransformPIE(const FClaudeToolCall& Call);
-    
+
     /** Apply physics impulse to actor in PIE world */
     static FClaudeToolResult Tool_ApplyImpulsePIE(const FClaudeToolCall& Call);
-    
+
     /** Destroy actor in PIE world (runtime cleanup) */
     static FClaudeToolResult Tool_DestroyActorPIE(const FClaudeToolCall& Call);
-    
+
     /** Get actor info from PIE world (includes velocity) */
     static FClaudeToolResult Tool_GetActorInfoPIE(const FClaudeToolCall& Call);
 

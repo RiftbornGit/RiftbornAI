@@ -1,5 +1,6 @@
 import { GetPromptRequestSchema, ListPromptsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import { normalizeResourceSearchQuery } from "./mcp-resources.js";
+import { buildDomainContractResourceUris } from "./domain-proof-contract.js";
 const MAX_PROMPT_ARG_LENGTH = 512;
 export function normalizePromptArgument(value, fallback) {
     if (!value)
@@ -162,24 +163,30 @@ Steps:
         case "governed-editor-task": {
             const task = normalizePromptArgument(args?.task, "accomplish the requested Unreal Editor task");
             const boundedTask = normalizeResourceSearchQuery(task);
+            const domainResources = buildDomainContractResourceUris(task);
+            const domainResourceText = domainResources.length > 0
+                ? `\n3. Read the matching finish-line contracts as well: ${domainResources.map((uri) => `\`${uri}\``).join(", ")}`
+                : "";
             return `Use RiftbornAI's shared governed editor loop to accomplish this task: "${task}".
 
 Workflow:
 1. Read \`riftborn://copilot/operating-contract\`
-2. If tool selection is unclear, inspect \`riftborn://tools/categories\` and \`riftborn://tools/search/${encodeURIComponent(boundedTask)}\`
-3. Inspect the current project or scene state before making changes
-4. Check blockers and diagnostics early with \`get_modal_blockers\`, \`assert_no_modal_blockers\`, \`get_notification_center_state\`, \`get_output_log_context\`, \`get_message_log_context\`, \`drain_log_alerts\`, and \`get_compile_diagnostics\`
-5. If the task needs exact object-level or World Outliner control, prefer \`get_world_outliner_context\`, \`assert_actor_selection\`, \`list_object_properties\`, \`get_object_property_typed\`, \`assert_object_property_equals\`, \`set_object_property_typed\`, and \`call_reflected_function\` over guessing or screenshot-driven UI actions
-6. Use explicit persistence and focus assertions when changes must land on disk or stay grounded in the right editor context: \`assert_editor_focus\`, \`assert_asset_dirty_state\`, \`save_asset\`, \`save_dirty_assets\`, \`checkout_asset\`, and \`revert_asset\`
-7. If the task is inside an asset editor, call \`get_editor_focus_state\` first, then use the matching editor-native context tool only when it is actually listed in the current surface. The Blueprint, Material, Sequencer, Control Rig, Niagara, Widget, and PCG context helpers are on the default-visible lane
-8. When the task needs deeper editor-native inspection inside asset editors, use the available editor context tools from step 7. If the exact domain helper is not listed, say so and fall back to logs, assertions, screenshots, or reflected control rather than assuming it exists
-9. Use \`compile_blueprint\` after Blueprint mutations and \`recompile_material_asset\` after material graph changes to verify correctness
-10. If the task is about world-state branching or rollback, prefer \`capture_level_snapshot\`, \`restore_level_snapshot\`, \`create_level_variant_sets_asset\`, and \`switch_variant_by_name\`
-11. If the task is about operator-facing controls or authored affordances, prefer \`create_remote_control_preset\`, \`expose_property_to_remote_control\`, \`register_smart_object_actor\`, and related Smart Object slot tools
-12. If the task is about authored decision tables or render pipeline setup, prefer \`evaluate_chooser_table\`, \`evaluate_proxy_table\`, \`create_movie_graph_config\`, and \`queue_trailer_render_job\`
-13. Execute the smallest valid sequence of real registered tools
-14. Verify the result with scene inspection, screenshots, logs, assertions, or PIE as appropriate
-15. Report what changed, what was verified, and any remaining manual gaps`;
+2. Read \`riftborn://copilot/domain-definition-of-done\` so you know which domains require runtime proof${domainResourceText}
+3. If tool selection is unclear, inspect \`riftborn://tools/categories\` and \`riftborn://tools/search/${encodeURIComponent(boundedTask)}\`
+4. Inspect the current project or scene state before making changes
+5. Check blockers and diagnostics early with \`get_modal_blockers\`, \`assert_no_modal_blockers\`, \`get_notification_center_state\`, \`get_output_log_context\`, \`get_message_log_context\`, \`drain_log_alerts\`, and \`get_compile_diagnostics\`
+6. If the task needs exact object-level or World Outliner control, prefer \`get_world_outliner_context\`, \`assert_actor_selection\`, \`list_object_properties\`, \`get_object_property_typed\`, \`assert_object_property_equals\`, \`set_object_property_typed\`, and \`call_reflected_function\` over guessing or screenshot-driven UI actions
+7. Use explicit persistence and focus assertions when changes must land on disk or stay grounded in the right editor context: \`assert_editor_focus\`, \`assert_asset_dirty_state\`, \`save_asset\`, \`save_dirty_assets\`, \`checkout_asset\`, and \`revert_asset\`
+8. If the task is inside an asset editor, call \`get_editor_focus_state\` first, then use the matching editor-native context tool only when it is actually listed in the current surface. The Blueprint, Material, Sequencer, Control Rig, Niagara, Widget, and PCG context helpers are on the default-visible lane
+9. When the task needs deeper editor-native inspection inside asset editors, use the available editor context tools from step 8. If the exact domain helper is not listed, say so and fall back to logs, assertions, screenshots, or reflected control rather than assuming it exists
+10. Use \`compile_blueprint\` after Blueprint mutations and \`recompile_material_asset\` after material graph changes to verify correctness
+11. If the task is about world-state branching or rollback, prefer \`capture_level_snapshot\`, \`restore_level_snapshot\`, \`create_level_variant_sets_asset\`, and \`switch_variant_by_name\`
+12. If the task is about operator-facing controls or authored affordances, prefer \`create_remote_control_preset\`, \`expose_property_to_remote_control\`, \`register_smart_object_actor\`, and related Smart Object slot tools
+13. If the task is about authored decision tables or render pipeline setup, prefer \`evaluate_chooser_table\`, \`evaluate_proxy_table\`, \`create_movie_graph_config\`, and \`queue_trailer_render_job\`
+14. Execute the smallest valid sequence of real registered tools
+15. Do not stop at compile success when the matching domain definition of done still requires runtime proof
+16. Verify the result with scene inspection, screenshots, logs, assertions, or PIE as appropriate
+17. Report what changed, what was verified, and any remaining manual gaps`;
         }
         case "observe-scene": {
             const focus = normalizePromptArgument(args?.focus, "general");
@@ -228,4 +235,3 @@ export function registerPromptHandlers(server) {
         };
     });
 }
-//# sourceMappingURL=mcp-prompts.js.map

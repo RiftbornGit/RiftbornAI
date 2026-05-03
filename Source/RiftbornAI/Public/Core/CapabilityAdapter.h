@@ -27,15 +27,15 @@ struct RIFTBORNAI_API FCanonicalActorRef
 	FString Value;
 
 	/** Is this reference valid? */
-	bool IsValid() const 
-	{ 
+	bool IsValid() const
+	{
 		if (Value.IsEmpty()) return false;
-		return Kind == TEXT("label") || Kind == TEXT("guid") || Kind == TEXT("path"); 
+		return Kind == TEXT("label") || Kind == TEXT("guid") || Kind == TEXT("path");
 	}
-	
+
 	/** Is this a GUID reference? */
 	bool IsGuid() const { return Kind == TEXT("guid"); }
-	
+
 	/** Is this a path reference? */
 	bool IsPath() const { return Kind == TEXT("path"); }
 
@@ -46,7 +46,7 @@ struct RIFTBORNAI_API FCanonicalActorRef
 		Ref.Value = Label;
 		return Ref;
 	}
-	
+
 	static FCanonicalActorRef FromGuid(const FGuid& Guid)
 	{
 		FCanonicalActorRef Ref;
@@ -54,7 +54,7 @@ struct RIFTBORNAI_API FCanonicalActorRef
 		Ref.Value = Guid.ToString();
 		return Ref;
 	}
-	
+
 	static FCanonicalActorRef FromPath(const FString& Path)
 	{
 		FCanonicalActorRef Ref;
@@ -62,7 +62,7 @@ struct RIFTBORNAI_API FCanonicalActorRef
 		Ref.Value = Path;
 		return Ref;
 	}
-	
+
 	/** Try to parse value as GUID (returns false if invalid) */
 	bool TryGetGuid(FGuid& OutGuid) const
 	{

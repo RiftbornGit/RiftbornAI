@@ -10,9 +10,9 @@
 
 /**
  * GetComponentPropertiesStructuredToolsModule Module
- * 
+ *
  * Get specific properties from a component with typed values. Returns deterministic JSON.
- * 
+ *
  * Capability: world.get_component_properties_structured
  * Mutates: No
  * Deterministic: Yes
@@ -21,12 +21,12 @@ class RIFTBORNAI_API FGetComponentPropertiesStructuredToolsModuleModule : public
 {
 public:
     static FString StaticModuleName() { return TEXT("GetComponentPropertiesStructuredToolsModule"); }
-    
+
     virtual void RegisterTools(FClaudeToolRegistry& Registry) override;
-    
+
     // Tool implementation
     static FClaudeToolResult Tool_GetComponentPropertiesStructured(const FClaudeToolCall& Call);
-    
+
 private:
     // Helper to find actor by path
     static AActor* FindActorByPath(UWorld* World, const FString& ActorPath);

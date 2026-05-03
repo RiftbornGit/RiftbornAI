@@ -5,4 +5,3 @@ export declare const GENERATED_TOOLS_SCHEMA_VERSION = "2.0.10";
  */
 export declare const GENERATED_TOOLS: Tool[];
 export default GENERATED_TOOLS;
-//# sourceMappingURL=generated-tools.d.ts.map

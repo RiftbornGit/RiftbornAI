@@ -44,7 +44,7 @@ import { buildSafeCatchResponse, buildSafePlanWorkflowResponse, } from "./respon
 import { exchangeScopedSessionToken } from "./session-token.js";
 import { installWorkflowHandlers } from "./workflow-handlers.js";
 import { createManagedDispatcher } from "./dispatcher.js";
-import { getGovernedRouteTimeoutMs, getToolRiskTier, GovernedExecutionClient, requiresGovernedExecution, } from "./governed-execution.js";
+import { assertContractsLoaded, getGovernedRouteTimeoutMs, getToolRiskTier, GovernedExecutionClient, requiresGovernedExecution, } from "./governed-execution.js";
 // Re-export safe response builders so existing importers (index.test.ts)
 // continue to work unchanged.
 export { buildSafeCatchResponse, buildSafePlanWorkflowResponse };
@@ -275,6 +275,13 @@ let HANDLER_NAME_SET = new Set();
 // Lazily computed visible tools — populated after TOOL_HANDLERS is built.
 let VISIBLE_TOOLS = [];
 let VISIBLE_TOOL_NAMES = new Set();
+let BETA_RELEASE_LOCK_RESULT = {
+    active: false,
+    expected_count: 0,
+    visible_count: 0,
+    missing: [],
+    ok: true,
+};
 function getToolCatalog() {
     const visible = new Set(VISIBLE_TOOLS.map((tool) => tool.name));
     return SHIPPABLE_TOOLS.map((tool) => {
@@ -283,6 +290,7 @@ function getToolCatalog() {
             name: tool.name,
             description: tool.description || "",
             tier: entry.tier,
+            reason: entry.reason || "",
             visible: visible.has(tool.name),
         };
     });
@@ -300,6 +308,14 @@ function initReadinessGate() {
     // team can keep all ~700 tools while developing on top of the plugin.
     const stage = (process.env.RIFTBORN_SURFACE_STAGE || getDefaultSurfaceStage());
     const betaReleaseLockActive = stage === "beta_release" && !DEV_MODE;
+    // Reset to defaults each call so re-init (e.g. tests) doesn't carry stale state.
+    BETA_RELEASE_LOCK_RESULT = {
+        active: betaReleaseLockActive,
+        expected_count: 0,
+        visible_count: 0,
+        missing: [],
+        ok: true,
+    };
     if (betaReleaseLockActive) {
         const BetaReleaseTools = getBetaReleaseToolNameSet();
         const before = VISIBLE_TOOLS.length;
@@ -307,12 +323,20 @@ function initReadinessGate() {
         if (!suppressReadinessLogs) {
             console.error(`[RiftbornAI]   BETA RELEASE LOCK: filtered ${before} → ${VISIBLE_TOOLS.length} (must equal ${BetaReleaseTools.size})`);
         }
-        if (VISIBLE_TOOLS.length !== BetaReleaseTools.size) {
+        const visibleSet = new Set(VISIBLE_TOOLS.map(t => t.name));
+        const missing = [...BetaReleaseTools].filter(n => !visibleSet.has(n));
+        BETA_RELEASE_LOCK_RESULT = {
+            active: true,
+            expected_count: BetaReleaseTools.size,
+            visible_count: VISIBLE_TOOLS.length,
+            missing,
+            ok: VISIBLE_TOOLS.length === BetaReleaseTools.size && missing.length === 0,
+        };
+        if (!BETA_RELEASE_LOCK_RESULT.ok) {
             // Loud failure — either a beta-release tool isn't in the registry yet, or
             // its readiness tier got demoted. The surface lock test catches this
-            // pre-merge, but this runtime check is the last line of defense.
-            const visibleSet = new Set(VISIBLE_TOOLS.map(t => t.name));
-            const missing = [...BetaReleaseTools].filter(n => !visibleSet.has(n));
+            // pre-merge; this runtime check is the last line of defense, and
+            // --self-test will report ok=false when this triggers.
             console.error(`[RiftbornAI]   BETA RELEASE LOCK MISSING: ${missing.join(", ") || "(none)"}`);
         }
     }
@@ -341,6 +365,7 @@ const TOOL_HANDLERS = createToolHandlers({
     httpRequest,
     host: RIFTBORN_HOST,
     httpPort: RIFTBORN_HTTP_PORT,
+    visibleTools: () => VISIBLE_TOOLS,
 });
 function parseCliOptions(argv) {
     const args = new Set(argv);
@@ -367,8 +392,18 @@ function buildSelfTestResult() {
     initReadinessGate();
     const stage = process.env.RIFTBORN_SURFACE_STAGE || getDefaultSurfaceStage();
     const pluginRoot = path.resolve(__dirname, "../..");
+    // Self-test must FAIL when the beta-release lock mismatches the curated list.
+    // Previously we only logged the mismatch and still returned ok=true, which
+    // meant a packaged Beta build could ship with the wrong visible tool count
+    // and still claim it self-tested cleanly.
+    const betaOk = BETA_RELEASE_LOCK_RESULT.ok;
+    const errors = [];
+    if (!betaOk) {
+        errors.push(`beta_release_lock mismatch: expected ${BETA_RELEASE_LOCK_RESULT.expected_count} tools, ` +
+            `visible ${BETA_RELEASE_LOCK_RESULT.visible_count}, missing ${BETA_RELEASE_LOCK_RESULT.missing.length}`);
+    }
     return {
-        ok: true,
+        ok: betaOk,
         version: SERVER_VERSION,
         node: process.version,
         entry: __filename,
@@ -381,6 +416,8 @@ function buildSelfTestResult() {
         shippable_tools: SHIPPABLE_TOOLS.length,
         visible_tools: VISIBLE_TOOLS.length,
         beta_release_tools: getBetaReleaseToolNameSet().size,
+        beta_release_lock: BETA_RELEASE_LOCK_RESULT,
+        errors,
         bridge_host: RIFTBORN_HOST,
         bridge_http_port: RIFTBORN_HTTP_PORT,
         bridge_tcp_port: RIFTBORN_TCP_PORT,
@@ -427,6 +464,12 @@ const dispatchManagedTool = createManagedDispatcher({
     digestInterval: DIGEST_INTERVAL,
 });
 async function main() {
+    // ── Fail-closed contract gate ──
+    // Without contracts.json the governed-execution layer cannot classify
+    // tools, and unknown tools used to default to SAFE — meaning a packaged
+    // MCP missing contracts could route mutating tools (compile_project,
+    // patch_cpp_file, etc.) through direct execution. Refuse to start.
+    assertContractsLoaded();
     // ── Startup health check ──
     const healthCheck = await httpRequest("GET", "/riftborn/health");
     if (healthCheck.ok) {
@@ -496,13 +539,12 @@ async function main() {
     // =================== TOOLS ===================
     // Schema intelligence: type coercion + local validation
     schemaIntel = new SchemaIntelligence(ALL_TOOLS);
-    // Tool resolver: fuzzy name resolution for wrong tool names
-    toolResolver = new ToolResolver(ALL_TOOLS);
     // Install index-level tool handler overrides (workflow, plan, verify,
     // bookmarks, telemetry, trace, rollback).
     installWorkflowHandlers({
         toolHandlers: TOOL_HANDLERS,
         dispatchManagedTool,
+        visibleTools: () => VISIBLE_TOOLS,
         sessionTracker,
         contextPropagator,
         sceneChangeLog,
@@ -514,10 +556,14 @@ async function main() {
     // Initialize readiness after installing index-level overrides so manual
     // tools that only exist in index.ts are visible to the production surface.
     initReadinessGate();
+    // Tool resolver: fuzzy name resolution for wrong tool names. Keep it aligned
+    // with the visible callable surface so suggestion text does not advertise
+    // hidden or blocked tools.
+    toolResolver = new ToolResolver(VISIBLE_TOOLS);
     // Tool router: powers find_tools for keyword-based discovery.
     const toolRouter = new ToolRouter(VISIBLE_TOOLS);
     TOOL_HANDLERS["find_tools"] = async (args) => {
-        const results = toolRouter.search(normalizeToolSearchQuery(String(args.query || "")), clampToolSearchResults(Number(args.max_results) || 20));
+        const results = toolRouter.search(normalizeToolSearchQuery(String(args.query || "")), clampToolSearchResults(args.max_results == null ? 20 : Number(args.max_results)));
         return { ok: true, result: { matches: results.length, tools: results } };
     };
     // Compress tool listings to save ~40% of the ListTools payload.
@@ -578,16 +624,26 @@ if (isMainModule) {
     if (cli.selfTest) {
         try {
             const result = buildSelfTestResult();
+            const ok = result.ok === true;
             if (cli.json) {
                 console.log(JSON.stringify(result));
             }
-            else {
+            else if (ok) {
                 console.log("RiftbornAI MCP self-test OK");
                 console.log(`  Version: ${result.version}`);
                 console.log(`  Visible tools: ${result.visible_tools}`);
                 console.log(`  Plugin root: ${result.plugin_root}`);
             }
-            process.exit(0);
+            else {
+                console.error("RiftbornAI MCP self-test FAILED");
+                const errors = Array.isArray(result.errors) ? result.errors : [];
+                for (const msg of errors) {
+                    console.error(`  - ${msg}`);
+                }
+                console.error(`  Visible tools: ${result.visible_tools}`);
+                console.error(`  Beta release expected: ${result.beta_release_tools}`);
+            }
+            process.exit(ok ? 0 : 1);
         }
         catch (err) {
             console.error("[RiftbornAI] Self-test failed:", err);
@@ -599,4 +655,3 @@ if (isMainModule) {
         process.exit(1);
     });
 }
-//# sourceMappingURL=index.js.map

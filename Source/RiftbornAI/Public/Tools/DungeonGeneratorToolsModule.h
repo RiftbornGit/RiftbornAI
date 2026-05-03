@@ -38,7 +38,7 @@ struct FBSPNode
 
 /**
  * FDungeonGeneratorToolsModule
- * 
+ *
  * Procedural dungeon generation using Binary Space Partitioning (BSP)
  */
 class RIFTBORNAI_API FDungeonGeneratorToolsModule : public TToolModuleBase<FDungeonGeneratorToolsModule>

@@ -9,7 +9,7 @@
 
 /**
  * FProceduralWorldToolsModule
- * 
+ *
  * Procedural World Tools Module — city blocks, rivers, biome painting, physics sandbox.
  */
 class RIFTBORNAI_API FProceduralWorldToolsModule : public TToolModuleBase<FProceduralWorldToolsModule>

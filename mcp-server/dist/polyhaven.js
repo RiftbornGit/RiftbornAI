@@ -6,6 +6,10 @@
  * then imported via import_asset_from_url or import_texture.
  */
 const POLYHAVEN_API = "https://api.polyhaven.com";
+function numberOrDefault(value, fallback) {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? numeric : fallback;
+}
 // ---------------------------------------------------------------------------
 // API helpers
 // ---------------------------------------------------------------------------
@@ -24,6 +28,19 @@ async function fetchJson(url, timeoutMs = 10000) {
 // ---------------------------------------------------------------------------
 export async function searchPolyhaven(query, assetType = "all", limit = 20) {
     try {
+        const maxResults = Math.max(0, Math.trunc(numberOrDefault(limit, 20)));
+        if (maxResults === 0) {
+            return {
+                ok: true,
+                result: JSON.stringify({
+                    query,
+                    asset_type: assetType,
+                    count: 0,
+                    assets: [],
+                    hint: "Use download_polyhaven_texture with the asset id to download and import into UE.",
+                }),
+            };
+        }
         // Polyhaven API: GET /assets?t=<type>
         const typeParam = assetType === "all" ? "" : `?t=${assetType}`;
         const data = await fetchJson(`${POLYHAVEN_API}/assets${typeParam}`);
@@ -45,7 +62,7 @@ export async function searchPolyhaven(query, assetType = "all", limit = 20) {
                     download_url: `https://dl.polyhaven.org/file/ph-assets/${info.type === 1 ? "HDRIs" : info.type === 2 ? "Textures" : "Models"}/${id}/2k/${id}_2k.zip`,
                 });
             }
-            if (matches.length >= limit)
+            if (matches.length >= maxResults)
                 break;
         }
         return {
@@ -172,8 +189,7 @@ export const POLYHAVEN_TOOLS = [
 // ---------------------------------------------------------------------------
 export function createPolyhavenHandlers() {
     return {
-        search_polyhaven: async (args) => searchPolyhaven(String(args.query || ""), args.asset_type || "all", Number(args.limit) || 20),
+        search_polyhaven: async (args) => searchPolyhaven(String(args.query || ""), args.asset_type || "all", numberOrDefault(args.limit, 20)),
         download_polyhaven_texture: async (args) => downloadPolyhavenTexture(String(args.asset_id || ""), args.resolution || "2k", args.format || "jpg"),
     };
 }
-//# sourceMappingURL=polyhaven.js.map

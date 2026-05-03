@@ -29,7 +29,7 @@ enum class ERiftbornPolicyDecision : uint8
 /**
  * Undo strategy for tool operations
  * Tools must declare their undo contract at registration time
- * 
+ *
  * IMPORTANT: Until proper undo implementation exists, all tools should
  * declare NoUndo (honest) or Snapshot (if they support editor undo).
  * InverseOperation requires actual inverse implementation.
@@ -39,13 +39,13 @@ enum class EToolUndoStrategy : uint8
 {
 	/** Tool cannot be undone - honest declaration (DEFAULT) */
 	NoUndo UMETA(DisplayName = "No Undo"),
-	
+
 	/** Tool uses inverse operation (e.g., delete undoes create) */
 	InverseOperation UMETA(DisplayName = "Inverse Operation"),
-	
+
 	/** Tool uses Unreal transaction/snapshot system */
 	Snapshot UMETA(DisplayName = "Snapshot"),
-	
+
 	/** Undo strategy not yet determined - treated as NoUndo */
 	NotDeclared UMETA(DisplayName = "Not Declared")
 };
@@ -140,7 +140,7 @@ namespace RiftbornGovernance
 /**
  * Confirmation token for NeedsConfirmation policy decisions
  * Binds a blocked tool call to a single-use confirm action
- * 
+ *
  * SECURITY: Token is single-use and expires. Args hash prevents
  * "confirm one thing, execute another" attacks.
  */

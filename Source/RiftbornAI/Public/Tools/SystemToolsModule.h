@@ -10,7 +10,7 @@
 /**
  * System Tools Module
  * Provides tools for editor system operations and utilities.
- * 
+ *
  * Tools include:
  * - play_in_editor
  * - stop_play
@@ -26,7 +26,7 @@ class RIFTBORNAI_API FSystemToolsModule : public TToolModuleBase<FSystemToolsMod
 public:
     /** Module name for registration */
     static FString StaticModuleName() { return TEXT("SystemTools"); }
-    
+
     /** Register all System tools with the registry */
     virtual void RegisterTools(FClaudeToolRegistry& Registry) override;
 };

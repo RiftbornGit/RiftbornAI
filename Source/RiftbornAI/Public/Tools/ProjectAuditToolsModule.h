@@ -6,7 +6,7 @@
 
 /**
  * FProjectAuditToolsModule
- * 
+ *
  * Tool module providing specialized functionality.
  */
 class RIFTBORNAI_API FProjectAuditToolsModule : public TToolModuleBase<FProjectAuditToolsModule>

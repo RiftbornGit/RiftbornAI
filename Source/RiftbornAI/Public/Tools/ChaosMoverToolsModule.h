@@ -9,7 +9,7 @@
 
 /**
  * FChaosMoverToolsModule
- * 
+ *
  * Chaos Mover tools for physics-native movement authoring.
  */
 class RIFTBORNAI_API FChaosMoverToolsModule : public TToolModuleBase<FChaosMoverToolsModule>

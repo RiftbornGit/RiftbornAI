@@ -5,6 +5,7 @@
 
 #include "CoreMinimal.h"
 #include "ClaudeToolUse.h"
+#include "ToolContract.h"
 #include <atomic>  // For thread-safe cancel flag
 
 /**
@@ -15,38 +16,38 @@ UENUM(BlueprintType)
 enum class EPlanStepError : uint8
 {
 	None = 0,
-	
+
 	// Actor errors
 	ActorNotFound,
 	ActorNotFoundGuid,
 	ActorNotFoundLabel,
 	MissingActorIdentifier,
-	
+
 	// Property errors
 	PropertyNotFound,
 	PropertyReadonly,
 	PropertyError,
 	InvalidArgument,
-	
+
 	// Rollback errors
 	RollbackGuidNotFound,
 	RollbackLabelNotFound,
 	RollbackPartial,
-	
+
 	// Context errors
 	PieNotRunning,
 	ContextMismatch,
-	
+
 	// System errors
 	Timeout,
 	BridgeDisconnected,
 	PermissionDenied,
 	CompileError,
-	
+
 	// Contract errors (PROOF mode enforcement)
 	ContractViolation,       // Missing required witness or evidence
 	NoContract,              // Tool has no contract in PROOF mode
-	
+
 	// Unknown
 	UnknownCommand,
 	Unclassified
@@ -59,6 +60,30 @@ RIFTBORNAI_API EPlanStepError ParseErrorType(const FString& ErrorTypeStr);
 RIFTBORNAI_API FString ErrorTypeToString(EPlanStepError Error);
 
 /**
+ * Structured diagnosis artifact for failed or blocked steps.
+ * This is the canonical "what failed / what changed / next step" payload.
+ */
+struct RIFTBORNAI_API FStepFailureDiagnosis
+{
+	FString FailureCode;
+	FString WhatFailed;
+	FString WhatChanged;
+	FString NextStep;
+	FString ProofArtifactId;
+	bool bRetryRecommended = false;
+	bool bAutoRetryScheduled = false;
+	int32 RetryAttemptsUsed = 0;
+	int32 RetryBudgetTotal = 0;
+
+	bool HasDiagnosis() const
+	{
+		return !WhatFailed.IsEmpty() || !WhatChanged.IsEmpty() || !NextStep.IsEmpty();
+	}
+
+	TSharedPtr<FJsonObject> ToJson() const;
+};
+
+/**
  * Single step execution result with full evidence
  */
 struct RIFTBORNAI_API FPlanStepResult
@@ -67,46 +92,49 @@ struct RIFTBORNAI_API FPlanStepResult
 	int32 StepIndex = -1;
 	FString ToolName;
 	FString ToolUseId;
-	
+
 	// Outcome
 	bool bSuccess = false;
 	EPlanStepError ErrorType = EPlanStepError::None;
 	FString ErrorMessage;
-	
+	FString FailureReasonCode;
+	FString RepairSuggestion;
+	FStepFailureDiagnosis Diagnosis;
+
 	// Evidence chain
 	FString ProofBundleId;
 	FString WitnessJson;  // State change evidence
 	TMap<FString, FString> OutputWitness;  // For chaining (guid, actor_name, etc.)
-	
+
 	// =========================================================================
 	// WITNESS ENFORCEMENT (Priority 4 - PROOF mode)
 	// =========================================================================
-	
+
 	/** Required witness keys from contract */
 	TArray<FString> RequiredWitnessExpected;
-	
+
 	/** Required witness keys actually present */
 	TArray<FString> RequiredWitnessPresent;
-	
+
 	/** Missing witness keys (if any) */
 	TArray<FString> MissingWitness;
-	
+
 	/** Whether witness enforcement passed */
 	bool bWitnessEnforcementPassed = true;
-	
+
 	/** Was this step verified in PROOF mode? (false = DEV mode skip) */
 	bool bProofModeVerified = false;
-	
+
 	// =========================================================================
-	
+
 	// Undo support
 	bool bCanUndo = false;
 	FString UndoToken;  // GUID for rollback
-	
+
 	// Timing
 	double ExecutionTimeMs = 0.0;
 	FDateTime ExecutedAt;
-	
+
 	// Chain data for next step
 	bool HasWitness(const FString& Key) const { return OutputWitness.Contains(Key); }
 	FString GetWitness(const FString& Key) const { return OutputWitness.FindRef(Key); }
@@ -120,23 +148,31 @@ struct RIFTBORNAI_API FProbeResult
 	FString ProbeName;
 	bool bPassed = false;
 	FString Reason;
+	FString ReasonCode;
+	FString RepairAction;
 	TMap<FString, FString> ProbeData;  // Additional context
-	
-	static FProbeResult Pass(const FString& Name) 
-	{ 
-		FProbeResult R; 
-		R.ProbeName = Name; 
-		R.bPassed = true; 
-		return R; 
+
+	static FProbeResult Pass(const FString& Name)
+	{
+		FProbeResult R;
+		R.ProbeName = Name;
+		R.bPassed = true;
+		return R;
 	}
-	
-	static FProbeResult Fail(const FString& Name, const FString& Reason) 
-	{ 
-		FProbeResult R; 
-		R.ProbeName = Name; 
-		R.bPassed = false; 
-		R.Reason = Reason; 
-		return R; 
+
+	static FProbeResult Fail(
+		const FString& Name,
+		const FString& Reason,
+		const FString& InReasonCode = TEXT(""),
+		const FString& InRepairAction = TEXT(""))
+	{
+		FProbeResult R;
+		R.ProbeName = Name;
+		R.bPassed = false;
+		R.Reason = Reason;
+		R.ReasonCode = InReasonCode;
+		R.RepairAction = InRepairAction;
+		return R;
 	}
 };
 
@@ -165,28 +201,28 @@ struct RIFTBORNAI_API FStepEvidence
 {
 	/** Verification method used */
 	EVerificationMethod Method = EVerificationMethod::None;
-	
+
 	/** Whether verification passed */
 	bool bPassed = false;
-	
+
 	/** Before-state hash (for digest diff) */
 	FString BeforeHash;
-	
+
 	/** After-state hash (for digest diff) */
 	FString AfterHash;
-	
+
 	/** The tool call result JSON */
 	FString ToolResultHash;
-	
+
 	/** Witness keys captured */
 	TMap<FString, FString> CapturedWitness;
-	
+
 	/** Human-readable summary */
 	FString Summary;
-	
+
 	/** Timestamp */
 	FDateTime Timestamp;
-	
+
 	/** Serialize to JSON for proof bundle */
 	TSharedPtr<FJsonObject> ToJson() const;
 };
@@ -201,29 +237,30 @@ struct RIFTBORNAI_API FExecStep
 	FString ToolName;
 	TMap<FString, FString> Arguments;
 	FString Description;
-	
+
 	// Dependencies
 	TArray<int32> DependsOn;  // Step indices that must complete first
-	
+
 	// Probes (preconditions to check before execution)
 	TArray<FString> RequiredProbes;  // e.g., ["target_exists", "pie_running"]
-	
+	TArray<FToolPrecondition> ContractPreconditions;
+
 	// === VERIFICATION CONTRACT (ChatGPT Audit Priority 1) ===
 	/** How this step's success is verified. No step completes without passing. */
 	EVerificationMethod VerificationMethod = EVerificationMethod::WitnessKey;
-	
+
 	/** Custom probe name (when VerificationMethod == CustomProbe) */
 	FString VerificationProbeName;
-	
+
 	/** Expected state claims for DigestDiff verification */
 	TArray<FString> ExpectedEffects;  // e.g., ["ActorCount.Total:Increased", "Errors.Total:Equals:0"]
-	
+
 	/** Postcondition probes to run after execution */
 	TArray<FString> PostconditionProbes;
-	
+
 	/** Verification evidence (filled after execution) */
 	FStepEvidence Evidence;
-	
+
 	// Risk
 	EToolRisk Risk = EToolRisk::Safe;
 	bool bNeedsConfirmation = false;
@@ -241,28 +278,29 @@ struct RIFTBORNAI_API FExecutablePlan
 	FString PlanHash;
 	FString PlanHashKind;  // "canonical", "raw_fallback", "canonicalization_failed"
 	FString PlanHashCanonicalizationError;
-	
+
 	// Steps
 	TArray<FExecStep> Steps;
-	
+
 	// Execution state
 	int32 CurrentStepIndex = 0;
 	bool bAborted = false;
 	FString AbortReason;
 	bool bStepConfirmed = false;  // Set to true to confirm high-risk step
 	bool bUserApprovedPlan = false;  // True when user explicitly approved the entire plan via UI - bypasses per-step confirmation
-	
+	TMap<int32, int32> StepRetryCounts;  // Per-step retry attempts already consumed
+
 	// Results
 	TArray<FPlanStepResult> StepResults;
-	
+
 	// Master undo
 	FString OverallUndoToken;  // If plan supports atomic undo
 	TArray<FString> StepUndoTokens;  // Per-step rollback
-	
+
 	// Computed
 	EToolRisk HighestRisk = EToolRisk::Safe;
 	bool bFullyReversible = true;
-	
+
 	// Status helpers
 	bool IsComplete() const { return CurrentStepIndex >= Steps.Num() || bAborted; }
 	bool HasFailures() const;
@@ -288,7 +326,7 @@ enum class ERepairStrategy : uint8
 /**
  * Execution Engine - Step-by-step plan executor
  * NOTE: Named FExecEngine to avoid conflict with AgentPlan.h's FPlanExecutor
- * 
+ *
  * Executes frozen plans step-by-step with:
  * - Precondition probes before each step
  * - Full evidence chain (proof bundles, witnesses)
@@ -300,30 +338,30 @@ class RIFTBORNAI_API FExecEngine
 {
 	// Allow FBridgePlanExecutor to access ExecuteTool
 	friend class FBridgePlanExecutor;
-	
+
 public:
 	static FExecEngine& Get();
-	
+
 	// =========================================================================
 	// GOVERNED TOOL EXECUTION (PUBLIC GATEWAY)
-	// 
+	//
 	// This is the ONLY way internal systems should execute
 	// tools. It enforces:
 	// - Contract existence check (PROOF mode blocks uncontracted tools)
 	// - Undo-by-tier enforcement (Dangerous/Destructive blocked without undo)
 	// - Production tool surface restrictions
-	// 
+	//
 	// DO NOT bypass this by calling FClaudeToolRegistry::ExecuteTool directly.
 	// =========================================================================
-	
+
 	/**
 	 * Execute a tool with full governance enforcement
-	 * 
+	 *
 	 * @param ToolName Tool to execute (must be in contracts.json for PROOF mode)
 	 * @param Args Tool arguments
 	 * @param OutError Filled on failure with rejection reason
 	 * @return True if tool executed successfully, false if blocked or failed
-	 * 
+	 *
 	 * This method:
 	 * 1. Checks contract existence (PROOF mode blocks uncontracted)
 	 * 2. Enforces undo-by-tier (Dangerous/Destructive require undo support)
@@ -331,32 +369,32 @@ public:
 	 * 4. Returns structured result
 	 */
 	static bool ExecuteGovernedTool(
-		const FString& ToolName, 
+		const FString& ToolName,
 		const TMap<FString, FString>& Args,
 		FString& OutResult,
 		FString& OutError
 	);
-	
+
 	// =========================================================================
 	// PLAN PARSING
 	// =========================================================================
-	
+
 	/**
 	 * Parse frozen PlanJSON into executable plan
 	 * Returns false if plan is malformed
 	 */
 	bool ParsePlan(const FString& PlanJSON, FExecutablePlan& OutPlan, FString& OutError);
-	
+
 	// =========================================================================
 	// EXECUTION
 	// =========================================================================
-	
+
 	/**
 	 * Execute next step in plan
 	 * Returns step result with full evidence
 	 */
 	FPlanStepResult ExecuteNextStep(FExecutablePlan& Plan);
-	
+
 	/**
 	 * Execute entire plan with callbacks
 	 * OnStepComplete called after each step (for UI updates)
@@ -367,7 +405,7 @@ public:
 		TFunction<void(const FPlanStepResult&)> OnStepComplete,
 		TFunction<void(const FExecutablePlan&)> OnPlanComplete
 	);
-	
+
 	/**
 	 * Execute plan asynchronously (non-blocking)
 	 * Takes ownership of Plan via copy to avoid dangling references
@@ -377,7 +415,7 @@ public:
 		TFunction<void(const FPlanStepResult&)> OnStepComplete,
 		TFunction<void(const FExecutablePlan&)> OnPlanComplete
 	);
-	
+
 	/**
 	 * Resume plan execution from a specific step (after confirmation/escalation)
 	 * Used when execution paused for user decision and user chose to continue.
@@ -389,45 +427,45 @@ public:
 		TFunction<void(const FPlanStepResult&)> OnStepComplete,
 		TFunction<void(const FExecutablePlan&)> OnPlanComplete
 	);
-	
+
 	/**
 	 * Request cancellation of current async execution.
 	 * Safe to call from any thread. The current step will complete,
 	 * then execution will stop with bAborted=true.
 	 */
 	void RequestCancel();
-	
+
 	/**
 	 * Check if cancellation has been requested
 	 */
 	bool IsCancelRequested() const;
-	
+
 	/**
 	 * Reset cancel flag (call before starting new execution)
 	 */
 	void ResetCancel();
-	
+
 	/**
 	 * Confirm a step that requires confirmation.
 	 * Call this when user approves a high-risk step, then retry execution.
 	 */
 	void ConfirmStep(FExecutablePlan& Plan);
-	
+
 	/**
 	 * Abort running plan
 	 */
 	void AbortPlan(FExecutablePlan& Plan, const FString& Reason);
-	
+
 	// =========================================================================
 	// PROBES (Precondition checks)
 	// =========================================================================
-	
+
 	/**
 	 * Run precondition probes for a step
 	 * Returns false if any required probe fails
 	 */
-	bool RunProbes(const FExecStep& Step, TArray<FProbeResult>& OutResults);
-	
+	bool RunProbes(const FExecStep& Step, const TMap<FString, FString>& ResolvedArgs, TArray<FProbeResult>& OutResults);
+
 	/**
 	 * Available probes
 	 */
@@ -435,70 +473,70 @@ public:
 	FProbeResult ProbePieRunning();
 	FProbeResult ProbeAssetPathValid(const FString& AssetPath);
 	FProbeResult ProbeBridgeConnected();
-	
+
 	// =========================================================================
 	// UNDO
 	// =========================================================================
-	
+
 	/**
 	 * Undo a specific step by token
 	 */
 	bool UndoStep(const FString& UndoToken, FString& OutError);
-	
+
 	/**
 	 * Undo entire plan (all reversible steps, in reverse order)
 	 */
 	bool UndoPlan(FExecutablePlan& Plan, FString& OutError);
-	
+
 	/**
 	 * Undo the last N successful steps
 	 */
 	bool UndoLastSteps(FExecutablePlan& Plan, int32 Count, FString& OutError);
-	
+
 	// =========================================================================
 	// REPAIR ROUTING
 	// =========================================================================
-	
+
 	/**
 	 * Determine repair strategy for a failed step
 	 */
 	ERepairStrategy GetRepairStrategy(const FExecStep& Step, const FPlanStepResult& Result);
-	
+
 	/**
 	 * Attempt repair based on strategy
 	 */
 	FPlanStepResult AttemptRepair(FExecutablePlan& Plan, ERepairStrategy Strategy);
-	
+
 	// =========================================================================
 	// PROOF BUNDLE SUPPORT
 	// =========================================================================
-	
+
 	/**
 	 * Get internal action log entries for proof bundle generation.
 	 * These are direct C++ mutations that bypassed tool registry (logged for audit).
 	 */
 	static TArray<TSharedPtr<FJsonValue>> GetInternalActionsForProof();
-	
+
 	/**
 	 * Clear internal action log (call after proof bundle is written)
 	 */
 	static void ClearInternalActionLog();
-	
+
 	/**
 	 * Get count of internal actions logged
 	 */
 	static int32 GetInternalActionCount();
-	
+
 	// =========================================================================
 	// PROBE CANONICALIZATION
 	// =========================================================================
-	
+
 	/**
 	 * Canonicalize probe result for deterministic hashing.
 	 * Sorts lists, normalizes identifiers.
 	 */
 	static FString CanonicalizeProbeResult(const FProbeResult& Result);
-	
+
 	/**
 	 * Hash a canonicalized probe result for proof chain
 	 */
@@ -506,11 +544,11 @@ public:
 
 private:
 	FExecEngine();
-	
+
 	// Execute single tool via bridge
 	FPlanStepResult ExecuteTool(
-		const FString& ToolName, 
-		const TMap<FString, FString>& Args, 
+		const FString& ToolName,
+		const TMap<FString, FString>& Args,
 		int32 StepIndex,
 		const FString& PlanHash = TEXT(""),
 		const FString& PlanHashKind = TEXT(""),
@@ -523,23 +561,33 @@ private:
 		const TMap<FString, FString>& Args,
 		const FString& ToolUseId
 	);
-	
+
 	// Chain witness data from previous step results into current args
 	TMap<FString, FString> ResolveChainedArgs(
-		const FExecStep& Step, 
+		const FExecStep& Step,
 		const TArray<FPlanStepResult>& PreviousResults
 	);
-	
+
 	// Extract error type from bridge response
 	EPlanStepError ExtractErrorType(const TSharedPtr<FJsonObject>& Response);
-	
+
 	// Extract undo token from successful execution
 	FString ExtractUndoToken(const TSharedPtr<FJsonObject>& Response);
-	
+
+	// Attach structured diagnosis to a failed step.
+	void PopulateFailureDiagnosis(
+		FPlanStepResult& Result,
+		const FExecStep* Step,
+		bool bMutationCommitted,
+		const FString& VerificationSummary = TEXT("")) const;
+
+	// Stamp retry budget/state after repair strategy selection.
+	void AnnotateRetryState(FExecutablePlan& Plan, FPlanStepResult& Result, ERepairStrategy Strategy) const;
+
 	// Retry state
 	int32 MaxRetries = 2;
 	float RetryBackoffMs = 200.0f;
-	
+
 	// Cancellation support (thread-safe atomic flag)
 	std::atomic<bool> bCancelRequested{false};
 };

@@ -73,4 +73,3 @@ export declare function estimateDuration(toolName: string, tracker: LatencyTrack
 export declare function detectTrend(recentEntries: SessionEntry[]): BridgeTrend;
 export declare function buildHealthSummary(tracker: LatencyTracker, recentEntries: SessionEntry[]): HealthSummary;
 export declare function shouldAttachHealth(callNumber: number, interval?: number, recentEntries?: SessionEntry[]): boolean;
-//# sourceMappingURL=performance-intelligence.d.ts.map

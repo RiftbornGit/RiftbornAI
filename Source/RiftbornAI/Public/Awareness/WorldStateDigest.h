@@ -30,20 +30,20 @@ struct RIFTBORNAI_API FStateValue
         Vector,
         ActorPath  // Soft reference to actor
     };
-    
+
     EType Type = EType::None;
-    
+
     union
     {
         bool BoolValue;
         int32 IntValue;
         float FloatValue;
     };
-    
+
     FName NameValue;
     FVector VectorValue = FVector::ZeroVector;
     FString ActorPathValue;
-    
+
     // Constructors
     FStateValue() : Type(EType::None), IntValue(0) {}
     explicit FStateValue(bool Value) : Type(EType::Bool), BoolValue(Value) {}
@@ -52,17 +52,17 @@ struct RIFTBORNAI_API FStateValue
     explicit FStateValue(FName Value) : Type(EType::Name), IntValue(0), NameValue(Value) {}
     explicit FStateValue(const FVector& Value) : Type(EType::Vector), IntValue(0), VectorValue(Value) {}
     explicit FStateValue(const FString& ActorPath) : Type(EType::ActorPath), IntValue(0), ActorPathValue(ActorPath) {}
-    
+
     // Comparison
     bool operator==(const FStateValue& Other) const;
     bool operator!=(const FStateValue& Other) const { return !(*this == Other); }
-    
+
     // Distance metric (for continuous values)
     float DistanceTo(const FStateValue& Other) const;
-    
+
     // String for logging
     FString ToString() const;
-    
+
     // JSON serialization
     TSharedPtr<FJsonObject> ToJson() const;
     static FStateValue FromJson(const TSharedPtr<FJsonObject>& Json);
@@ -99,19 +99,19 @@ struct RIFTBORNAI_API FStateClaim
 {
     /** What we're checking - e.g., "ActorCount.StaticMeshActor", "Level.Name", "PIE.Running" */
     FName Key;
-    
+
     /** How we compare */
     EStateOp Op = EStateOp::Equals;
-    
+
     /** Expected value (typed) */
     FStateValue Expected;
-    
+
     /** Tolerance for Within/distance comparisons */
     float Tolerance = 0.0f;
-    
+
     /** Weight for computing aggregate satisfaction (0-1) */
     float Weight = 1.0f;
-    
+
     /** Scope of the claim */
     enum class EScope : uint8
     {
@@ -120,21 +120,21 @@ struct RIFTBORNAI_API FStateClaim
         Session     // Must hold for entire session
     };
     EScope Scope = EScope::Frame;
-    
+
     // Constructors
     FStateClaim() = default;
     FStateClaim(FName InKey, EStateOp InOp, FStateValue InExpected, float InWeight = 1.0f)
         : Key(InKey), Op(InOp), Expected(InExpected), Weight(InWeight) {}
-    
+
     /** Check if the claim is satisfied given an observed value */
     bool IsSatisfied(const FStateValue& Observed) const;
-    
+
     /** Compute violation magnitude (0 = satisfied, >0 = violated) */
     float ViolationMagnitude(const FStateValue& Observed) const;
-    
+
     /** String for logging */
     FString ToString() const;
-    
+
     /** JSON serialization */
     TSharedPtr<FJsonObject> ToJson() const;
     static FStateClaim FromJson(const TSharedPtr<FJsonObject>& Json);
@@ -151,13 +151,13 @@ struct RIFTBORNAI_API FClaimResult
     FStateValue Expected;
     FStateValue Observed;
     FString Reason;
-    
+
     FString ToString() const;
 };
 
 /**
  * WorldStateDigest - The minimal viable reality snapshot
- * 
+ *
  * ~20 signals we actually care about:
  * - Actor counts by class/tags
  * - Level name / map hash
@@ -171,13 +171,13 @@ struct RIFTBORNAI_API FWorldStateDigest
     // =========================================================================
     // CORE IDENTITY
     // =========================================================================
-    
+
     /** Timestamp when captured */
     FDateTime CapturedAt;
-    
+
     /** Stable hash of all values for quick comparison */
     uint32 ContentHash = 0;
-    
+
     /** Frame number when captured */
     uint64 FrameNumber = 0;
 
@@ -190,50 +190,50 @@ struct RIFTBORNAI_API FWorldStateDigest
     // =========================================================================
     // TYPED STATE VALUES
     // =========================================================================
-    
+
     /** All state values, keyed by path */
     TMap<FName, FStateValue> Values;
-    
+
     // =========================================================================
     // METHODS
     // =========================================================================
-    
+
     /** Capture current world state */
     static FWorldStateDigest Capture(UWorld* World);
-    
+
     /** Get a value (returns None type if not found) */
     FStateValue GetValue(FName Key) const;
-    
+
     /** Check if a claim is satisfied */
     FClaimResult CheckClaim(const FStateClaim& Claim) const;
-    
+
     /** Check multiple claims, return aggregate satisfaction */
     TArray<FClaimResult> CheckClaims(const TArray<FStateClaim>& Claims) const;
-    
+
     /** Compute weighted satisfaction score (0-1) */
     float ComputeSatisfaction(const TArray<FStateClaim>& Claims) const;
-    
+
     /** Compute delta from another digest */
     TMap<FName, TPair<FStateValue, FStateValue>> ComputeDelta(const FWorldStateDigest& Other) const;
-    
+
     /** Compute content hash */
     void ComputeHash();
-    
+
     /** JSON serialization */
     TSharedPtr<FJsonObject> ToJson() const;
     static FWorldStateDigest FromJson(const TSharedPtr<FJsonObject>& Json);
-    
+
     /** Log summary */
     void LogSummary() const;
-    
+
     /** Get human-readable summary string for LLM prompts (P1 Integration) */
     FString ToSummaryString() const;
-    
+
 private:
     // =========================================================================
     // CAPTURE HELPERS (called by Capture)
     // =========================================================================
-    
+
     static void CaptureActorCounts(UWorld* World, TMap<FName, FStateValue>& OutValues);
     static void CaptureLevelInfo(UWorld* World, TMap<FName, FStateValue>& OutValues);
     static void CapturePIEState(UWorld* World, TMap<FName, FStateValue>& OutValues);
@@ -256,31 +256,31 @@ namespace StateKeys
     const FName ActorCount_Light(TEXT("Actors.Light"));
     const FName ActorCount_Camera(TEXT("Actors.CameraActor"));
     const FName ActorCount_PlayerController(TEXT("Actors.PlayerController"));
-    
+
     // Level info
     const FName Level_Name(TEXT("Level.Name"));
     const FName Level_MapHash(TEXT("Level.MapHash"));
     const FName Level_IsPersistent(TEXT("Level.IsPersistent"));
     const FName Level_StreamingLevelsLoaded(TEXT("Level.StreamingLevelsLoaded"));
-    
+
     // PIE state
     const FName PIE_IsRunning(TEXT("PIE.IsRunning"));
     const FName PIE_IsPaused(TEXT("PIE.IsPaused"));
     const FName PIE_TimeDilation(TEXT("PIE.TimeDilation"));
     const FName PIE_GameTime(TEXT("PIE.GameTime"));
-    
+
     // Error tracking
     const FName Errors_Total(TEXT("Errors.Total"));
     const FName Errors_Recent(TEXT("Errors.Recent"));
     const FName Warnings_Total(TEXT("Warnings.Total"));
     const FName Warnings_Recent(TEXT("Warnings.Recent"));
-    
+
     // Performance
     const FName Perf_FPS(TEXT("Perf.FPS"));
     const FName Perf_FrameTimeMs(TEXT("Perf.FrameTimeMs"));
     const FName Perf_DrawCalls(TEXT("Perf.DrawCalls"));
     const FName Perf_MemoryMB(TEXT("Perf.MemoryMB"));
-    
+
     // Gameplay (extensible)
     const FName Gameplay_ObjectiveCount(TEXT("Gameplay.ObjectiveCount"));
     const FName Gameplay_ObjectivesCompleted(TEXT("Gameplay.ObjectivesCompleted"));

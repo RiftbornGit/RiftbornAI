@@ -10,9 +10,9 @@
 
 /**
  * SetComponentPropertyTypedToolsModule Module
- * 
+ *
  * Set a component property with typed validation and undo support
- * 
+ *
  * Capability: world.set_component_property_typed
  * Mutates: Yes
  * Deterministic: Yes
@@ -21,12 +21,12 @@ class RIFTBORNAI_API FSetComponentPropertyTypedToolsModuleModule : public TToolM
 {
 public:
     static FString StaticModuleName() { return TEXT("SetComponentPropertyTypedToolsModule"); }
-    
+
     virtual void RegisterTools(FClaudeToolRegistry& Registry) override;
-    
+
     // Tool implementation
     static FClaudeToolResult Tool_SetComponentPropertyTyped(const FClaudeToolCall& Call);
-    
+
 private:
     // Helper to find actor by path
     static AActor* FindActorByPath(UWorld* World, const FString& ActorPath);

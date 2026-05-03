@@ -29,33 +29,33 @@ enum class ECertEventType : uint8
 	// Session lifecycle
 	SessionStart,       // PIE started, certification session begins
 	SessionEnd,         // PIE ended, flush all events
-	
+
 	// L2: Class lifecycle
 	ClassInstantiated,  // UObject created (class name, path)
 	BeginPlayStarted,   // BeginPlay() entered
 	BeginPlayCompleted, // BeginPlay() exited without error
 	BeginPlayFailed,    // BeginPlay() threw or crashed
-	
+
 	// L3: Gameplay
 	PawnPossessed,      // PlayerController possessed a pawn
 	MovementDetected,   // Pawn moved (delta > threshold)
 	InputReceived,      // Input action consumed
-	
+
 	// L4: Abilities
 	AbilityGranted,     // Ability spec added to ASC
 	AbilityActivated,   // ActivateAbility entered
 	AbilityEnded,       // EndAbility called (success or cancel)
 	AbilityFailed,      // Activation failed (cost, cooldown, tags)
-	
+
 	// L5: Network
 	ReplicationEvent,   // Property replicated (server->client confirm)
 	RPCExecuted,        // RPC called and completed
 	PlayerJoined,       // Player connected to session
-	
+
 	// Errors
 	RuntimeError,       // Caught error during certification window
 	EnsureFailed,       // Ensure condition failed
-	
+
 	// Custom
 	Custom              // User-defined event with payload
 };
@@ -118,17 +118,17 @@ struct RIFTBORNAI_API FCertEvent
 
 /**
  * URiftbornCertSubsystem - Runtime Certification Bus
- * 
+ *
  * A GameInstanceSubsystem that collects structured certification events
  * during PIE sessions. Replaces fragile log-parsing with deterministic
  * event emission.
- * 
+ *
  * Usage from generated code:
  *   URiftbornCertSubsystem::EmitBeginPlay(this);
- * 
+ *
  * Usage from Python bridge:
  *   events = cert_subsystem.flush_events()
- * 
+ *
  * Lifecycle:
  *   1. PIE starts -> SessionStart event emitted
  *   2. Generated classes call Emit*() during runtime
@@ -156,7 +156,7 @@ public:
 	/**
 	 * Start a certification session. Called automatically on PIE start,
 	 * but can be called explicitly to set JobId.
-	 * 
+	 *
 	 * @param JobId - Identifier linking this session to a generation task
 	 * @return SessionId - Unique identifier for this certification session
 	 */
@@ -197,7 +197,7 @@ public:
 		const FString& PayloadJson,
 		const TArray<FString>& Tags
 	);
-	
+
 	/** Convenience overload with default empty payload and tags (not exposed to Blueprint) */
 	void EmitEvent(ECertEventType EventType, ECertEventSeverity Severity, const FString& EventName)
 	{
@@ -207,7 +207,7 @@ public:
 	/**
 	 * Emit BeginPlay event for a generated class.
 	 * Call this at the START of BeginPlay().
-	 * 
+	 *
 	 * @param Actor - The actor whose BeginPlay is executing
 	 * @param bIsGenerated - True if this is a Riftborn-generated class
 	 */
@@ -271,7 +271,7 @@ public:
 
 	/**
 	 * Get all events and optionally clear the buffer.
-	 * 
+	 *
 	 * @param bClear - If true, clears the event buffer after returning
 	 * @return Array of all events since session start
 	 */
@@ -340,26 +340,26 @@ public:
 	// ========================================================================
 	// Static Shared Buffer (accessible from CDO for Python/Blueprint)
 	// ========================================================================
-	
+
 	/**
 	 * Get events from the shared static buffer.
 	 * This is accessible from CDO since it's static, making it Python-friendly.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "RiftbornAI|Certification")
 	static FString GetSharedEventsAsJson(bool bClear = false);
-	
+
 	/**
 	 * Get the shared session ID.
 	 */
 	UFUNCTION(BlueprintPure, Category = "RiftbornAI|Certification")
 	static FString GetSharedSessionId();
-	
+
 	/**
 	 * Check if shared session is active.
 	 */
 	UFUNCTION(BlueprintPure, Category = "RiftbornAI|Certification")
 	static bool IsSharedSessionActive();
-	
+
 	/**
 	 * Get shared event count by severity.
 	 */
@@ -393,7 +393,7 @@ private:
 
 	/** Generate a unique session ID */
 	static FString GenerateSessionId();
-	
+
 	// ========================================================================
 	// Static shared state (for CDO access from Python)
 	// ========================================================================
@@ -411,7 +411,7 @@ private:
 /**
  * RAII guard that automatically emits BeginPlayStarted on construction
  * and BeginPlayCompleted on destruction. Use in generated BeginPlay():
- * 
+ *
  *   void AMyActor::BeginPlay()
  *   {
  *       FRiftbornBeginPlayGuard Guard(this);
@@ -437,7 +437,7 @@ private:
 /**
  * Emit BeginPlay events with minimal code injection.
  * Use in generated BeginPlay() implementations:
- * 
+ *
  *   void AMyActor::BeginPlay()
  *   {
  *       RIFTBORN_CERT_BEGINPLAY_GUARD(this);
@@ -450,7 +450,7 @@ private:
 
 /**
  * Emit class instantiation event. Use in constructors:
- * 
+ *
  *   AMyActor::AMyActor()
  *   {
  *       RIFTBORN_CERT_INSTANTIATED(this);

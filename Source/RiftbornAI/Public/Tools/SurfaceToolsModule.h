@@ -9,7 +9,7 @@
 
 /**
  * FSurfaceToolsModule
- * 
+ *
  * Surface Tools Module — texture-to-displacement and material-from-photo tools.
  */
 class RIFTBORNAI_API FSurfaceToolsModule : public TToolModuleBase<FSurfaceToolsModule>

@@ -18,10 +18,10 @@ public:
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
-	
+
 	/** Opens the AI Assistant window */
 	void OpenAIAssistant();
-	
+
 	/** Returns true if running in unattended/commandlet mode */
 	bool IsUnattendedMode() const { return bIsUnattendedMode; }
 

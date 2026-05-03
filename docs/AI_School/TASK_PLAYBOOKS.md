@@ -235,6 +235,65 @@ Most common failure:
 
 - the text is updated, but keys become unstable or the new wording breaks the actual widget layout
 
+## 8. Blueprint Repair And Runtime Verification Slice
+
+Example tasks:
+
+- fix broken Blueprint wiring, compile regressions, or graph drift
+- repair a gameplay Blueprint and prove the repaired behavior in PIE
+- tighten a Blueprint interaction loop and verify the runtime path instead of stopping at compile success
+
+Read:
+
+1. `Blueprint`
+2. `UI` if the repair changes prompts, widgets, or focus state
+3. `VFX` or `Audio` only if the repaired Blueprint changes player-facing feedback
+4. `LevelDesign` if the runtime proof depends on a specific map context
+
+Build order:
+
+1. define the actual failure: compile break, wrong graph wiring, wrong target asset, or wrong runtime behavior
+2. inspect the active Blueprint editor context and the graph before editing
+3. repair the smallest correct unit: node wiring, variable defaults, component setup, or event flow
+4. compile and read diagnostics deliberately instead of assuming the repair worked
+5. place or select the runtime instance that proves the repaired path
+6. run PIE or a quick playtest to prove the repaired Blueprint behaves correctly in context
+
+Minimum proof:
+
+- structure proof with Blueprint editor context, graph listing, or node inspection
+- compile proof with `assert_blueprint_compiles` or `get_blueprint_compile_diagnostics`
+- runtime interaction proof with targeted PIE validation or `run_quick_playtest`
+- cross-domain proof only when the repair also changes UI, VFX, audio, or multiplayer behavior
+
+Most common failure:
+
+- the Blueprint compiles again, but the repaired graph still targets the wrong asset, the wrong instance, or the wrong runtime behavior
+
+## Current Flagship Workflow Benchmarks
+
+- `arena_slice`
+  Benchmark: `MULTI_003_ArenaSlice`
+  Primary playbook: `Playable Area Slice`
+  Expected proof bundle:
+  mutation receipt or proof bundle, navmesh proof, viewport review proof, runtime traversal/playtest proof
+  Scorecard:
+  blockout created, navmesh proven, runtime traversal proven, workflow emitted proof artifacts
+- `blueprint_fix_runtime_verification`
+  Benchmark: `VERIFY_006_BlueprintFixRuntimeVerification`
+  Primary playbook: `Blueprint Repair And Runtime Verification Slice`
+  Expected proof bundle:
+  mutation receipt or proof bundle, Blueprint structure proof, compile proof, runtime PIE/playtest proof
+  Scorecard:
+  target Blueprint inspected, compile proof emitted, runtime behavior proven, workflow emitted proof artifacts
+- `cinematic_beat`
+  Benchmark: `MULTI_004_CinematicBeat`
+  Primary playbook: `Cinematic Reveal Slice`
+  Expected proof bundle:
+  mutation receipt or proof bundle, sequence binding proof, sequence review proof
+  Scorecard:
+  cinematic camera authored, binding proven, review pass completed, workflow emitted proof artifacts
+
 ## How To Use These Playbooks
 
 1. Choose the closest playbook.

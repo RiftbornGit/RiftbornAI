@@ -13,7 +13,7 @@
 
 /**
  * FNaturalEcosystemToolsModule
- * 
+ *
  * Natural Ecosystem Tools — ecology-aware tree scatter, understory generation,
  */
 class RIFTBORNAI_API FNaturalEcosystemToolsModule : public TToolModuleBase<FNaturalEcosystemToolsModule>

@@ -62,10 +62,10 @@ struct RIFTBORNAI_API FRiftbornTalentNode
 
 /**
  * URiftbornTalentTreeComponent - Proof-grade talent tree state.
- * 
+ *
  * PURPOSE: Authoritative state for talent progression with deterministic hashing.
  * Blueprint can render and configure, but truth lives here.
- * 
+ *
  * DESIGN RULES:
  * - UnlockedNodes is authoritative (not derived from elsewhere)
  * - All hashes are deterministic (sorted iteration, fixed formats)

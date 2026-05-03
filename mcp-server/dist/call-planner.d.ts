@@ -14,6 +14,7 @@
  * identifies target tools → builds plan.
  */
 import type { SessionEntry } from "./system-enhancements.js";
+import { type DomainProofGap } from "./domain-proof-contract.js";
 export declare function normalizeGoalQuery(goal: string): string;
 /** A single step in an execution plan. */
 export interface PlanStep {
@@ -40,6 +41,10 @@ export interface ExecutionPlan {
     remaining_count: number;
     /** Estimated total based on step classification. */
     estimated_calls: number;
+    /** Domains inferred from the original natural-language goal, when available. */
+    proof_domains?: string[];
+    /** Missing proof requirements that were appended to the plan. */
+    proof_gaps?: DomainProofGap[];
 }
 /**
  * Resolve a goal string to target tools.
@@ -73,4 +78,3 @@ export declare function planToBatchSteps(plan: ExecutionPlan): Array<{
  * List all available goal keywords.
  */
 export declare function listGoals(): string[];
-//# sourceMappingURL=call-planner.d.ts.map

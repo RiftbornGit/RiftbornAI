@@ -13,6 +13,7 @@
     "watch": "tsc --watch",
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
+    "harness": "pnpm build && node dist/headless-agent-harness-cli.js",
     "lint": "eslint .",
     "test": "node scripts/run-vitest.mjs",
     "test:watch": "vitest",

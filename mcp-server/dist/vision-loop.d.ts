@@ -99,4 +99,3 @@ export declare function createVisionHandlers(executeTool: (name: string, args: o
         error?: undefined;
     }>;
 };
-//# sourceMappingURL=vision-loop.d.ts.map

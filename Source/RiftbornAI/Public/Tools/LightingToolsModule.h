@@ -39,6 +39,7 @@ public:
     static FClaudeToolResult Tool_SetLightMobility(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_GetLightInfo(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_ListLights(const FClaudeToolCall& Call);
+    static FClaudeToolResult Tool_ReadLightingState(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_SetLightChannel(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_CreateHDRIBackdrop(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_SetupPhotorealForestLighting(const FClaudeToolCall& Call);
@@ -47,5 +48,7 @@ public:
     static FClaudeToolResult Tool_BatchSetLightProperty(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_SetupOutdoorLighting(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_ApplyForestAtmospherePreset(const FClaudeToolCall& Call);
+    static FClaudeToolResult Tool_DiagnoseSceneDefects(const FClaudeToolCall& Call);
+    static FClaudeToolResult Tool_VisualCritiqueScene(const FClaudeToolCall& Call);
 
 };

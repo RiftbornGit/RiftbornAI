@@ -10,10 +10,10 @@
 
 /**
  * Component Tools Module
- * 
+ *
  * Provides tools for managing actor components:
  * - add_component: Add a component to an actor
- * - remove_component: Remove a component from an actor  
+ * - remove_component: Remove a component from an actor
  * - get_actor_components: List all components on an actor
  * - set_component_property: Set a property value on a component
  * - get_component_property: Get a property value from a component
@@ -22,15 +22,15 @@ class RIFTBORNAI_API FComponentToolsModule : public TToolModuleBase<FComponentTo
 {
 public:
     static FString StaticModuleName() { return TEXT("ComponentTools"); }
-    
+
     virtual void RegisterTools(FClaudeToolRegistry& Registry) override;
-    
+
     // Tool implementations
     static FClaudeToolResult Tool_RemoveComponent(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_GetActorComponents(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_SetComponentProperty(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_GetComponentProperty(const FClaudeToolCall& Call);
-    
+
 private:
     // Helper to find actor by name
     static AActor* FindActorByName(UWorld* World, const FString& ActorName);

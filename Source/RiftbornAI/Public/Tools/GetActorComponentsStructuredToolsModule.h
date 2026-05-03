@@ -10,9 +10,9 @@
 
 /**
  * GetActorComponentsStructuredToolsModule Module
- * 
+ *
  * Get all components on an actor with structured output. Returns stable, deterministic JSON. REQUIRES property_whitelist when include_properties=true.
- * 
+ *
  * Capability: world.get_actor_components_structured
  * Mutates: No
  * Deterministic: Yes
@@ -21,12 +21,12 @@ class RIFTBORNAI_API FGetActorComponentsStructuredToolsModuleModule : public TTo
 {
 public:
     static FString StaticModuleName() { return TEXT("GetActorComponentsStructuredToolsModule"); }
-    
+
     virtual void RegisterTools(FClaudeToolRegistry& Registry) override;
-    
+
     // Tool implementation
     static FClaudeToolResult Tool_GetActorComponentsStructured(const FClaudeToolCall& Call);
-    
+
 private:
     // Helper to find actor by path
     static AActor* FindActorByPath(UWorld* World, const FString& ActorPath);

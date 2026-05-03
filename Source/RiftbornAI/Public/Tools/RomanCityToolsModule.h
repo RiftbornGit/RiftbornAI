@@ -9,7 +9,7 @@
 
 /**
  * FRomanCityToolsModule
- * 
+ *
  * RomanCityToolsModule — Roman modular kit, street layout, district composition, audit, dressing, and review
  */
 class RIFTBORNAI_API FRomanCityToolsModule : public TToolModuleBase<FRomanCityToolsModule>

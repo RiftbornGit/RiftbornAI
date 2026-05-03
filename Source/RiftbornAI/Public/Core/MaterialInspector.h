@@ -226,9 +226,9 @@ struct RIFTBORNAI_API FMaterialOpResult
 
 /**
  * Material Inspector - Deep introspection for material learning
- * 
+ *
  * Phase 3: Material Introspection + Parametric Authoring
- * 
+ *
  * This class provides material observability:
  * - InspectMaterial: Extract all parameters, textures, features
  * - InspectMaterialInstance: Extract instance overrides

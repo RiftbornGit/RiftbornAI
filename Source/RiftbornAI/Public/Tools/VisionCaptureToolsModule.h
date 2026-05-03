@@ -9,7 +9,7 @@
 
 /**
  * FVisionCaptureToolsModule
- * 
+ *
  * Vision Capture Tools — frame sequence, depth buffer, resolution control
  */
 class RIFTBORNAI_API FVisionCaptureToolsModule : public TToolModuleBase<FVisionCaptureToolsModule>

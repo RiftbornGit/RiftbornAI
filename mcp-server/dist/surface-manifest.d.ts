@@ -27,14 +27,14 @@ export interface SurfaceManifest {
 }
 /** Surface stages.
  *
- *  `beta_release` is the locked 99-tool surface that ships with the public
+ *  `beta_release` is the locked 200-tool surface that ships with the public
  *  Beta. It is intentionally narrower than `production` (which is the larger
- *  curated set ~338 tools); both `beta_release_tools` AND the PRODUCTION
+ *  curated set ~345 tools); both `beta_release_tools` AND the PRODUCTION
  *  readiness tier must accept a tool for it to be visible. Developers
  *  bypass everything via RIFTBORN_DEV_MODE=true (see index.ts).
  */
 export type SurfaceStage = "production" | "beta" | "beta_release" | "experimental";
-export declare function normalizeStringArray(value: unknown): string[];
+export declare function normalizeStringArray(value: unknown, fieldName?: string): string[];
 export declare function parseSurfaceManifest(raw: string): SurfaceManifest | null;
 export declare function loadSurfaceManifestFromPath(filePath: string): SurfaceManifest | null;
 export declare function getSurfaceManifest(): SurfaceManifest;
@@ -54,4 +54,3 @@ export declare function getBlockedToolNames(): string[];
 export declare function getBlockedToolNameSet(): Set<string>;
 export declare function getDefaultSurfaceStage(): SurfaceStage;
 export declare function getDefaultReadinessTierNames(): string[];
-//# sourceMappingURL=surface-manifest.d.ts.map

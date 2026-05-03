@@ -4,10 +4,10 @@
   "name": "Narrative Systems",
   "version": "1.0.0",
   "purpose": "Questlines/dialogue/factions that integrate with the existing loop",
-  
+
   "prerequisite_tier": "B",
   "prerequisite_check": "tier_b_promoted",
-  
+
   "allowed_operations": {
     "_inherits": "tier_b",
     "quest_data_assets": {
@@ -33,7 +33,7 @@
     "modify_levels": false,
     "delete_assets": false
   },
-  
+
   "required_outputs": {
     "quest_graph": {
       "description": "Quest graph with minimum 3 nodes",
@@ -49,7 +49,7 @@
       "verifier": "verify_gated_content"
     }
   },
-  
+
   "required_verifiers": [
     {
       "id": "tier_b_still_passes",
@@ -96,7 +96,7 @@
       "required": true
     }
   ],
-  
+
   "proof_requirements": {
     "trace_file": true,
     "replay_script": true,
@@ -106,14 +106,14 @@
     "dialogue_tree_export": true,
     "state_flag_manifest": true
   },
-  
+
   "rollback_semantics": {
     "default": "undo",
     "irreversible_requires": "user_ack",
     "state_rollback": true,
     "flag_reset_supported": true
   },
-  
+
   "ci_recipes": [
     {
       "name": "tier_c_nightly",
@@ -128,7 +128,7 @@
       "required": true
     }
   ],
-  
+
   "promotion_requirements": {
     "tier_b_promoted": true,
     "min_confidence_score": 0.6,
@@ -139,7 +139,7 @@
     "proof_bundle_required": true,
     "replay_verified": true
   },
-  
+
   "definition_of_done": [
     "Quest graph with ≥3 nodes created",
     "Dialogue state machine functional",

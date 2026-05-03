@@ -70,7 +70,7 @@ public:
 		TFunction<void(bool bSuccess, const FString& Response)> OnComplete,
 		TFunction<void(const FString& Status)> OnProgress = nullptr
 	);
-	
+
 	/**
 	 * Send message with streaming and tool callbacks - FULL STREAMING AGENTIC MODE
 	 * Provides fine-grained callbacks for tokens, tool calls, and completion
@@ -82,7 +82,7 @@ public:
 		TFunction<void(const FString& ToolName, const TMap<FString, FString>& Args, const FString& ToolUseId)> OnToolCall,
 		TFunction<void(bool bSuccess, const FString& Error)> OnComplete
 	);
-	
+
 	/**
 	 * Continue conversation after tool result (DEPRECATED - use ContinueWithMultipleToolResults)
 	 */
@@ -143,58 +143,58 @@ public:
 	bool AreToolsEnabled() const { return bToolsEnabled; }
 
 	// ===== Token Tracking =====
-	
+
 	/** Get input tokens used in this session */
 	int64 GetSessionInputTokens() const { return SessionInputTokens; }
-	
+
 	/** Get output tokens used in this session */
 	int64 GetSessionOutputTokens() const { return SessionOutputTokens; }
-	
+
 	/** Get total tokens (input + output) for this session */
 	int64 GetSessionTotalTokens() const { return SessionInputTokens + SessionOutputTokens; }
-	
+
 	/** Get last request's input tokens */
 	int32 GetLastInputTokens() const { return LastInputTokens; }
-	
+
 	/** Get last request's output tokens */
 	int32 GetLastOutputTokens() const { return LastOutputTokens; }
-	
+
 	/** Reset session token counters */
 	void ResetSessionTokens();
-	
+
 	/** Set maximum input tokens per session (0 = unlimited) */
 	void SetMaxSessionTokens(int64 InMaxTokens) { MaxSessionInputTokens = InMaxTokens; }
-	
+
 	/** Get maximum session tokens */
 	int64 GetMaxSessionTokens() const { return MaxSessionInputTokens; }
-	
+
 	/** Check if session token limit would be exceeded by estimated next request */
 	bool WouldExceedTokenLimit(int32 EstimatedInputTokens = 4000) const;
-	
+
 	/** Estimate cost in USD for session tokens (Claude Opus pricing) */
 	float EstimateSessionCost() const;
-	
+
 	/** Cancel any in-flight request */
 	void CancelCurrentRequest();
-	
+
 	/** Check if request was cancelled */
 	bool IsCancelled() const { return bCancelled; }
-	
+
 	/** Set model to use for next request */
 	void SetModel(const FString& InModel) { Model = InModel; }
-	
+
 	/** Get current model */
 	const FString& GetModel() const { return Model; }
-	
+
 	/** Model constants */
 	static const FString ModelOpus;   // claude-opus-4-7
 	static const FString ModelHaiku;  // claude-haiku-4-5-20251001
 	static const FString ModelOllama; // qwen3:14b (local)
-	
+
 	/** Set to use Ollama backend instead of Claude API */
 	void SetUseOllama(bool bUseOllama, const FString& OllamaEndpoint = TEXT("http://localhost:11434"), const FString& OllamaModelName = TEXT("qwen3:14b"));
 	bool IsUsingOllama() const { return bUseOllamaBackend; }
-	
+
 	/**
 	 * Query classification result
 	 */
@@ -205,13 +205,13 @@ public:
 		SimpleChat,        // Haiku OK - questions, explanations, help
 		Classification     // Internal - used for Haiku classification call
 	};
-	
+
 	/**
 	 * Classify a query to determine which model to use
 	 * Returns quickly via local heuristics, or uses Haiku for ambiguous cases
 	 */
 	EQueryType ClassifyQuery(const FString& Query) const;
-	
+
 	/**
 	 * Get recommended model for a query type
 	 */
@@ -245,40 +245,40 @@ private:
 	FString Model;
 	bool bStreamingEnabled;
 	bool bToolsEnabled;
-	
+
 	// Ollama backend support
 	bool bUseOllamaBackend = false;
 	FString OllamaEndpointUrl;
 	FString OllamaModelName;
-	
+
 	// Max tool iterations to prevent infinite loops
 	static constexpr int32 MaxToolIterations = 10;
-	
+
 	// Conversation history (User, Assistant pairs) - legacy flat format
 	TArray<TPair<FString, FString>> ConversationHistory;
-	
+
 	// JSON conversation history - proper structured messages for Claude API
 	// This tracks tool_use/tool_result content blocks correctly
 	TArray<TSharedPtr<FJsonObject>> JsonConversationHistory;
-	
+
 	// HTTP module
 	FHttpModule* HttpModule;
-	
+
 	// Current in-flight request (for cancellation)
 	TSharedPtr<IHttpRequest, ESPMode::ThreadSafe> CurrentRequest;
 	bool bCancelled = false;
-	
+
 	// Streaming state
 	FString CurrentStreamBuffer;
 	TFunction<void(const FString&)> OnStreamChunkCallback;
-	
+
 	// Token tracking
 	int64 SessionInputTokens = 0;
 	int64 SessionOutputTokens = 0;
 	int32 LastInputTokens = 0;
 	int32 LastOutputTokens = 0;
 	int64 MaxSessionInputTokens = 100000; // Default 100k input token limit (~$1.50)
-	
+
 	/** Parse and track tokens from API response JSON */
 	void ParseAndTrackTokens(const TSharedPtr<FJsonObject>& JsonObject);
 };

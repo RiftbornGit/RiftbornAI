@@ -34,7 +34,7 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FRiftbornFrameMetrics
 {
     GENERATED_BODY()
-    
+
     UPROPERTY() float FPS = 60.0f;
     UPROPERTY() float FrameTimeMs = 16.67f;
     UPROPERTY() float GameThreadMs = 0.0f;
@@ -48,7 +48,7 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FMemoryMetrics
 {
     GENERATED_BODY()
-    
+
     UPROPERTY() float UsedMemoryMB = 0.0f;
     UPROPERTY() float AvailableMemoryMB = 0.0f;
     UPROPERTY() float TextureMemoryMB = 0.0f;
@@ -62,7 +62,7 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FSceneMetrics
 {
     GENERATED_BODY()
-    
+
     UPROPERTY() int32 ActorCount = 0;
     UPROPERTY() int32 VisibleActors = 0;
     UPROPERTY() int32 StaticMeshComponents = 0;
@@ -77,7 +77,7 @@ USTRUCT(BlueprintType)
 struct RIFTBORNAI_API FPerformanceState
 {
     GENERATED_BODY()
-    
+
     UPROPERTY() EPerformanceLevel Level = EPerformanceLevel::Good;
     UPROPERTY() EBottleneckType Bottleneck = EBottleneckType::None;
     UPROPERTY() FRiftbornFrameMetrics Frame;
@@ -85,7 +85,7 @@ struct RIFTBORNAI_API FPerformanceState
     UPROPERTY() FSceneMetrics Scene;
     UPROPERTY() TArray<FString> Warnings;
     UPROPERTY() TArray<FString> Recommendations;
-    
+
     FString GetDescription() const;
 };
 
@@ -93,28 +93,28 @@ class RIFTBORNAI_API FPerformanceAwareness
 {
 public:
     static FPerformanceAwareness& Get();
-    
+
     FPerformanceState GetCurrentState() const;
     FRiftbornFrameMetrics GetFrameMetrics() const;
     FMemoryMetrics GetMemoryMetrics() const;
     FSceneMetrics GetSceneMetrics() const;
-    
+
     EPerformanceLevel GetPerformanceLevel() const;
     EBottleneckType GetBottleneck() const;
     TArray<FString> GetOptimizationRecommendations() const;
-    
+
     float GetFPS() const;
     float GetFrameTime() const;
     float GetGPUTime() const;
     int32 GetDrawCalls() const;
-    
+
     bool IsGPUBound() const;
     bool IsCPUBound() const;
     bool HasHitches() const;
-    
+
     static FString PerformanceLevelToString(EPerformanceLevel Level);
     static FString BottleneckToString(EBottleneckType Bottleneck);
-    
+
 private:
     FPerformanceAwareness();
     mutable FPerformanceState CachedState;

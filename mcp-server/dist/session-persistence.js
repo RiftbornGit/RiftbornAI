@@ -299,4 +299,3 @@ export class SessionPersistence {
         return this.filePath;
     }
 }
-//# sourceMappingURL=session-persistence.js.map

@@ -252,7 +252,7 @@ Each genre maps to required/optional systems:
 
 ```
 Roguelike → [
-    Required: GameMode, PlayerCharacter, ProceduralGeneration, 
+    Required: GameMode, PlayerCharacter, ProceduralGeneration,
               RoomSystem, Permadeath, Combat, Health
     Optional: MetaProgression, Abilities, Inventory, Crafting
 ]

@@ -9,7 +9,7 @@
 
 /**
  * FDataRegistryToolsModule
- * 
+ *
  * Data Registry inspection and registration tools.
  */
 class RIFTBORNAI_API FDataRegistryToolsModule : public TToolModuleBase<FDataRegistryToolsModule>

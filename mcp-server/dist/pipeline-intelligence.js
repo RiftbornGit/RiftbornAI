@@ -30,9 +30,9 @@ export function normalizeToolSearchQuery(query) {
         .slice(0, MAX_TOOL_SEARCH_QUERY_LENGTH);
 }
 export function clampToolSearchResults(maxResults, fallback = 20) {
-    const requested = Number.isFinite(maxResults) ? Math.trunc(maxResults) : fallback;
     const safeFallback = Math.max(1, Math.min(MAX_TOOL_SEARCH_RESULTS, fallback));
-    return Math.max(1, Math.min(MAX_TOOL_SEARCH_RESULTS, requested || safeFallback));
+    const requested = Number.isFinite(maxResults) ? Math.trunc(maxResults) : safeFallback;
+    return Math.max(1, Math.min(MAX_TOOL_SEARCH_RESULTS, requested));
 }
 export function shouldResetPipelineStateAfterTool(toolName) {
     return LEVEL_TRANSITION_TOOL_NAMES.has(toolName);
@@ -460,4 +460,3 @@ export class ContextPropagator {
         return Object.keys(this.context).length;
     }
 }
-//# sourceMappingURL=pipeline-intelligence.js.map

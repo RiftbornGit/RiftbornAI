@@ -65,4 +65,3 @@ export declare class AdaptiveThrottle {
  * Only returns non-null when throttle is active (level > 0).
  */
 export declare function buildThrottleBlock(throttle: AdaptiveThrottle): Record<string, unknown> | null;
-//# sourceMappingURL=adaptive-throttle.d.ts.map

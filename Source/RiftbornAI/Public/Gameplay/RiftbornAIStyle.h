@@ -8,15 +8,15 @@
 
 /**
  * FRiftbornAIStyle - Slate styling for the RiftbornAI plugin UI
- * 
+ *
  * Manages custom icons, brushes, and visual styles used throughout
  * the plugin's editor interface. Handles loading/unloading of style
  * resources and provides access to the style set.
- * 
+ *
  * Lifecycle:
  *   Initialize() - Call on module startup to register styles
  *   Shutdown() - Call on module shutdown to cleanup
- *   
+ *
  * Access:
  *   Get() - Returns the ISlateStyle interface for this plugin
  *   GetStyleSetName() - Returns the FName identifier "RiftbornAIStyle"

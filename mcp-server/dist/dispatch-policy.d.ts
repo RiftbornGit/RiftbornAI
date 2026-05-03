@@ -30,7 +30,7 @@ interface ResolutionConfig {
     toolHandlers: Record<string, ToolHandler>;
     generatedToolNames: Set<string>;
     toolResolver: ToolResolver;
+    access: ToolAccessConfig;
 }
-export declare function resolveToolInvocation({ name, toolHandlers, generatedToolNames, toolResolver, }: ResolutionConfig): ResolutionSuccess | ResolutionFailure;
+export declare function resolveToolInvocation({ name, toolHandlers, generatedToolNames, toolResolver, access, }: ResolutionConfig): ResolutionSuccess | ResolutionFailure;
 export {};
-//# sourceMappingURL=dispatch-policy.d.ts.map

@@ -30,9 +30,9 @@ struct FStreamEvent
     FString Stage;
     FString Message;
     TMap<FString, FString> Data;
-    
+
     FStreamEvent() : Type(EStreamEventType::Complete) {}
-    
+
     static FStreamEvent FromJSON(const FString& JSON);
 };
 
@@ -44,24 +44,24 @@ class FStreamingEventHandler
 public:
     FStreamingEventHandler();
     ~FStreamingEventHandler();
-    
+
     /**
      * Process log line from Python backend
      * Looks for [STREAM_CHUNK], [STREAM_EVENT], [STREAM_COMPLETE] markers
      */
     void ProcessLogLine(const FString& LogLine);
-    
+
     /**
      * Set delegates for different event types
      */
     DECLARE_DELEGATE_OneParam(FOnTextChunk, const FString& /*Chunk*/);
     DECLARE_DELEGATE_OneParam(FOnEvent, const FStreamEvent& /*Event*/);
     DECLARE_DELEGATE_TwoParams(FOnComplete, bool /*bSuccess*/, const FString& /*Message*/);
-    
+
     FOnTextChunk OnTextChunk;
     FOnEvent OnEvent;
     FOnComplete OnComplete;
-    
+
 private:
     void HandleChunk(const FString& Chunk);
     void HandleEvent(const FString& EventJSON);

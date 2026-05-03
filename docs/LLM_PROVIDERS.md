@@ -413,4 +413,4 @@ Local LLM client via Ollama HTTP API:
 - **Shipped System Overview**: Providers feed the governed editor stack described in [README.md](README.md)
 - **Configuration**: Provider settings in RiftbornSettings — see [CONFIGURATION_REFERENCE.md](CONFIGURATION_REFERENCE.md)
 - **Tool Surface**: Providers execute tools from the governed shipped surface — see [READINESS_TRUTH.md](READINESS_TRUTH.md) and [../Bridge/toolbook/public_surface.json](../Bridge/toolbook/public_surface.json)
-- **Governance**: Tool results feed governance proofs — see [GOVERNANCE_AND_SECURITY.md](GOVERNANCE_AND_SECURITY.md)
+- **Governance**: Tool execution follows the shipped readiness and surface contract — see [READINESS_TRUTH.md](READINESS_TRUTH.md)

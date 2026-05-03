@@ -33,6 +33,8 @@ public:
     static FClaudeToolResult Tool_SculptRidge(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_SculptDuneCrescent(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_SculptNoise(const FClaudeToolCall& Call);
+    static FClaudeToolResult Tool_SculptHeightfield(const FClaudeToolCall& Call);
+    static FClaudeToolResult Tool_ReadLandscapeHeightmap(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_PaintLandscapeLayer(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_DrawLandscapePath(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_ImportHeightmap(const FClaudeToolCall& Call);
@@ -41,6 +43,8 @@ public:
     static FClaudeToolResult Tool_SetLandscapeMaterial(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_ScatterCanopyTrees(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_ScatterFoliage(const FClaudeToolCall& Call);
+    static FClaudeToolResult Tool_RemoveFoliageInWater(const FClaudeToolCall& Call);
+    static FClaudeToolResult Tool_ReadFoliageInstances(const FClaudeToolCall& Call);
 
 private:
     static class ALandscape* FindLandscapeByLabel(const FString& Label);

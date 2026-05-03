@@ -40,4 +40,5 @@ RiftbornAI includes a built-in governance kernel:
 - All mutations require signed execution context tokens (HMAC-SHA256)
 - Destructive operations are fail-closed and require confirmation
 - Tool execution produces auditable proof bundles
-- See [docs/GOVERNANCE_AND_SECURITY.md](docs/GOVERNANCE_AND_SECURITY.md) for details
+- See [docs/READINESS_TRUTH.md](docs/READINESS_TRUTH.md) for the shipped
+  tool-surface and readiness contract

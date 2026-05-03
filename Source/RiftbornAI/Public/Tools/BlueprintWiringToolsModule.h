@@ -6,7 +6,7 @@
 
 /**
  * FBlueprintWiringToolsModule
- * 
+ *
  * Tool module providing specialized functionality.
  */
 class RIFTBORNAI_API FBlueprintWiringToolsModule : public TToolModuleBase<FBlueprintWiringToolsModule>

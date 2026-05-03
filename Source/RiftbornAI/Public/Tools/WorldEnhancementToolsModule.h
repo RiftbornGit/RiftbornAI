@@ -6,7 +6,7 @@
 
 /**
  * FWorldEnhancementToolsModule
- * 
+ *
  * Tool module providing specialized functionality.
  */
 class RIFTBORNAI_API FWorldEnhancementToolsModule : public TToolModuleBase<FWorldEnhancementToolsModule>

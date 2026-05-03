@@ -6,7 +6,7 @@
 
 /**
  * FGamePolishToolsModule
- * 
+ *
  * Tool module providing specialized functionality.
  */
 class RIFTBORNAI_API FGamePolishToolsModule : public TToolModuleBase<FGamePolishToolsModule>

@@ -83,7 +83,7 @@ public:
 
 /**
  * UGameCompilerSubsystem - Compiles GameSpec into UE project
- * 
+ *
  * This is the SINGLE compiler for all game types.
  * Profiles modify behavior, they don't replace the compiler.
  */
@@ -95,7 +95,7 @@ class RIFTBORNAI_API UGameCompilerSubsystem : public UEditorSubsystem
 public:
 	/**
 	 * Main entry point: Compile a GameSpec into a UE project
-	 * 
+	 *
 	 * @param Spec - The game specification (source of truth)
 	 * @param Profile - Optional genre profile for constraints/templates
 	 * @return Compilation result with status and generated files

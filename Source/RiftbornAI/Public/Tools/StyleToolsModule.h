@@ -6,7 +6,7 @@
 
 /**
  * FStyleToolsModule
- * 
+ *
  * Tool module providing specialized functionality.
  */
 class RIFTBORNAI_API FStyleToolsModule : public TToolModuleBase<FStyleToolsModule>

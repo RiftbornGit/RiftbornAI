@@ -56,4 +56,3 @@ export declare function filterUndoSteps(steps: UndoStep[], filter: {
     label?: string;
 }, changes: SceneChange[]): UndoStep[];
 export {};
-//# sourceMappingURL=dispatch-hooks.d.ts.map

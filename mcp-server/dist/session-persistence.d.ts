@@ -88,4 +88,3 @@ export declare class SessionPersistence {
     /** Expose for tests. */
     get stateFilePath(): string;
 }
-//# sourceMappingURL=session-persistence.d.ts.map

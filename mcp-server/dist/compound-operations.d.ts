@@ -67,4 +67,3 @@ export declare function queryScene(executeTool: ExecuteToolFn, options?: {
     state?: SceneState;
     error?: string;
 }>;
-//# sourceMappingURL=compound-operations.d.ts.map

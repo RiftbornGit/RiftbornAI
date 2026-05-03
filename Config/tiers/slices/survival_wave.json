@@ -5,10 +5,10 @@
   "tier": "A",
   "version": "1.0.0",
   "description": "Survive waves of enemies. Simplest game loop with clear win/lose.",
-  
+
   "flagship": true,
   "flagship_reason": "Fastest path to prompt → playable game",
-  
+
   "game_loop": {
     "type": "wave_survival",
     "flow": [
@@ -30,7 +30,7 @@
       "threshold": 0
     }
   },
-  
+
   "required_entities": {
     "player": {
       "type": "Character",
@@ -53,7 +53,7 @@
       "spawn_method": "wave_spawner"
     }
   },
-  
+
   "required_systems": {
     "wave_spawner": {
       "type": "WaveSpawnerActor",
@@ -83,7 +83,7 @@
       }
     }
   },
-  
+
   "required_ui": {
     "hud": {
       "type": "HUDWidget",
@@ -112,7 +112,7 @@
       ]
     }
   },
-  
+
   "required_inputs": {
     "movement": {
       "action": "Move",
@@ -136,7 +136,7 @@
       "context": "game_over"
     }
   },
-  
+
   "required_assets": {
     "player_mesh": {
       "type": "SkeletalMesh",
@@ -159,7 +159,7 @@
       "generate_if_missing": false
     }
   },
-  
+
   "level_requirements": {
     "size": "small",
     "bounds": {"x": 5000, "y": 5000, "z": 1000},
@@ -175,7 +175,7 @@
     "lighting": "basic",
     "navmesh": true
   },
-  
+
   "verifier_hooks": {
     "pie_starts": {
       "check": "PIE session active",
@@ -198,7 +198,7 @@
       "timeout_ms": 30000
     }
   },
-  
+
   "compile_steps": [
     {
       "order": 1,
@@ -249,7 +249,7 @@
       "output": "event_bindings"
     }
   ],
-  
+
   "proof_template": {
     "trace_file": "artifacts/proof/tier_a_survival_wave_{timestamp}.json",
     "replay_script": "artifacts/repro/tier_a_survival_wave_{timestamp}.json",

@@ -20,13 +20,13 @@ struct RIFTBORNAI_API FBrainState
     TArray<FString> TestsFailing;      // Which tests currently fail
     FString LastError;                 // Most recent error if any
     int32 IterationCount;              // How many attempts so far
-    
+
     /** Serialize to JSON for storage */
     TSharedPtr<FJsonObject> ToJson() const;
-    
+
     /** Load from JSON */
     static FBrainState FromJson(const TSharedPtr<FJsonObject>& Json);
-    
+
     /** Generate a hash for state deduplication */
     FString GetStateHash() const;
 };
@@ -41,7 +41,7 @@ struct RIFTBORNAI_API FBrainAction
     TMap<FString, FString> Parameters; // Action parameters
     FString RawLLMOutput;              // If LLM generated this, store the raw output
     bool bLLMGenerated;                // Was this action from LLM or brain policy?
-    
+
     TSharedPtr<FJsonObject> ToJson() const;
     static FBrainAction FromJson(const TSharedPtr<FJsonObject>& Json);
 };
@@ -59,7 +59,7 @@ struct RIFTBORNAI_API FBrainOutcome
     int32 ToolCallsUsed;               // Number of tool invocations
     float TimeSeconds;                 // Wall clock time
     FString ErrorMessage;              // If failed, why
-    
+
     TSharedPtr<FJsonObject> ToJson() const;
     static FBrainOutcome FromJson(const TSharedPtr<FJsonObject>& Json);
 };
@@ -73,7 +73,7 @@ struct RIFTBORNAI_API FTrajectoryStep
     FBrainAction Action;
     FBrainOutcome Outcome;
     FDateTime Timestamp;
-    
+
     TSharedPtr<FJsonObject> ToJson() const;
     static FTrajectoryStep FromJson(const TSharedPtr<FJsonObject>& Json);
 };
@@ -87,17 +87,17 @@ struct RIFTBORNAI_API FTrajectory
     FString TaskFamily;                // "TDM", "Arena", "UI", etc.
     FString TaskSpec;                  // Original specification
     TArray<FTrajectoryStep> Steps;
-    
+
     // Episode summary
     bool bEpisodeSuccess;              // Did the whole task succeed?
     float TotalReward;                 // Computed reward
     int32 TotalTokens;
     int32 TotalToolCalls;
     float TotalTimeSeconds;
-    
+
     TSharedPtr<FJsonObject> ToJson() const;
     static FTrajectory FromJson(const TSharedPtr<FJsonObject>& Json);
-    
+
     /** Compute reward based on outcome */
     void ComputeReward();
 };
@@ -180,33 +180,33 @@ public:
 
     /** Number of trajectories currently recording across all handles. */
     int32 ActiveTrajectoryCount() const;
-    
+
     // ==========================================================================
     // Data Access
     // ==========================================================================
-    
+
     /** Get all trajectories for a task family */
     TArray<FTrajectory> LoadTrajectories(const FString& TaskFamily) const;
-    
+
     /** Get successful trajectories only (for imitation learning) */
     TArray<FTrajectory> LoadSuccessfulTrajectories(const FString& TaskFamily) const;
-    
+
     /** Get trajectory count by family */
     TMap<FString, int32> GetTrajectoryCounts() const;
-    
+
     // ==========================================================================
     // Metrics (real numbers, no faking)
     // ==========================================================================
-    
+
     /** Success rate for a task family */
     float GetSuccessRate(const FString& TaskFamily) const;
-    
+
     /** Average tokens per successful task */
     float GetAverageTokens(const FString& TaskFamily, bool bSuccessOnly = true) const;
-    
+
     /** Average tool calls per successful task */
     float GetAverageToolCalls(const FString& TaskFamily, bool bSuccessOnly = true) const;
-    
+
     /** Get trend over last N trajectories */
     struct FMetricTrend
     {
@@ -216,16 +216,16 @@ public:
         float AvgTime;
     };
     FMetricTrend GetRecentTrend(const FString& TaskFamily, int32 WindowSize = 10) const;
-    
+
 private:
     FBrainTrajectoryLogger();
-    
+
     /** Get storage directory */
     FString GetTrajectoryDir() const;
-    
+
     /** Save trajectory to disk. Returns file path on success, empty on failure. */
     FString SaveTrajectory(const FTrajectory& Trajectory);
-    
+
     // Active trajectories — concurrent-safe storage keyed by handle.
     // The legacy single-slot API routes through a sentinel handle
     // (FGuid() zero-initialised) so old callers keep working.

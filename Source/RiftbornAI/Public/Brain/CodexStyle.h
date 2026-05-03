@@ -1,4 +1,4 @@
-// CodexStyle.h — STUB (CodexBrain removed, provides default UE editor colors)
+// CodexStyle.h — lightweight style facade for the current editor UI.
 #pragma once
 #include "CoreMinimal.h"
 #include "Styling/SlateStyle.h"
@@ -10,7 +10,7 @@ public:
     static void Initialize() {}
     static void Shutdown() {}
 
-    // Color stubs — return default UE editor tones
+    // Default UE editor tones.
     static FSlateColor Background()      { return FSlateColor(FLinearColor(0.02f, 0.02f, 0.03f)); }
     static FSlateColor InputBackground() { return FSlateColor(FLinearColor(0.05f, 0.05f, 0.07f)); }
     static FSlateColor TextBright()      { return FSlateColor(FLinearColor(0.9f, 0.9f, 0.9f)); }
@@ -19,7 +19,7 @@ public:
     static FSlateColor Panel()           { return FSlateColor(FLinearColor(0.03f, 0.03f, 0.04f)); }
     static FSlateColor Header()          { return FSlateColor(FLinearColor(0.04f, 0.04f, 0.06f)); }
 
-    // Font stubs
+    // Default UE editor fonts.
     static FSlateFontInfo BodyFont(float Size = 10.0f)
     {
         return FCoreStyle::GetDefaultFontStyle("Regular", Size);

@@ -9,7 +9,7 @@
 
 /**
  * FIrisReplicationToolsModule
- * 
+ *
  * Thin Iris replication policy tools.
  */
 class RIFTBORNAI_API FIrisReplicationToolsModule : public TToolModuleBase<FIrisReplicationToolsModule>

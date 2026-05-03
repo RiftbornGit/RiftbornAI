@@ -50,4 +50,3 @@ export interface DispatcherDeps {
     digestInterval: number;
 }
 export declare function createManagedDispatcher(deps: DispatcherDeps): (name: string, args?: Record<string, unknown>) => Promise<RiftbornResponse>;
-//# sourceMappingURL=dispatcher.d.ts.map

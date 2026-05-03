@@ -43,19 +43,19 @@ DECLARE_DELEGATE_OneParam(FOnAsyncToolExecutionComplete, const FAsyncToolResult&
 
 /**
  * FAsyncToolExecutor
- * 
+ *
  * Ensures tool execution never freezes the editor:
- * 
+ *
  * 1. Read-only tools (bGameThreadRequired=false) run on FRunnable thread pool
  * 2. Game-thread tools execute synchronously but pump Slate between calls
  * 3. Long multi-tool sequences have editor responsiveness guarantees
- * 
+ *
  * Usage:
  *   FAsyncToolExecutor& Executor = FAsyncToolExecutor::Get();
  *   Executor.ExecuteToolAsync(Call, FOnAsyncToolExecutionComplete::CreateLambda([](const FAsyncToolResult& R) {
  *       // Handle result (always called on game thread)
  *   }));
- * 
+ *
  * Thread Safety:
  * - ExecuteToolAsync can be called from any thread
  * - Callback is ALWAYS invoked on the game thread
@@ -68,12 +68,12 @@ public:
 
     /**
      * Execute a tool call without blocking the editor.
-     * 
+     *
      * If the tool is thread-safe (bGameThreadRequired=false), it runs on a
      * background thread. Otherwise, it executes on the game thread.
-     * 
+     *
      * The callback is ALWAYS called on the game thread.
-     * 
+     *
      * @param Call - The tool call to execute
      * @param OnComplete - Called when execution finishes (game thread)
      */
@@ -83,7 +83,7 @@ public:
      * Execute a tool synchronously on the current thread.
      * For game-thread tools, this is functionally identical to direct execution
      * but tracks timing and thread metadata.
-     * 
+     *
      * @param Call - The tool call to execute
      * @return Result with timing metadata
      */
@@ -93,7 +93,7 @@ public:
      * Pump the editor between consecutive tool calls.
      * Call this between game-thread tool executions to maintain responsiveness.
      * Ticks Slate, processes deferred render commands, and allows UI to update.
-     * 
+     *
      * Safe to call frequently — will skip if called within MinPumpIntervalMs.
      */
     static void PumpEditorBetweenTools();

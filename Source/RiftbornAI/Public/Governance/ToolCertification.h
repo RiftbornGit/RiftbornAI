@@ -50,32 +50,32 @@ struct RIFTBORNAI_API FToolCertificationResult
 	// Identity
 	FString ToolName;
 	FString Category;
-	
+
 	// Contract status
 	bool bHasContract = false;
 	bool bContractValid = false;
 	FString ContractHash;
-	
+
 	// PROOF eligibility
 	bool bProofEligible = false;
 	EToolCertificationStatus Status = EToolCertificationStatus::Blocked;
 	TArray<FString> BlockingReasons;
-	
+
 	// Evidence contract
 	TArray<FString> RequiredWitness;
 	TArray<FString> ProducesKeys;
 	TArray<FString> ConsumesKeys;
-	
+
 	// Execution profile
 	EExecutionLane Lane = EExecutionLane::CppOnly;
 	EDeterminismClass Determinism = EDeterminismClass::Deterministic;
 	EContractRiskTier RiskTier = EContractRiskTier::Safe;
-	
+
 	// Undo support
 	bool bClaimsReversible = false;
 	bool bHasUndoSupport = false;
 	bool bUndoMismatch = false;  // Claims reversible but no undo
-	
+
 	// Runtime stats (if available)
 	int32 ExecutionCount = 0;
 	int32 WitnessPassCount = 0;
@@ -88,7 +88,7 @@ struct RIFTBORNAI_API FToolCertificationResult
 	FDateTime RuntimeLastExecutedAt;
 	double RuntimeExecutionTimeMs = 0.0f;
 	TArray<FString> RuntimeEvidence;
-	
+
 	// Convert to JSON
 	TSharedPtr<FJsonObject> ToJson() const;
 };
@@ -111,30 +111,30 @@ struct RIFTBORNAI_API FToolCertificationAggregates
 	int32 RuntimePassedCount = 0;
 	int32 RuntimeFailedCount = 0;
 	int32 RuntimeSkippedCount = 0;
-	
+
 	// By lane
 	int32 CppOnlyCount = 0;
 	int32 PythonDevCount = 0;
 	int32 PythonAlwaysCount = 0;  // Should be 0 in healthy system
-	
+
 	// By risk tier
 	TMap<EContractRiskTier, int32> ByRiskTier;
-	
+
 	// By category
 	TMap<FString, int32> ByCategory;
-	
+
 	// Coverage
 	float ContractCoverage = 0.0f;      // % of tools with contracts
 	float ProofReadyCoverage = 0.0f;    // % of tools PROOF-ready
 	float WitnessCoverage = 0.0f;       // % of contracted tools with witnesses
 	float RuntimeCoverage = 0.0f;       // % of tools covered by runtime canaries
-	
+
 	// Critical gaps (most used tools that aren't PROOF-ready)
 	TArray<FString> CriticalGaps;
-	
+
 	// Top offenders (tools failing witness enforcement most)
 	TArray<FString> TopWitnessOffenders;
-	
+
 	// Convert to JSON
 	TSharedPtr<FJsonObject> ToJson() const;
 };
@@ -152,26 +152,26 @@ struct RIFTBORNAI_API FToolCertificationReport
 	bool bRuntimeSliceExecuted = false;
 	FString RuntimeSliceName;
 	TArray<FString> RuntimeWarnings;
-	
+
 	// Per-tool results
 	TMap<FString, FToolCertificationResult> ToolResults;
-	
+
 	// Aggregates
 	FToolCertificationAggregates Aggregates;
-	
+
 	// Convert to JSON
 	TSharedPtr<FJsonObject> ToJson() const;
-	
+
 	// Generate human-readable summary
 	FString ToMarkdownSummary() const;
-	
+
 	// Save to file
 	bool SaveToFile(const FString& JsonPath, const FString& MarkdownPath) const;
 };
 
 /**
  * Tool Certification Scanner
- * 
+ *
  * Scans all registered tools against contracts and generates certification report.
  * This is the single source of truth for PROOF eligibility.
  */
@@ -179,33 +179,33 @@ class RIFTBORNAI_API FToolCertificationScanner
 {
 public:
 	static FToolCertificationScanner& Get();
-	
+
 	/**
 	 * Generate full certification report
 	 * Scans all tools in registry against all contracts
 	 */
 	FToolCertificationReport GenerateReport(bool bIncludeRuntimeSlice = false);
-	
+
 	/**
 	 * Check single tool certification status
 	 */
 	FToolCertificationResult CertifyTool(const FString& ToolName);
-	
+
 	/**
 	 * Get list of PROOF-ready tools
 	 */
 	TArray<FString> GetProofReadyTools();
-	
+
 	/**
 	 * Get list of critical gaps (high-use tools not PROOF-ready)
 	 */
 	TArray<FString> GetCriticalGaps();
-	
+
 	/**
 	 * Check if a specific tool is PROOF-eligible
 	 */
 	bool IsProofEligible(const FString& ToolName);
-	
+
 	/**
 	 * Get blocking reasons for a tool
 	 */
@@ -213,26 +213,26 @@ public:
 
 private:
 	FToolCertificationScanner() = default;
-	
+
 	/** Evaluate a tool against its contract */
 	FToolCertificationResult EvaluateTool(const FClaudeTool* Tool, const FToolContract* Contract);
-	
+
 	/** Check if witness spec is complete */
 	bool ValidateWitnessSpec(const FToolContract& Contract, TArray<FString>& OutIssues);
-	
+
 	/** Check if produces/consumes are consistent */
 	bool ValidateEvidenceBindings(const FToolContract& Contract, TArray<FString>& OutIssues);
-	
+
 	/** Check undo support matches risk tier */
 	bool ValidateUndoSupport(const FClaudeTool* Tool, const FToolContract* Contract, TArray<FString>& OutIssues);
 
 	/** Run the live runtime-certification slice and merge results into the report */
 	void ApplyRuntimeCertificationSlice(FToolCertificationReport& Report);
-	
+
 	/** Cached report (regenerated on demand) */
 	TOptional<FToolCertificationReport> CachedReport;
 	FDateTime CacheTimestamp;
-	
+
 	/** Cache validity (5 minutes) */
 	static constexpr double CacheValiditySeconds = 300.0;
 };

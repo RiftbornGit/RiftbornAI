@@ -4,6 +4,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ClaudeToolUse.h"
 
 /**
  * Utility functions shared across all AI providers (Ollama, Claude, OpenAI, Gemini)
@@ -14,6 +15,68 @@
  */
 namespace ProviderUtils
 {
+    enum class ECopilotPromptProfile : uint8
+    {
+        Default,
+        Chat,
+        Plan,
+        Act,
+        Code,
+        Bridge
+    };
+
+    struct FPromptBuildOptions
+    {
+        FString TaskContext;
+        bool bIncludeUEKnowledge = true;
+        bool bIncludeProjectRules = true;
+        bool bIncludeSkillPacks = true;
+        bool bIncludeProjectMemory = true;
+        bool bIncludeRelevantHistory = true;
+        bool bIncludeSceneContext = true;
+        bool bIncludeRecipes = true;
+        bool bIncludeCompletionInstruction = true;
+    };
+
+    struct FToolCatalogOptions
+    {
+        FString UserMessage;
+        EAgentProfile AgentProfile = EAgentProfile::Unrestricted;
+        int32 SelectionBudget = 0;
+        int32 HardCap = 0;
+        bool bLevelLoaded = false;
+        bool bInPIE = false;
+        int32 SelectedActorCount = 0;
+        bool bReadOnlyOnly = false;
+        bool bPreferCodeAuthoring = false;
+        TArray<FString> AlwaysInclude;
+    };
+
+    struct FCopilotPromptProfileOptions
+    {
+        FString TaskContext;
+        FString ToolCatalogSummary;
+        FString AdditionalInstructions;
+        bool bPlanFirst = false;
+        bool bReadOnlyOnly = false;
+    };
+
+    struct FTaskDecisionProfile
+    {
+        bool bNeedsSceneInspectionBeforeMutation = false;
+        bool bNeedsVisualObservationBeforeMutation = false;
+        bool bNeedsVisualVerificationAfterMutation = false;
+        bool bRequiresRuntimeVerification = false;
+        bool bAvoidRuntimeVerificationUnlessExplicit = true;
+        bool bPreferRecentActorContext = false;
+        bool bLikelySingleTargetMutation = false;
+        bool bPreferStopAfterPrimaryGoal = false;
+        bool bAvoidSaveUnlessRequested = true;
+        bool bFreshSceneScaffold = false;
+        bool bExplicitSaveRequested = false;
+        FString ReasonSummary;
+    };
+
     /**
      * Build dynamic project context block for system prompt.
      * Results are cached for 2 seconds to avoid repeated actor iteration + Asset Registry queries.
@@ -23,13 +86,13 @@ namespace ProviderUtils
      * - Project blueprint assets
      */
     FString BuildProjectContextBlock();
-    
+
     /**
      * Invalidate the project context cache.
      * Call when the level changes significantly (new actor spawned, blueprint created, etc.)
      */
     void InvalidateProjectContextCache();
-    
+
     /**
      * Build scene context block with spatial awareness for system prompts.
      * Provides detailed scene understanding that all providers can use, including:
@@ -42,41 +105,86 @@ namespace ProviderUtils
      * This is the provider-accessible equivalent of SRiftbornCopilotPanel::GatherSceneContext().
      */
     FString BuildSceneContextBlock();
-    
+
     /**
      * Invalidate the scene context cache.
      * Call when actors are spawned/deleted/moved or selection changes.
      */
     void InvalidateSceneContextCache();
-    
+
+    /**
+     * Build a categorized asset inventory block for system prompts. Scans
+     * /Game/Megascans, /Game/Megaplants, /Game/Materials and the project
+     * content root, groups assets by semantic category (trees, rocks, grass,
+     * flowers, water, materials, foliage-generic, blueprints), and returns
+     * a compact text block with up to N real object paths per category so
+     * the LLM can reference concrete assets instead of guessing paths.
+     * Results cached for 30s (asset registry is relatively stable).
+     */
+    FString BuildAssetInventoryBlock();
+
+    /** Invalidate the asset inventory cache (e.g., after importing assets). */
+    void InvalidateAssetInventoryCache();
+
     /**
      * Force reload of the UE knowledge reference file (Config/ue_knowledge.md).
      * Call after editing the knowledge file to pick up changes without restarting.
      */
     void InvalidateUEKnowledgeCache();
-    
+
     /**
      * Determine model size tier from model name string.
      * Used to adjust prompt verbosity for small vs large models.
      * @return 0 = small (≤7B), 1 = medium (8B-32B), 2 = large (>32B or cloud)
      */
     int32 GetModelSizeTier(const FString& ModelName);
-    
+
     /**
      * Build enhanced system prompt with project context and workflow templates.
+     * @param BasePrompt - The base system prompt to enhance
+     * @param Options - Additional context and section toggles
+     * @return Enhanced prompt with context and workflows
+     */
+    FString BuildEnhancedSystemPrompt(const FString& BasePrompt, const FPromptBuildOptions& Options);
+
+    /**
+     * Build enhanced system prompt with default options.
      * @param BasePrompt - The base system prompt to enhance
      * @return Enhanced prompt with context and workflows
      */
     FString BuildEnhancedSystemPrompt(const FString& BasePrompt);
-    
+
     /**
-     * Filter tools based on query relevance.
-     * Reduces tool count for local models by only providing relevant tools.
-     * @param Query - The user's query
-     * @return Array of tool names relevant to the query
+     * Build a deterministic tool catalog from the canonical selector path.
+     * Uses the configured ToolSelector first, then falls back to the default selector,
+     * then finally to the full registry if selection is unavailable.
      */
-    TArray<FString> FilterToolsForQuery(const FString& Query);
-    
+    TArray<FClaudeTool> BuildToolCatalog(const FToolCatalogOptions& Options);
+
+    /** Build a deterministic list of tool names from the canonical selector path. */
+    TArray<FString> BuildToolCatalogNames(const FToolCatalogOptions& Options);
+
+    /** Render the selected tool catalog into prompt-friendly bullet text. */
+    FString BuildToolCatalogSummary(const TArray<FClaudeTool>& Tools, int32 MaxTools = 64);
+
+    /** Build a profile-specific copilot system prompt from the shared base identity. */
+    FString BuildCopilotSystemPrompt(ECopilotPromptProfile Profile, const FCopilotPromptProfileOptions& Options = FCopilotPromptProfileOptions());
+
+    /** Detect requests that should bias toward the Unreal C++ authoring lane. */
+    bool IsCodeAuthoringTask(const FString& UserMessage);
+    /** Detect requests that require grounded online research. */
+    bool IsResearchHeavyTask(const FString& UserMessage);
+    /** Detect traversal or climbing mechanic requests that need runtime proof. */
+    bool IsTraversalMechanicTask(const FString& UserMessage);
+    /** Detect broad game-building requests that should be milestone-driven. */
+    bool IsBroadGameCreationTask(const FString& UserMessage);
+    /** Detect requests that need honest animation-source discovery. */
+    bool IsAnimationSourcingTask(const FString& UserMessage);
+    /** Build a shared decision profile for observation, runtime proof, persistence, and follow-up targeting. */
+    FTaskDecisionProfile AnalyzeTaskDecisionProfile(const FString& UserMessage);
+    /** Detect requests that explicitly require PIE, playtesting, or runtime proof. */
+    bool IsRuntimeVerificationTask(const FString& UserMessage);
+
     /**
      * Get the default system prompt for Rift AI.
      * @return Default system prompt

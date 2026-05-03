@@ -129,11 +129,11 @@ struct FConvertedVariable
 
 /**
  * Blueprint to C++ Converter
- * 
+ *
  * Converts Blueprint visual scripting logic into equivalent C++ code.
  * This is NOT a wrapper - it generates real, optimized, native C++ code
  * that can replace the Blueprint entirely for better performance.
- * 
+ *
  * Supports:
  * - Event handlers (BeginPlay, Tick, etc.)
  * - Function calls (native and Blueprint library)
@@ -142,7 +142,7 @@ struct FConvertedVariable
  * - Math operations
  * - Latent actions (Delay, etc.)
  * - Custom events and functions
- * 
+ *
  * Limitations:
  * - Some Blueprint-only nodes may require manual adjustment
  * - Timeline nodes need special handling
@@ -156,7 +156,7 @@ class RIFTBORNAI_API UBlueprintToCppConverter : public UObject
 public:
 	/**
 	 * Convert a Blueprint to C++ code
-	 * 
+	 *
 	 * @param Blueprint - Blueprint asset to convert
 	 * @param Options - Conversion options
 	 * @return Conversion result with generated code
@@ -166,7 +166,7 @@ public:
 
 	/**
 	 * Convert a specific graph from a Blueprint
-	 * 
+	 *
 	 * @param Blueprint - Blueprint containing the graph
 	 * @param GraphName - Name of graph to convert
 	 * @param Options - Conversion options

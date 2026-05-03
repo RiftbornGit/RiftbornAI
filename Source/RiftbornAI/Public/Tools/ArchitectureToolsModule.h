@@ -9,7 +9,7 @@
 
 /**
  * FArchitectureToolsModule
- * 
+ *
  * Architecture Tools Module — procedural building, staircase, and spline-based architecture generation.
  */
 class RIFTBORNAI_API FArchitectureToolsModule : public TToolModuleBase<FArchitectureToolsModule>

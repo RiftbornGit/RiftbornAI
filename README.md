@@ -204,24 +204,24 @@ External MCP Client (Claude Code, Cursor, etc.)   In-Editor Slate Copilot Tab
 | [Beta Status](docs/BETA_STATUS.md) | Current beta limits, known issues, and what is solid today |
 | [Readiness Truth](docs/READINESS_TRUTH.md) | Canonical shipped-surface contract and downstream artifact chain |
 | [Public Surface Manifest](Bridge/toolbook/public_surface.json) | Shipped tool-surface membership manifest |
-| [Governance](docs/GOVERNANCE_AND_SECURITY.md) | Security model, proof bundles, exec tokens |
 | [Changelog](CHANGELOG.md) | Release history |
 
 ## Project Structure
 
 ```text
-Source/           UE5 C++ plugin, tool registration, and in-editor copilot
+Source/           UE5 public headers, Build.cs files, and bootstrap module
 Content/          UE assets and configs
-Bridge/           Python bridge (source repo) + shipped toolbook manifests
+Bridge/           Shipped toolbook manifests and packaged bridge runtime
 mcp-server/       TypeScript MCP server
 docs/             Product and architecture docs
-ci/               CI gates and validation
+ci/               Source-repository CI gates and validation (not in binary packages)
 Config/           Plugin configuration
 ```
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. Issues and PRs welcome.
+Contribution workflow lives in the source repository. Binary beta packages do
+not include contributor-only workflow files.
 
 ## License
 

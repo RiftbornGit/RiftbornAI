@@ -11,7 +11,7 @@
 
 /**
  * Animation Tools Module
- * 
+ *
  * Provides tools for creating and managing animations:
  * - create_anim_blueprint: Create new animation blueprint for a skeleton
  * - add_anim_state: Add state to animation state machine
@@ -25,9 +25,9 @@ class RIFTBORNAI_API FAnimationToolsModule : public TToolModuleBase<FAnimationTo
 {
 public:
     static FString StaticModuleName() { return TEXT("AnimationTools"); }
-    
+
     virtual void RegisterTools(FClaudeToolRegistry& Registry) override;
-    
+
     // Tool implementations
     static FClaudeToolResult Tool_CreateAnimBlueprint(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_AddAnimState(const FClaudeToolCall& Call);
@@ -36,5 +36,5 @@ public:
     static FClaudeToolResult Tool_CreateBlendSpace(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_SetAnimSlot(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_GetSkeletonBones(const FClaudeToolCall& Call);
-    
+
 };

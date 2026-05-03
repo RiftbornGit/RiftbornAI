@@ -9,7 +9,7 @@
 
 /**
  * FErosionToolsModule
- * 
+ *
  * Erosion Tools Module — hydraulic erosion simulation and non-destructive terrain stacks.
  */
 class RIFTBORNAI_API FErosionToolsModule : public TToolModuleBase<FErosionToolsModule>

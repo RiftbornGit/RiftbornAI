@@ -12,7 +12,7 @@
 
 /**
  * FInteractableWorldToolsModule
- * 
+ *
  * Interactable World Tools — resource mining, tree harvesting, terrain digging.
  */
 class RIFTBORNAI_API FInteractableWorldToolsModule : public TToolModuleBase<FInteractableWorldToolsModule>

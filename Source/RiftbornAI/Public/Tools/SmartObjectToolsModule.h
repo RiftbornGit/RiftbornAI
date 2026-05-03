@@ -9,7 +9,7 @@
 
 /**
  * FSmartObjectToolsModule
- * 
+ *
  * Smart Object tools for authored affordance networks.
  */
 class RIFTBORNAI_API FSmartObjectToolsModule : public TToolModuleBase<FSmartObjectToolsModule>

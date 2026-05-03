@@ -181,11 +181,11 @@ private:
 	FTimerHandle FireTimerHandle;
 	FTimerHandle ReloadTimerHandle;
 	FTimerHandle BurstTimerHandle;
-	
+
 	int32 BurstShotsRemaining = 0;
 	float LastFireTime = 0.0f;
 	bool bWantsToFire = false;
-	
+
 	// Combat start delay system - prevents tick-order first-shot advantage
 	float GameStartTime = 0.0f;           // When BeginPlay was called
 	float CombatStartDelay = 0.15f;       // Base delay (each weapon adds 0-0.25s random)

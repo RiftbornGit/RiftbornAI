@@ -38,7 +38,7 @@ public:
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs, const TSharedRef<STableViewBase>& InOwnerTableView);
-	
+
 	virtual TSharedRef<SWidget> GenerateWidgetForColumn(const FName& ColumnName) override;
 
 private:
@@ -46,14 +46,14 @@ private:
 	TWeakPtr<FRiftbornCopilotController> WeakController;
 	TOptional<FStepPreflightResult> PreflightResult;  // Priority 7
 	FSimpleDelegate OnStepModified;
-	
+
 	// UI helpers
 	FSlateColor GetRiskColor() const;
 	FText GetRiskText() const;
 	FText GetStepLabel() const;
 	ECheckBoxState GetEnabledState() const;
 	void OnEnabledChanged(ECheckBoxState NewState);
-	
+
 	// Priority 7: Eligibility helpers
 	FSlateColor GetEligibilityColor() const;
 	FText GetEligibilityText() const;
@@ -71,10 +71,10 @@ public:
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
-	
+
 	/** Refresh the display from the current draft */
 	void RefreshFromDraft();
-	
+
 	/** Update preflight results and re-render eligibility badges */
 	void UpdatePreflightResults(const FPlanPreflightResult& Results);
 
@@ -82,26 +82,26 @@ private:
 	TSharedPtr<FRiftbornCopilotController> Controller;
 	TSharedPtr<SListView<TSharedPtr<FDraftToolCall>>> StepListView;
 	TArray<TSharedPtr<FDraftToolCall>> DisplaySteps;
-	
+
 	// Priority 7: Preflight state
 	FPlanPreflightResult CachedPreflightResult;
 	TSharedPtr<SVerticalBox> PreflightPanelContainer;
 	TSharedPtr<SButton> ApproveButton;
-	
+
 	// Column generation
 	TSharedRef<ITableRow> GenerateStepRow(TSharedPtr<FDraftToolCall> Step, const TSharedRef<STableViewBase>& OwnerTable);
-	
+
 	// Header widgets
 	TSharedRef<SWidget> BuildHeaderSection();
 	TSharedRef<SWidget> BuildRiskSummary();
 	TSharedRef<SWidget> BuildExpectedOutputs();
 	TSharedRef<SWidget> BuildPredicates();
-	
+
 	// Priority 7: Preflight widgets
 	TSharedRef<SWidget> BuildPreflightPanel();
 	TSharedRef<SWidget> BuildApprovalButtons();
 	void RefreshPreflightPanel();
-	
+
 	// Event handlers
 	void OnStepModified();
 	void OnDraftChanged();
@@ -129,7 +129,7 @@ private:
 	TSharedPtr<FDraftToolCall> Step;
 	TWeakPtr<FRiftbornCopilotController> WeakController;
 	FSimpleDelegate OnArgumentsChanged;
-	
+
 	TSharedRef<SWidget> BuildArgumentRow(const FString& Key, const FString& Value);
 	void OnArgumentValueChanged(const FString& Key, const FText& NewValue);
 	void OnArgumentValueCommitted(const FString& Key, const FText& NewValue, ETextCommit::Type CommitType);

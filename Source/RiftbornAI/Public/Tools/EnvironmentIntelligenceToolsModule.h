@@ -9,7 +9,7 @@
 
 /**
  * FEnvironmentIntelligenceToolsModule
- * 
+ *
  * Environment Intelligence Tools Module — scene analysis, acoustics, weathering, weather simulation.
  */
 class RIFTBORNAI_API FEnvironmentIntelligenceToolsModule : public TToolModuleBase<FEnvironmentIntelligenceToolsModule>

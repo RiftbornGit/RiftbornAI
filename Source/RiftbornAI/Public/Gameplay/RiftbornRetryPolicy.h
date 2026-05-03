@@ -13,28 +13,28 @@ struct RIFTBORNAI_API FRetryConfig
 {
 	/** Maximum number of retry attempts */
 	int32 MaxRetries = 3;
-	
+
 	/** Initial delay between retries (seconds) */
 	float InitialDelaySeconds = 1.0f;
-	
+
 	/** Maximum delay between retries (seconds) */
 	float MaxDelaySeconds = 30.0f;
-	
+
 	/** Exponential backoff multiplier (2.0 = double delay each retry) */
 	float BackoffMultiplier = 2.0f;
-	
+
 	/** Add random jitter to prevent thundering herd (0.0-1.0) */
 	float JitterFactor = 0.1f;
-	
+
 	/** HTTP status codes that should trigger retry (e.g., 429, 500, 502, 503, 504) */
 	TArray<int32> RetryableStatusCodes = {429, 500, 502, 503, 504};
-	
+
 	/** Whether to retry on timeout */
 	bool bRetryOnTimeout = true;
-	
+
 	/** Whether to retry on connection failure */
 	bool bRetryOnConnectionFailure = true;
-	
+
 	/** Default config for Claude API */
 	static FRetryConfig ForClaude()
 	{
@@ -45,7 +45,7 @@ struct RIFTBORNAI_API FRetryConfig
 		Config.RetryableStatusCodes = {429, 500, 502, 503, 504, 529};  // 529 = overloaded
 		return Config;
 	}
-	
+
 	/** Default config for OpenAI API */
 	static FRetryConfig ForOpenAI()
 	{
@@ -57,7 +57,7 @@ struct RIFTBORNAI_API FRetryConfig
 		Config.bRetryOnTimeout = false;  // Don't retry timeouts — they cascade
 		return Config;
 	}
-	
+
 	/** Default config for local Ollama */
 	static FRetryConfig ForOllama()
 	{
@@ -67,7 +67,7 @@ struct RIFTBORNAI_API FRetryConfig
 		Config.MaxDelaySeconds = 10.0f;
 		return Config;
 	}
-	
+
 	/** Aggressive config for high-reliability scenarios */
 	static FRetryConfig Aggressive()
 	{
@@ -96,7 +96,7 @@ struct RIFTBORNAI_API FRetryResult
 
 /**
  * Retry policy with exponential backoff for LLM API calls
- * 
+ *
  * Usage:
  *   FRetryPolicy Retry(FRetryConfig::ForClaude());
  *   Retry.ExecuteWithRetry(
@@ -111,7 +111,7 @@ public:
 		: Config(InConfig)
 	{
 	}
-	
+
 	/**
 	 * Calculate delay for a specific attempt number (0-indexed)
 	 */
@@ -119,17 +119,17 @@ public:
 	{
 		float Delay = Config.InitialDelaySeconds * FMath::Pow(Config.BackoffMultiplier, static_cast<float>(AttemptNumber));
 		Delay = FMath::Min(Delay, Config.MaxDelaySeconds);
-		
+
 		// Add jitter
 		if (Config.JitterFactor > 0.0f)
 		{
 			float Jitter = FMath::FRandRange(-Config.JitterFactor, Config.JitterFactor) * Delay;
 			Delay += Jitter;
 		}
-		
+
 		return FMath::Max(Delay, 0.0f);
 	}
-	
+
 	/**
 	 * Check if an HTTP status code is retryable
 	 */
@@ -137,7 +137,7 @@ public:
 	{
 		return Config.RetryableStatusCodes.Contains(StatusCode);
 	}
-	
+
 	/**
 	 * Check if an error should trigger retry
 	 */
@@ -148,25 +148,25 @@ public:
 		{
 			return true;
 		}
-		
+
 		// Timeout
 		if (ErrorMessage.Contains(TEXT("timeout"), ESearchCase::IgnoreCase) && Config.bRetryOnTimeout)
 		{
 			return true;
 		}
-		
+
 		// Retryable status code
 		if (IsRetryableStatusCode(StatusCode))
 		{
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Execute an async operation with retry logic
-	 * 
+	 *
 	 * @param Operation - Function that takes a completion callback
 	 * @param OnComplete - Final completion callback after all retries
 	 */
@@ -179,21 +179,21 @@ public:
 		TSharedPtr<float> StartTime = MakeShared<float>(static_cast<float>(FPlatformTime::Seconds()));
 		TSharedPtr<TArray<FString>> Errors = MakeShared<TArray<FString>>();
 		TSharedPtr<FRetryResult> FinalResult = MakeShared<FRetryResult>();
-		
+
 		// The retry loop lambda
 		TSharedPtr<TFunction<void()>> RetryLoop = MakeShared<TFunction<void()>>();
-		
+
 		*RetryLoop = [this, Operation, OnComplete, AttemptCount, StartTime, Errors, FinalResult, RetryLoop]()
 		{
 			(*AttemptCount)++;
-			
+
 			Operation([this, OnComplete, AttemptCount, StartTime, Errors, FinalResult, RetryLoop]
 				(bool bSuccess, int32 StatusCode, const FString& Response)
 			{
 				FinalResult->LastStatusCode = StatusCode;
 				FinalResult->AttemptsMade = *AttemptCount;
 				FinalResult->TotalTimeSeconds = static_cast<float>(FPlatformTime::Seconds()) - *StartTime;
-				
+
 				if (bSuccess && (StatusCode >= 200 && StatusCode < 300))
 				{
 					// Success!
@@ -203,24 +203,24 @@ public:
 					OnComplete(*FinalResult);
 					return;
 				}
-				
+
 				// Record this error
-				FString ErrorMsg = FString::Printf(TEXT("Attempt %d: HTTP %d - %s"), 
+				FString ErrorMsg = FString::Printf(TEXT("Attempt %d: HTTP %d - %s"),
 					*AttemptCount, StatusCode, *Response.Left(200));
 				Errors->Add(ErrorMsg);
-				
+
 				// Check if we should retry
 				bool bShouldRetry = ShouldRetry(bSuccess, StatusCode, Response);
 				bool bHasRetriesLeft = *AttemptCount < Config.MaxRetries;
-				
+
 				if (bShouldRetry && bHasRetriesLeft)
 				{
 					// Calculate delay
 					float DelaySeconds = CalculateDelay(*AttemptCount - 1);
-					
+
 					UE_LOG(LogTemp, Warning, TEXT("Retry %d/%d in %.1fs: %s"),
 						*AttemptCount, Config.MaxRetries, DelaySeconds, *ErrorMsg);
-					
+
 					// Schedule retry
 					FTimerHandle TimerHandle;
 					if (GEngine)
@@ -257,16 +257,16 @@ public:
 				}
 			});
 		};
-		
+
 		// Start the first attempt
 		(*RetryLoop)();
 	}
-	
+
 	/**
 	 * Get current configuration
 	 */
 	const FRetryConfig& GetConfig() const { return Config; }
-	
+
 private:
 	FRetryConfig Config;
 };

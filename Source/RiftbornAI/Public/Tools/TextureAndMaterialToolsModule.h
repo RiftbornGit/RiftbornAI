@@ -9,7 +9,7 @@
 
 /**
  * FTextureAndMaterialToolsModule
- * 
+ *
  * Texture & Material Tools — procedural texture generation and custom HLSL materials.
  */
 class RIFTBORNAI_API FTextureAndMaterialToolsModule : public TToolModuleBase<FTextureAndMaterialToolsModule>

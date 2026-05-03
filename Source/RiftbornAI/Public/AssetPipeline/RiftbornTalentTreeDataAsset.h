@@ -10,10 +10,10 @@
 
 /**
  * URiftbornTalentTreeDataAsset - Canonical configuration source for talent nodes.
- * 
+ *
  * PURPOSE: Define talent tree structure in a data-driven, Blueprint-editable way.
  * The TalentTreeComponent references this for node definitions.
- * 
+ *
  * DESIGN RULES:
  * - This is CONFIG, not STATE.
  * - NodeIds must be unique within the asset.

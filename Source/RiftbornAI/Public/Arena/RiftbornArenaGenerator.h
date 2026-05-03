@@ -47,7 +47,7 @@ struct FArenaGenerationResult
 
 /**
  * Riftborn Arena Generator
- * 
+ *
  * Consumes UArenaSpecAsset and generates an arena scaffold:
  * - Generated C++ champion classes
  * - Generated C++ ability classes
@@ -55,7 +55,7 @@ struct FArenaGenerationResult
  * - A generated map with spawn points
  * - A generated GameMode scaffold with win-condition hooks
  * - A generated HUD scaffold with champion stat widgets
- * 
+ *
  * All generation is wrapped in atomic transactions via the existing
  * RiftbornCodingAgent snapshot/verify/commit pipeline.
  */
@@ -140,7 +140,7 @@ private:
 	// Build system integration
 	bool TriggerBuild(FString& OutError);
 	bool WaitForBuildCompletion(FString& OutError);
-	
+
 	// Check if a build is currently in progress
 	bool IsBuildInProgress() const { return bBuildInProgress; }
 

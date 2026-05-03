@@ -19,10 +19,12 @@
 class IAIProvider;
 class FActionHistory;
 class FConversationMemory;
+class FJsonObject;
 class URiftbornBridgeMonitor;
 class FRiftbornCopilotController;  // ViewModel+Controller architecture
 class FRiftbornCopilotViewModel;
 struct FPlanVM;                      // Forward declaration for SyncStepResultsFromViewModel
+struct FCopilotTurnRouteDecision;
 class SAgentTimeline;       // Agent event timeline widget
 class FAgentTaskRunner;     // Task runner for bounded execution
 class SEditableTextBox;     // Forward declaration for inline API key input
@@ -49,6 +51,35 @@ enum class EPolicyDecision : uint8
 	Forbidden,       // Policy/trust blocks a valid request
 	FailedValidation // Malformed request (schema/args error) - distinct from Forbidden
 };
+
+/**
+ * Execution issue kind - explicit user-facing status for blocked or failed work.
+ * This preserves the reason a step stopped instead of collapsing everything into
+ * generic "Blocked" or "Failed" UI states.
+ */
+enum class EExecutionIssueKind : uint8
+{
+	None,
+	NeedsConfirmation,
+	Forbidden,
+	ValidationFailed,
+	MissingPrecondition,
+	RuntimeVerificationFailed,
+	ProofIncomplete,
+	Timeout,
+	ToolFailed
+};
+
+struct FExecutionEvent;
+
+namespace RiftbornCopilotUI
+{
+	RIFTBORNAI_API EExecutionIssueKind ClassifyExecutionIssue(const FPlanStepResult& StepResult);
+	RIFTBORNAI_API EExecutionIssueKind ClassifyExecutionIssue(const FExecutionEvent& Event);
+	RIFTBORNAI_API FString ExecutionIssueKindToString(EExecutionIssueKind IssueKind);
+	RIFTBORNAI_API EExecutionIssueKind ExecutionIssueKindFromString(const FString& SerializedValue);
+	RIFTBORNAI_API FString GetExecutionIssueLabel(EExecutionIssueKind IssueKind);
+}
 
 /**
  * Turn Type - The cognitive mode of the conversation
@@ -117,12 +148,13 @@ struct FEscalationCard
 	EEscalationType Type = EEscalationType::None;
 	int32 StepIndex = -1;               // Which step triggered escalation
 	FString StepName;                   // e.g., "delete_asset"
+	EExecutionIssueKind IssueKind = EExecutionIssueKind::None; // Same failure taxonomy used by chat/task UI
 	FString Reason;                     // Why escalation is needed
 	FString Evidence;                   // Probe result, error message, risk data
 	TArray<FString> AvailableActions;   // e.g., ["Proceed", "Retry", "Abort"]
 	FString RepairSuggestion;           // Suggested fix from repair strategy
 	float RiskLevel = 0.0f;             // For UI coloring (0=green, 1=red)
-	
+
 	// Decision outcome (populated after user responds)
 	EEscalationDecision Decision = EEscalationDecision::Pending;
 	FString DecisionReason;             // Optional user-provided explanation
@@ -137,7 +169,7 @@ static constexpr int32 ExecutionHistorySchemaVersion = 1;
 
 /**
  * Proposed Plan - Frozen snapshot of what will execute
- * 
+ *
  * CRITICAL: This is an EXECUTION CONTRACT, not a description.
  * The PlanJSON is what WILL run when user authorizes.
  * No re-planning, no drift, no reinterpretation.
@@ -159,24 +191,24 @@ struct FProposedPlan
 	// === GOAL (what the user asked for) ===
 	FString OriginalRequest;            // "Can you place a box in my scene?" - verbatim
 	FString GoalSummary;                // "Place a box in the scene" - normalized goal line
-	
+
 	// === DISPLAY (for user) ===
 	FString IntentSummary;              // "Add cube to active level" - terse, declarative
 	TArray<FString> Steps;              // MUST be tool names, NOT tutorial steps. See FStepExecutionResult comment.
 	int32 StepCount = 0;                // For "6 steps" display
-	
+
 	// === EXECUTION SNAPSHOT (frozen contract) ===
 	FString PlanJSON;                   // Full structured plan - THIS is what executes
 	FString PlanHash;                   // SHA256 of canonicalized PlanJSON - integrity check
 	FGuid ProposalId;                   // Unique ID for audit trail
-	
+
 	// === EXECUTION RESULTS (populated during/after execution) ===
 	EExecutionState State = EExecutionState::Idle;  // Current lifecycle state
 	TArray<FStepExecutionResult> StepResults;       // Per-step execution evidence
 	FString OverallUndoToken;                       // Master undo token for entire plan
 	TArray<FString> StepUndoTokens;                 // Per-step undo tokens for granular rollback
 	FDateTime ExecutedAt;                           // When execution completed
-	
+
 	// Helper methods for execution tracking
 	int32 SucceededCount() const
 	{
@@ -196,22 +228,22 @@ struct FProposedPlan
 		}
 		return Count;
 	}
-	
+
 	// === RECOMMENDATION (advisory only, never affects execution) ===
 	FString RecommendedTool;            // e.g., "spawn_actor" - from brain.recommended_tool
 	float RecommendedConfidence = 0.0f; // e.g., 0.86 - from brain.confidence
 	FString RecommendationStrategy;     // e.g., "pattern_match" - for optional expander
-	
+
 	// === BRAIN CONFIDENCE (per-step, advisory display) ===
 	TArray<FStepConfidence> StepConfidences;  // Parallel to Steps array
 	bool bHasConfidenceData = false;          // True if brain provided predictions
-	
+
 	// === METADATA ===
 	TArray<FString> ToolsRequired;      // ["spawn_actor", "set_property"]
 	EToolRisk HighestRisk = EToolRisk::Safe;
 	bool bReversible = true;            // Can this be undone?
 	FDateTime ProposedAt;
-	
+
 	// Generate hash from PlanJSON
 	void ComputeHash();
 	bool VerifyHash() const;
@@ -226,7 +258,7 @@ struct FExecutionEvent
 	// === CORRELATION (binds event to plan/step) ===
 	FGuid PlanId;               // Which plan this event belongs to - MUST match CurrentPlan.ProposalId
 	int32 StepIndex = -1;       // Which step triggered this event (-1 = unknown/legacy)
-	
+
 	// Identity
 	FString ToolName;           // e.g., "create_basic_geometry"
 	FString ToolUseId;          // Unique invocation ID
@@ -235,6 +267,7 @@ struct FExecutionEvent
 	// Governance (from tool registry + policy engine)
 	EToolRisk Risk = EToolRisk::Safe;          // From tool metadata
 	EPolicyDecision PolicyDecision = EPolicyDecision::Allowed;
+	EExecutionIssueKind IssueKind = EExecutionIssueKind::None; // Derived stop/failure category for chat/task UI
 	FString PolicyReason;                       // Why allowed/blocked
 	int32 RequiredAutonomyLevel = 0;            // L0-L6
 	int32 CurrentAutonomyLevel = 0;             // User's current level
@@ -335,7 +368,7 @@ struct FRiftbornChatMessage
 		}
 		return ExecutionEvents.Num() > 0;
 	}
-	
+
 	// Turn type helpers
 	bool IsConversation() const { return TurnType == ETurnType::Conversation; }
 	bool IsProposal() const { return TurnType == ETurnType::Proposal; }
@@ -408,6 +441,19 @@ struct FImageAttachment
 	FString FileName;
 };
 
+/** Lightweight task memory used to ground follow-up turns against recent real editor work. */
+struct FCopilotTaskMemory
+{
+	FString LastActorLabel;
+	FString LastActorName;
+	FString LastActorPath;
+	FString LastAssetPath;
+	FString LastMutationToolName;
+	FString LastVisualObservationToolName;
+	bool bHasSceneInspectionAfterLastMutation = false;
+	bool bHasVisualEvidenceAfterLastMutation = false;
+};
+
 /** Conversation thread for multi-tab chat.
  *
  *  Token counters here are the per-thread SNAPSHOT — the live counter is
@@ -423,9 +469,10 @@ struct FChatThread
 	TArray<FRiftbornChatMessage> Messages;
 	TArray<FRiftbornThinkingStep> ThinkingSteps;
 	TArray<FExecutionEvent> LiveExecutionEvents;
+	FCopilotTaskMemory TaskMemory;
 	int32 TotalInputTokens = 0;
 	int32 TotalOutputTokens = 0;
-	bool bThinkingCollapsed = false;
+	bool bThinkingCollapsed = true;
 	bool bLastProcessingSucceeded = true;
 	FDateTime CreatedAt;
 };
@@ -456,6 +503,25 @@ public:
 	void SetModel(const FString& ModelId);
 	FString GetCurrentModel() const { return CurrentModelId; }
 	void SubmitMessage(const FString& Message) { SendMessage(Message); }
+	bool TrySubmitExternalMessage(const FString& Message, FString* OutRejectReason = nullptr);
+	TSharedPtr<FJsonObject> BuildExternalSnapshot(int32 MaxMessages = 12) const;
+	static TSharedPtr<SRiftbornCopilotPanel> TryGetLivePanel();
+
+	/** Walk back from AssistantIndex to the nearest user message and resubmit it. */
+	void RegenerateFromAssistantIndex(int32 AssistantIndex);
+	/** Drop the text into the composer input box for editing + refocus the cursor. */
+	void LoadIntoComposer(const FString& Text);
+	/** Stage an authored specialist prompt in the composer and surface the active specialist in footer chrome. */
+	void StageAuthoredAgentPrompt(const FString& Alias, const FString& DisplayName, const FString& Prompt);
+	void ClearStagedAuthoredAgent();
+	void BindProviderConversationSession() const;
+	/** Push a live execution event into the panel's pending buffer so the NEXT
+	 *  assistant message pulled from the ViewModel carries these events as
+	 *  action rows (Claude-Code-style "Ran N commands" summaries). */
+	void PushExecutionEvent(const FExecutionEvent& Event) { CurrentExecutionEvents.Add(Event); }
+	/** Rough-per-million-token dollar cost for this session. For budget awareness, not billing. */
+	double EstimateSessionCostUsd() const;
+	FString FormatSessionCostEstimate() const;
 
 	// Content Browser drag-drop support
 	virtual FReply OnDragOver(const FGeometry& MyGeometry, const FDragDropEvent& DragDropEvent) override;
@@ -539,7 +605,7 @@ private:
 	// EXECUTION MODES - Unified Authority System (2026-01-30)
 	// =========================================================================
 	// ALL tool execution flows through: FAutonomousPlanner → FExecEngine
-	// 
+	//
 	// Chat Mode:     LLM response only, no tools
 	// Act Mode:      Plan → execute immediately unless a step requires explicit confirmation
 	// Proposal Mode: Plan → user confirm → PlanExecutor (deferred)
@@ -547,78 +613,75 @@ private:
 	// ProcessWithLLM is DEV-ONLY and blocked in shipping builds.
 	// See: Architecture review 2026-01-30
 	// =========================================================================
-	
+
 	/** @deprecated DEV-ONLY: Direct LLM tool execution bypasses authority system */
 	void ProcessWithLLM(const FString& Message);
-	
+
 	/** Chat mode: Direct LLM response, NO tools, NO task tree */
 	void ProcessChatMode(const FString& Message);
-	
+
 	/** Act mode: Generate plan and execute immediately via PlanExecutor */
 	void ProcessActMode(const FString& Message);
-	
-	/** Proposal mode: Generate plan, show in Tasks panel, await user confirmation */
-	void ProcessProposalMode(const FString& Message);
-	
+
 	/**
 	 * Agentic mode: Iterative tool-use loop via AgenticLoopRunner.
 	 * The LLM calls tools, sees results, calls more tools, until done.
 	 * This is the REAL agentic experience — the LLM adapts based on
 	 * what actually happened, not a pre-frozen plan.
-	 * 
+	 *
 	 * Used for complex requests that need multi-step reasoning with
 	 * intermediate observation (e.g., "make a game level").
 	 */
 	void ProcessAgenticMode(const FString& Message);
-	
+
 	/** Deferred heavy setup for agentic mode — runs on next tick to avoid UI freeze */
 	void ProcessAgenticModeDeferred(const FString& Message);
-	
+
 	/** Determine if a request should use agentic mode vs proposal mode */
 	bool ShouldUseAgenticMode(const FString& Message) const;
-	
+
 	/**
 	 * Build a system prompt section describing the honest capability boundaries
 	 * of the available tool catalog. Groups tools by category, lists what the
 	 * tools CAN do, and explicitly states what is OUTSIDE scope.
-	 * 
+	 *
 	 * This prevents the "confidently wrong" failure mode where the LLM gets
 	 * a complex request and wings it with scene-level tools, producing scattered
 	 * cubes instead of acknowledging it can't build game systems.
-	 * 
+	 *
 	 * @param ToolCatalog The tools selected for this agentic session
 	 * @return Prompt section to append to system prompt (empty if no boundaries to add)
 	 */
 	FString BuildCapabilityBoundariesPrompt(const TArray<FClaudeTool>& ToolCatalog) const;
-	
+
 	/**
 	 * Classify the user's request against available tool capabilities.
 	 * Detects when the request implies domains (networking, game logic, UI widgets, etc.)
 	 * that are beyond the scope of the editor-level tool catalog.
-	 * 
+	 *
 	 * Returns a prompt section with per-domain scope warnings telling the LLM
 	 * exactly what it CAN do toward the goal and what requires manual work.
 	 * Returns empty string if the request appears fully within scope.
-	 * 
+	 *
 	 * @param Message The user's original request
 	 * @param ToolCatalog The tools selected for this agentic session
 	 * @return Prompt section with scope warnings (empty if request is in-scope)
 	 */
 	FString ClassifyRequestScope(const FString& Message, const TArray<FClaudeTool>& ToolCatalog) const;
-	
+
 	/** Resolve the concrete provider/model pair for this turn. */
 	FCopilotResolvedTurnModel ResolveTurnModelForRequest(const FString& Message, int32 EstimatedSteps) const;
-	
+
 	/**
 	 * Post-execution verification — runs after plan or agentic session completes.
-	 * 
+	 *
 	 * Uses FExpectationTracker to compute surprise/delta between pre and post state,
 	 * runs quick verification checks (blueprint compile, reference integrity),
 	 * and emits a verification summary to the chat.
-	 * 
+	 *
 	 * This catches "succeeded but wrong" — the crucial gap between tool success
 	 * and actual user intent satisfaction.
-	 * 
+	 *
 	 * @param ToolTrace Tools that were executed (names + success status)
 	 * @param bOverallSuccess Whether the plan/session reported success
 	 * @param OriginalRequest The user's original message (for intent matching)
@@ -627,27 +690,27 @@ private:
 		const TArray<TPair<FString, bool>>& ToolTrace,
 		bool bOverallSuccess,
 		const FString& OriginalRequest);
-	
+
 	/**
 	 * LLM-driven plan generation fallback.
 	 * Called when FAutonomousPlanner::CreatePlan() returns zero actions (regex miss).
 	 * Sends the user's message to the LLM with the full tool catalog from
 	 * FClaudeToolRegistry, collects tool_use calls, and builds an FProposedPlan.
-	 * 
+	 *
 	 * This is the bridge that lets the copilot reach ALL 370+ registered tools
 	 * instead of only the ~15 that the regex planner can parse.
-	 * 
+	 *
 	 * The LLM is used ONLY for plan generation (tool selection + arg filling).
 	 * Execution still goes through the standard PlanExecutor with governance.
 	 */
 	void CreatePlanFromLLM(const FString& Message);
-	
+
 	/** Canonical turn classifier - determines which execution mode to use */
 	ETurnType ClassifyTurnType(const FString& Message) const;
-	
+
 	/** Detect when LLM response offers numbered actions for the user to select from */
 	void DetectOfferedActions(const FString& AssistantResponse);
-	
+
 	// Turn-based conversation helpers
 	void AddConversationTurn(const FString& Content);  // Chat bubble, no tools
 	void AddProposalTurn(const FString& Summary, const TArray<FString>& Steps, const TArray<FString>& Tools);
@@ -663,7 +726,7 @@ private:
 	bool IsConfirmationMessage(const FString& Message) const;
 	bool IsCancellationMessage(const FString& Message) const;
 	void HandleClarificationLoop();  // Detect and break loops
-	
+
 	// Tasks panel - center of gravity for plans
 	void PopulateTasksPanelWithPlan(const FProposedPlan& Plan);
 	void RestoreTasksPanelReadOnly();  // Show completed/failed plan without mutating state
@@ -671,25 +734,27 @@ private:
 	void MarkTasksPlanExecuting(int32 ActiveStepIndex = 0);  // Update header to show EXECUTING + active step
 	void MarkTasksPlanCompleted(bool bSuccess);  // Update header to show COMPLETED/FAILED
 	void MarkTasksPlanRefused();                 // Update header to show REFUSED (user rejected)
-	void MarkTasksPlanBlocked(const FString& PolicyName, const FString& Reason);  // Policy/safety blocked
+	void MarkTasksPlanBlocked(const FString& PolicyName, const FString& Reason, EExecutionIssueKind IssueKind = EExecutionIssueKind::None);  // Policy/safety blocked
+	TSharedRef<SWidget> BuildPlanDiagnosisCard(const FString& WhatFailed, const FString& WhatChanged, const FString& NextStep, const FLinearColor& AccentColor);
+	FString BuildDiagnosisNextStepText(EExecutionIssueKind IssueKind, const FString& FailedTool, const FString& RepairSuggestion) const;
 	TSharedRef<SWidget> BuildPlanStepRow(const FString& StepText, int32 Index, bool bCompleted, bool bSuccess);
 	TSharedRef<SWidget> BuildPlanStepRowWithConfidence(const FString& StepText, int32 Index, bool bCompleted, bool bSuccess, const FStepConfidence* Confidence);
 	TSharedRef<SWidget> BuildPlanStepRowWithEvidence(const FString& StepText, int32 Index, bool bCompleted, bool bSuccess, const FString& ResultSummary);
-	
+
 	// === ESCALATION UI ===
 	void ShowEscalationCard(const FEscalationCard& Card);   // Display escalation inline in tasks panel
 	void DismissEscalationCard();                            // Remove escalation card
 	void HandleEscalationDecision(EEscalationDecision Decision, const FString& Reason = TEXT(""));
 	TSharedRef<SWidget> BuildEscalationCardWidget(const FEscalationCard& Card);  // Build the card UI
 	void LogEscalationForProof(const FEscalationCard& Card); // Persist to proof bundle
-	
+
 	// === TOOLBOOK UI ===
 	void ShowToolbook();                          // Toggle toolbook panel visibility
 	void HideToolbook();
 	void PopulateToolbookWithSearch(const FString& SearchTerm);  // Filter tools
 	TSharedRef<SWidget> BuildToolbookEntry(const FString& ToolName, const struct FClaudeTool& Tool);
 	void ShowToolDetail(const FString& ToolName);  // Show expanded tool view
-	
+
 	// === SHARED EXECUTION CALLBACKS (DRY — extracted from 5 duplicated sites) ===
 	/** Shared OnStepComplete callback for plan execution (used by Execute, Resume, Retry, Repair, Skip) */
 	void HandleStepComplete(const FPlanStepResult& StepResult);
@@ -699,7 +764,7 @@ private:
 	TFunction<void(const FPlanStepResult&)> MakeStepCompleteCallback();
 	/** Create a bound OnPlanComplete delegate for async execution */
 	TFunction<void(const FExecutablePlan&)> MakePlanCompleteCallback(const FString& OriginalRequest = TEXT(""));
-	
+
 	// Execution persistence - evidence survives panel close
 	void PersistCurrentPlan();                    // Save after state change
 	void LoadExecutionHistory();                  // Load on panel open
@@ -721,7 +786,7 @@ private:
 	// === Token Tracking ===
 	void UpdateTokens(int32 InputTokens, int32 OutputTokens);
 	float GetEstimatedCost() const;
-	
+
 	/** Get the context window limit for a given model ID (in tokens) */
 	static int32 GetModelContextLimit(const FString& ModelId);
 	static FString GetModelDisplayLabel(const FString& ModelId);
@@ -741,6 +806,19 @@ private:
 	static FString MakeThreadTitle(const FString& SourceText);
 	FString GetActiveThreadHeading() const;
 	FString GetLatestUserPrompt() const;
+	bool TryBuildComposerRoutingPreview(FCopilotTurnRouteDecision& OutDecision, FString* OutSourceText = nullptr, const FString& RequestOverride = FString()) const;
+	FString BuildCopilotContextMessage(const FString& RequestOverride = FString()) const;
+	FString BuildComposerAgentLine() const;
+	FString BuildComposerWorkLine() const;
+	FString BuildComposerContextLine() const;
+
+	// Footer status pills — replaces the old one-line BuildComposerContextLine
+	// render in the composer footer. Drops duplicated signals (model lives on
+	// the model pill in row 5, map is already in the UE title bar) and folds
+	// prompt-layers, scene/selection, plan state and bridge status into
+	// individual tooltip-rich chips. BuildComposerContextLine() itself stays
+	// around for BuildCopilotContextMessage(), which feeds LLM context.
+	TSharedRef<SWidget> BuildComposerStatusPills();
 
 	// === Session History (Improvement 2) ===
 	/** Build the dropdown menu showing recent conversation sessions */
@@ -760,45 +838,57 @@ private:
 	void NewSession();
 
 	// === WOW FEATURES (2026-02-08) ===
-	
+
 	// Feature 1: Streaming chat — real-time token display during LLM responses
 	void BeginStreamingBubble();                    // Create an empty assistant bubble for streaming
 	void AppendStreamingToken(const FString& Token); // Append token to streaming bubble
 	void FinalizeStreamingBubble();                 // Finalize streaming bubble into a real message
-	
+
 	// Feature 2: Auto-execute low-risk — skip approval for Safe-risk plans
 	bool ShouldAutoExecute(const FProposedPlan& Plan) const;  // Policy: auto-execute if all Safe + reversible
-	
+
 	// Feature 3: Multi-turn memory — conversation context for LLM
 	FString BuildConversationContext(int32 MaxTurns = 10) const;  // Last N turns as context string
-	
+	void InvalidateConversationContextCache();
+
 	// Feature 3b: Context window auto-summarization — compress older turns when nearing limit
 	FString SummarizeOlderMessages(int32 MaxTokenBudget = 500) const;  // Compress older half into digest
 	int32 EstimateTokenCount(const FString& Text) const;               // Rough token estimate (~4 chars/token)
 	bool IsContextWindowPressured() const;                              // True when >60% of model limit used
-	
+
 	// Feature 4: Contextual suggestions — dynamic quick actions
 	TArray<FString> GenerateContextualSuggestions() const;  // Scene-aware suggestions
 	void RefreshSuggestions();                               // Update suggestion chips in input area
 	TSharedRef<SWidget> BuildSuggestionChips();              // Build clickable chip row
-	
+
 	// Feature 5: Smart error recovery — retry failed steps with alternatives
 	void RetryFailedStep(int32 StepIndex);                    // Retry a failed step
 	void RetryWithAlternative(int32 StepIndex, const FString& AlternativeTool);  // Retry with different tool
 	TArray<FString> GetAlternativeTools(const FString& FailedTool) const;  // Find similar tools
-	
+
 	// Feature 6: Undo/Redo — prominent global undo button + redo implementation
 	void UndoLastAction();                                   // Undo most recent action
 	void RedoLastAction();                                   // Redo last undone action
 	TArray<FString> UndoneTokens;                            // Stack of undone tokens for redo
-	
+
 	// Feature 7: Scene awareness — proactive context injection + working memory
 	FString GatherSceneContext() const;                      // Query current scene state (spatial analysis, actor inventory)
 	FString BuildWorkingMemory() const;                      // Summarize recent actions for LLM context
+	FString BuildTaskMemoryHintForRequest(const FString& Message) const;
+	void UpdateTaskMemoryFromStepResult(const FPlanStepResult& StepResult);
+	void ResetTaskMemory();
+	mutable FString CachedConversationContext;               // Cached conversation prompt context to avoid repeated transcript rewrites
+	mutable int32 CachedConversationContextMaxTurns = INDEX_NONE;
+	mutable uint64 CachedConversationContextMessageRevision = MAX_uint64;
+	mutable FString CachedConversationContextModelId;
+	mutable EExecutionState CachedConversationContextPlanState = EExecutionState::None;
+	mutable int32 CachedConversationContextPlanStepCount = INDEX_NONE;
+	mutable int32 CachedConversationContextPlanStepResultCount = INDEX_NONE;
 	mutable FString CachedSceneContext;                      // Cached scene context to avoid repeated actor iteration
 	mutable double CachedSceneContextTimestamp = 0.0;        // When the cache was last populated
 	static constexpr double SceneContextCacheTTL = 2.0;      // Cache TTL in seconds
-	
+	uint64 ConversationContextMessageRevision = 0;
+
 	// Feature 8: One-click game templates — predefined multi-step plans
 	struct FGameTemplate
 	{
@@ -811,7 +901,7 @@ private:
 	TArray<FGameTemplate> GetAvailableTemplates() const;
 	void ExecuteTemplate(const FGameTemplate& Template);
 	TSharedRef<SWidget> BuildTemplateCard(const FGameTemplate& Template);
-	
+
 	// Feature 9: Explain blueprint — read and explain blueprint structure
 	void ExplainBlueprint(const FString& BlueprintPath);     // Trigger blueprint explanation
 	bool IsExplainRequest(const FString& Message) const;     // Detect "explain" intent
@@ -828,7 +918,7 @@ private:
 	// Feature 10: Visual plan editor — wire SPlanEditor for drag/drop editing
 	void ShowPlanEditor(const FProposedPlan& Plan);          // Open plan editor overlay
 	void OnPlanEditorSaved(const FProposedPlan& EditedPlan); // User saved edited plan
-	
+
 	// === Plan Steps Management ===
 	void ClearPlanSteps();
 	void AddPlanStep(const FString& Label, const FString& ToolName, float Confidence = 1.0f, bool bCanUndo = true);
@@ -854,26 +944,28 @@ private:
 	// Canonical source of truth for plan/step state
 	// Panel binds to ViewModel delegates, calls Controller methods
 	TSharedPtr<FRiftbornCopilotController> CopilotController;
-	
+	int32 SyncedViewModelMessageCount = 0;
+
 	// ViewModel change handlers
 	void OnViewModelPlanChanged();
 	void OnViewModelStepChanged(const FGuid& StepId);
 	void OnViewModelEscalationChanged();
-	
+	void OnViewModelChatChanged();
+
 	/** Sync ViewModel step data → Panel's CurrentPlan.StepResults (Controller path fix) */
 	void SyncStepResultsFromViewModel(const TSharedPtr<FPlanVM>& Plan);
-	
+
 	// === UI Elements ===
 	TSharedPtr<SScrollBox> LeftTimelineScroll;
 	TSharedPtr<SScrollBox> RightLogScroll;
 	TSharedPtr<SVerticalBox> LeftTimelineContainer;  // Left panel cards
 	TSharedPtr<SVerticalBox> RightLogContainer;      // Right panel logs (legacy)
 	TSharedPtr<SMultiLineEditableTextBox> InputTextBox;
-	
+
 	// === Agent Task Runner ===
 	TSharedPtr<FAgentTaskRunner> AgentTaskRunner;    // Bounded task execution
 	TSharedPtr<SAgentTimeline> AgentTimeline;        // Event stream visualization
-	
+
 
 
 	// === DIFF PANEL (right side - Claude Code style) ===
@@ -908,10 +1000,11 @@ private:
 	TSharedPtr<SComboBox<TSharedPtr<FString>>> ModelComboBox;
 	TArray<TSharedPtr<FString>> AvailableModels;
 	FString CurrentModelId;
-	
+	FString HoveredModelMenuId;
+
 	/** Populate AvailableModels from configured providers (API keys, env vars, Ollama) */
 	void PopulateAvailableModels();
-	
+
 	/** Get the initially selected item matching CurrentModelId */
 	TSharedPtr<FString> GetInitialModelItem() const;
 
@@ -920,7 +1013,7 @@ private:
 	TArray<FRiftbornThinkingStep> CurrentThinkingSteps;
 	TArray<FExecutionEvent> CurrentExecutionEvents;
 	FString CurrentDraftText;
-	
+
 	// === WOW FEATURE STATE (2026-02-08) ===
 	// Streaming bubble state
 	bool bIsStreaming = false;                          // Currently streaming tokens
@@ -931,7 +1024,7 @@ private:
 	double StreamingLastRevealTime = 0.0;              // Last reveal timestamp
 	TSharedPtr<SMultiLineEditableTextBox> StreamingTextWidget;  // Live text widget
 	TSharedPtr<SBorder> StreamingBubbleWidget;          // The bubble border for streaming
-	
+
 	// Auto-execute preference
 	bool bAutoExecuteSafe = true;                       // Auto-execute Safe+Reversible plans
 
@@ -939,21 +1032,22 @@ private:
 	// Toggle via the footer or /readonly command.
 	bool bReadOnlyMode = false;
 	bool bReadOnlyToggleHovered = false;
-	
+	bool bYoloMode = false;
+
 	// Suggestion chips widget
 	TSharedPtr<SHorizontalBox> SuggestionChipsContainer;
-	
+
 	// Redo stack for undo/redo
 	// UndoneTokens declared in public section
-	
+
 	// === Execution State (canonical truth) ===
 	FProposedPlan CurrentPlan;         // The active plan (pending, executing, or completed)
 	// State is now inside CurrentPlan.State - no separate booleans!
-	
+
 	// === Step Row Widgets (for incremental updates) ===
 	// Maps step index to its row widget for targeted refresh
 	TMap<int32, TSharedPtr<SBorder>> StepRowWidgets;
-	
+
 	bool bIsProcessing = false;
 	bool bLastProcessingSucceeded = true;
 	int32 ProcessingThreadIndex = INDEX_NONE;
@@ -964,9 +1058,17 @@ private:
 	TSharedPtr<SEditableTextBox> InlineApiKeyInput;  // Inline API key entry in welcome screen
 	bool bShowTimelineSection = false; // Toggle for Agent Timeline section expand/collapse
 	double ExecutionStartTime = 0.0;   // When execution began - for stuck state detection
-	static constexpr double ExecutionTimeoutSeconds = 60.0;  // Max time before forcing failure
+	static constexpr double ExecutionTimeoutSeconds = 180.0;    // Max time before forcing failure. Must exceed provider HTTP timeouts (120s) so HTTP path wins the race.
 	double LLMRequestStartTime = 0.0;  // When LLM call started - for hang detection
-	static constexpr double LLMTimeoutSeconds = 45.0;  // Max wait for LLM response
+	// Watchdog timeouts are deliberately LONGER than the provider HTTP timeouts (120s in
+	// ClaudeProvider / OpenAIProvider / GeminiProvider / OllamaProvider). Firing the UI
+	// watchdog before the HTTP callback returns leaves the request in flight, then the
+	// real HTTP completion hits a panel that's already "recovered" — the zombie-callback
+	// pattern. The watchdog is a safety net for genuinely stuck requests, not the
+	// canonical timeout; HTTP layer owns that.
+	double ActiveLLMTimeoutSeconds = 135.0;  // Request-specific timeout budget
+	static constexpr double ChatLLMTimeoutSeconds = 135.0;      // 120s HTTP + 15s margin
+	static constexpr double ProposalLLMTimeoutSeconds = 180.0;  // Planner/proposal turns legitimately run longer
 	float SuggestionAccumulatedTime = 0.0f;  // Timer for periodic suggestion refresh (was static local — bug)
 	float HealthAccumulatedTime = 0.0f;
 	float SceneContextRefreshTime = 0.0f;   // Timer for pre-computing scene context in Tick (avoids blocking SendMessage)
@@ -977,6 +1079,7 @@ private:
 	float GitRefreshAccumulatedTime = 0.0f;   // Ticker for periodic git diff refresh
 	FCopilotGitInfo CachedGitInfo;            // Mirror of FCopilotGitInfoProvider cache for lambda access
 	bool bTokenIndicatorCompact = true;
+	bool bShowKeyboardHelp = false;  // ? shortcut / help-button toggled overlay
 	FReply OnCreatePRClicked();
 	FReply OnAutonomyToggleClicked();         // Cycle bAutoExecuteSafe / CurrentExecutionMode
 	mutable int32 CachedActorCount = -1;    // Cached actor count from GatherSceneContext for suggestions (avoids re-iterating)
@@ -1011,7 +1114,7 @@ private:
 	TOptional<FProposedPlan> PendingProposal;  // Plan awaiting user confirmation
 	int32 PendingProposalMessageIndex = -1;    // Which message contains the proposal
 	int32 ConsecutiveClarificationCount = 0;   // Track clarification loops
-	
+
 	// === LLM-OFFERED ACTION TRACKING (2026-02-19 fix) ===
 	// When the LLM chatbot response contains numbered action offers
 	// (e.g., "Would you like me to: 1. Create X  2. Build Y  3. Design Z"),
@@ -1020,22 +1123,21 @@ private:
 	bool bLastAssistantOfferedAction = false;       // LLM's last response offered numbered actions
 	TArray<FString> LastOfferedActions;              // The action descriptions from numbered items
 	FString LastOfferedActionContext;                // The full LLM response that contained the offer
-	
+
 	// === ESCALATION STATE ===
 	TOptional<FEscalationCard> ActiveEscalation;  // Currently displayed escalation card
 	TArray<FEscalationCard> EscalationHistory;    // All escalation decisions for proof bundle
 	static constexpr int32 MaxClarificationRetries = 2;  // After this, abort with message
-	
+
 	// === EXECUTOR RESUME STATE (2026-01-31) ===
 	// Store the executing plan to enable resume after confirmation/escalation
 	TOptional<FExecutablePlan> ExecutingPlan;     // Plan currently being executed
 	int32 PausedAtStepIndex = -1;                  // Step where execution paused for confirmation
-	
+
 	// === AGENTIC LOOP STATE (2026-02-18) ===
 	FGuid ActiveAgenticSessionId;                  // Currently running agentic session
 	bool bAgenticModeActive = false;               // True while agentic loop is running
-	bool bForceProposalMode = false;               // True when user used !plan prefix — skips agentic routing
-	
+
 	// === TOOLBOOK STATE ===
 	bool bShowToolbook = false;                   // Toggle between Tasks and Toolbook
 	FString ToolbookSearchTerm;                   // Current search filter
@@ -1049,7 +1151,7 @@ private:
 	bool bTodosAutoExpand = true;
 
 	// Thinking stream collapse state (Codex-style expandable)
-	bool bThinkingCollapsed = false;
+	bool bThinkingCollapsed = true;
 	double ThinkingStartTime = 0.0;  // For total elapsed time display
 
 	// AI Provider
@@ -1060,6 +1162,11 @@ private:
 
 	// Current session ID
 	FString CurrentSessionId;
+	FCopilotTaskMemory TaskMemory;
+	FString StagedAuthoredAgentAlias;
+	FString StagedAuthoredAgentName;
+	FString ActiveTurnAuthoredAgentAlias;
+	FString ActiveTurnAuthoredAgentName;
 
 
 

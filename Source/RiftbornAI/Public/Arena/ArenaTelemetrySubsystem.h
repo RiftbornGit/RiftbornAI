@@ -19,7 +19,7 @@ enum class EArenaEndState : uint8
 
 /**
  * Telemetry data for arena validation.
- * 
+ *
  * This is the SINGLE SOURCE OF TRUTH for gameplay validation.
  * Without this, your "gameplay validation" is flimsy guesswork.
  */
@@ -82,13 +82,13 @@ struct FArenaTelemData
 
 /**
  * ArenaTelemetrySubsystem - Tracks gameplay events for validation.
- * 
+ *
  * This subsystem provides DETERMINISTIC and PROVABLE validation of gameplay.
  * All arena components (spawners, health, etc.) should call into this to record events.
- * 
+ *
  * Usage from Python:
  *   result = execute_python('import unreal; telem = unreal.ArenaTelemetrySubsystem.get(); print(telem.get_telemetry().to_json())')
- * 
+ *
  * Usage from Blueprint:
  *   Get Arena Telemetry Subsystem -> Get Telemetry -> Read values
  */
@@ -158,9 +158,9 @@ public:
 	//
 	// Delegates for external listeners
 	//
-	
+
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEndStateReached, EArenaEndState, EndState);
-	
+
 	/** Fired when end state is reached */
 	UPROPERTY(BlueprintAssignable, Category = "Arena|Telemetry")
 	FOnEndStateReached OnEndStateReached;

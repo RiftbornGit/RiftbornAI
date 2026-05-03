@@ -9,7 +9,7 @@
 
 /**
  * FVariantManagerToolsModule
- * 
+ *
  * Variant Manager tools for authored world-state switching.
  */
 class RIFTBORNAI_API FVariantManagerToolsModule : public TToolModuleBase<FVariantManagerToolsModule>

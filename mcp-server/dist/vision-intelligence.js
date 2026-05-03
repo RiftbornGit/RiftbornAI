@@ -132,7 +132,6 @@ export function parseVisionText(text) {
 const MOVE_THRESHOLD = 10; // UU — below this, consider "same position"
 export class SceneDiffTracker {
     lastSnapshot = new Map();
-    lastTimestamp = 0;
     /**
      * Record an actor list from an observation result.
      * Returns a diff if there was a previous snapshot, null otherwise.
@@ -145,7 +144,6 @@ export class SceneDiffTracker {
         }
         if (this.lastSnapshot.size === 0) {
             this.lastSnapshot = current;
-            this.lastTimestamp = Date.now();
             return null; // First observation — no diff possible
         }
         const diff = {
@@ -174,7 +172,6 @@ export class SceneDiffTracker {
             }
         }
         this.lastSnapshot = current;
-        this.lastTimestamp = Date.now();
         return diff;
     }
     /** Get labels of all actors in the last snapshot. */
@@ -190,7 +187,6 @@ export class SceneDiffTracker {
     }
     clear() {
         this.lastSnapshot.clear();
-        this.lastTimestamp = 0;
     }
 }
 function distance3d(a, b) {
@@ -394,4 +390,3 @@ function normalizeActors(raw) {
             : undefined,
     }));
 }
-//# sourceMappingURL=vision-intelligence.js.map

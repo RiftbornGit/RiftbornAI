@@ -203,13 +203,13 @@ struct FArenaSystemsSpec
 
 /**
  * Complete Arena Specification (v0 - minimal vertical slice)
- * 
+ *
  * This DataAsset defines everything needed to generate a playable arena:
  * - 1 map with spawn points
  * - 2 champions with stats and abilities
  * - 4 abilities (2 per champion)
  * - Simple game rules (first death = loss)
- * 
+ *
  * The URiftbornArenaGenerator consumes this and generates:
  * - C++ champion classes
  * - C++ ability classes

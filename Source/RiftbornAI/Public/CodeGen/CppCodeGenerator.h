@@ -61,31 +61,31 @@ USTRUCT(BlueprintType)
 struct FCppPropertySpec
 {
     GENERATED_BODY()
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     FString Name;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     FString Type = TEXT("float");
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     FString DefaultValue;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     FString Description;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     bool bBlueprintReadOnly = false;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     bool bEditAnywhere = true;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     bool bVisibleAnywhere = false;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     EReplicationMode ReplicationMode = EReplicationMode::None;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     FString Category = TEXT("Default");
 };
@@ -95,22 +95,22 @@ USTRUCT(BlueprintType)
 struct FCppFunctionParamSpec
 {
     GENERATED_BODY()
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     FString Name;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     FString Type;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     FString DefaultValue;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     bool bIsConst = false;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     bool bIsReference = false;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     bool bIsPointer = false;
 };
@@ -120,37 +120,37 @@ USTRUCT(BlueprintType)
 struct FCppFunctionSpec
 {
     GENERATED_BODY()
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     FString Name;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     FString ReturnType = TEXT("void");
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     FString Description;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     TArray<FCppFunctionParamSpec> Parameters;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     bool bBlueprintCallable = false;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     bool bBlueprintPure = false;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     bool bConst = false;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     bool bVirtual = false;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     bool bOverride = false;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     FString Category = TEXT("Default");
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     FString BodyImplementation; // Optional manual implementation
 };
@@ -160,40 +160,40 @@ USTRUCT(BlueprintType)
 struct FCppClassSpec
 {
     GENERATED_BODY()
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     FString ClassName;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     ECppClassType ClassType = ECppClassType::Actor;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     FString ParentClass; // Optional custom parent
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     FString Description;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     FString ModuleName; // Defaults to FApp::GetProjectName() at runtime when empty
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     TArray<FCppPropertySpec> Properties;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     TArray<FCppFunctionSpec> Functions;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     TArray<FString> IncludeFiles;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     bool bBlueprintable = true;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     bool bBlueprintType = true;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     bool bAbstract = false;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     ECppTemplateType TemplateType = ECppTemplateType::Standard;
 };
@@ -203,16 +203,16 @@ USTRUCT(BlueprintType)
 struct FCppGeneratedCode
 {
     GENERATED_BODY()
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     FString HeaderContent;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     FString SourceContent;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     FString HeaderFilePath;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RiftbornAI")
     FString SourceFilePath;
 };
@@ -260,33 +260,33 @@ USTRUCT()
 struct RIFTBORNAI_API FCppCodeGenerator
 {
     GENERATED_BODY()
-    
+
     // ========================================================================
     // Natural Language Parsing
     // ========================================================================
-    
+
     /** Design C++ class from natural language description */
     static FCppClassSpec DesignClassFromDescription(const FString& Description, ECppClassType ClassType = ECppClassType::Actor, const FString& ModuleName = TEXT("MyProject"));
-    
+
     /** Parse class type from description */
     static ECppClassType ParseClassType(const FString& Text);
-    
+
     /** Extract properties from description */
     static TArray<FCppPropertySpec> ExtractProperties(const FString& Text);
-    
+
     /** Extract functions from description */
     static TArray<FCppFunctionSpec> ExtractFunctions(const FString& Text);
-    
+
     /** Parse property type from text */
     static FString ParsePropertyType(const FString& Text);
-    
+
     // ========================================================================
     // Code Generation
     // ========================================================================
-    
+
     /** Generate complete C++ class (header + source) */
     static FCppGeneratedCode GenerateClass(const FCppClassSpec& Spec);
-    
+
     /** Generate and write C++ class to disk, optionally triggering compilation */
     struct FWriteResult
     {
@@ -298,44 +298,44 @@ struct RIFTBORNAI_API FCppCodeGenerator
         TArray<FString> CompileErrors;
     };
     static FWriteResult GenerateAndWriteClass(const FCppClassSpec& Spec, bool bAutoCompile = true);
-    
+
     /** Generate header file content */
     static FString GenerateHeader(const FCppClassSpec& InSpec);
-    
+
     /** Generate source file content */
     static FString GenerateSource(const FCppClassSpec& Spec);
-    
+
     /** Generate constructor implementation */
     static FString GenerateConstructor(const FCppClassSpec& Spec);
-    
+
     /** Generate function implementation */
     static FString GenerateFunctionImplementation(const FCppClassSpec& Spec, const FCppFunctionSpec& Function);
-    
+
     /** Generate property declarations */
     static FString GeneratePropertyDeclarations(const TArray<FCppPropertySpec>& Properties);
-    
+
     /** Generate function declarations */
     static FString GenerateFunctionDeclarations(const TArray<FCppFunctionSpec>& Functions);
-    
+
     /** Generate replication setup */
     static FString GenerateReplicationSetup(const FCppClassSpec& Spec);
-    
+
     // ========================================================================
     // Utility
     // ========================================================================
-    
+
     /** Validate class spec */
     static bool ValidateClassSpec(const FCppClassSpec& Spec, TArray<FString>& OutErrors);
-    
+
     /** Generate file paths for class */
     static void GenerateFilePaths(const FCppClassSpec& Spec, FString& OutHeaderPath, FString& OutSourcePath);
-    
+
     /** Format C++ identifier (PascalCase, etc.) */
     static FString FormatIdentifier(const FString& Input, bool bIsFunctionName = false);
-    
+
     /** Get UPROPERTY string for property */
     static FString GetUPropertyString(const FCppPropertySpec& Property);
-    
+
     /** Get UFUNCTION string for function */
     static FString GetUFunctionString(const FCppFunctionSpec& Function);
 };

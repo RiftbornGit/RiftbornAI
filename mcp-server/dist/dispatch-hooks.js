@@ -149,7 +149,7 @@ export function filterUndoSteps(steps, filter, changes) {
         return steps;
     // Build a map from undo step description to the original change
     // UndoStep descriptions contain the label, so we can match back
-    return steps.filter((step, idx) => {
+    return steps.filter((_step, idx) => {
         const change = changes[idx]; // steps are in reverse order from changes
         if (!change)
             return false;
@@ -160,4 +160,3 @@ export function filterUndoSteps(steps, filter, changes) {
         return true;
     });
 }
-//# sourceMappingURL=dispatch-hooks.js.map

@@ -9,7 +9,7 @@
 
 /**
  * FTakeRecorderToolsModule
- * 
+ *
  * Thin Take Recorder controls.
  */
 class RIFTBORNAI_API FTakeRecorderToolsModule : public TToolModuleBase<FTakeRecorderToolsModule>

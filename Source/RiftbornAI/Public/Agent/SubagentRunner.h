@@ -54,6 +54,22 @@ struct RIFTBORNAI_API FSubagentOptions
 	/** Optional additional system prompt addendum (e.g. "you are scouting,
 	 *  do not mutate state"). Merged with the provider's default. */
 	FString SystemPromptAddendum;
+
+	/** Optional provider override (e.g. ClaudeCode for code-heavy specialists). */
+	FString ProviderOverride;
+
+	/** Optional authored-tool narrowing. Intersects with the profile tool set. */
+	TArray<FString> ToolInclude;
+	TArray<FString> ToolExclude;
+
+	/** Prefer read-only/scouting tools only. */
+	bool bReadOnlyBias = false;
+
+	/** Ask the subagent to verify aggressively before concluding. */
+	bool bVerificationBias = false;
+
+	/** Optional authored response style hint (e.g. proof_first, concise_patch). */
+	FString CompletionStyle;
 };
 
 class RIFTBORNAI_API FSubagentRunner

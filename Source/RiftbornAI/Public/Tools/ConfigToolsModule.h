@@ -10,7 +10,7 @@
 /**
  * Config Tools Module
  * Provides tools for project configuration and settings.
- * 
+ *
  * Tools include:
  * - get_project_settings
  * - set_project_setting
@@ -26,7 +26,7 @@ class RIFTBORNAI_API FConfigToolsModule : public TToolModuleBase<FConfigToolsMod
 public:
     /** Module name for registration */
     static FString StaticModuleName() { return TEXT("ConfigTools"); }
-    
+
     /** Register all Config tools with the registry */
     virtual void RegisterTools(FClaudeToolRegistry& Registry) override;
 };

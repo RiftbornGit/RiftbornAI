@@ -16,7 +16,7 @@
 UCLASS(ClassGroup = (RiftbornAI), meta = (BlueprintSpawnableComponent))
 /**
  * UChaosMoverInputProducerComponent
- * 
+ *
  * Injects one-shot Chaos Mover inputs through the public Mover input-producer API.
  */
 class RIFTBORNAI_API UChaosMoverInputProducerComponent : public UActorComponent, public IMoverInputProducerInterface

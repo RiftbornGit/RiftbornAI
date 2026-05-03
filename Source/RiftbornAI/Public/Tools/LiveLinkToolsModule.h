@@ -9,7 +9,7 @@
 
 /**
  * FLiveLinkToolsModule
- * 
+ *
  * Thin Live Link inspection and routing controls.
  */
 class RIFTBORNAI_API FLiveLinkToolsModule : public TToolModuleBase<FLiveLinkToolsModule>

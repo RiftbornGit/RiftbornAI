@@ -9,7 +9,7 @@
 
 /**
  * FFieldSystemToolsModule
- * 
+ *
  * Chaos Field System tools for authored force and destruction painting.
  */
 class RIFTBORNAI_API FFieldSystemToolsModule : public TToolModuleBase<FFieldSystemToolsModule>

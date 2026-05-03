@@ -10,7 +10,7 @@
 /**
  * Sequencer Tools Module
  * Provides tools for creating and editing Level Sequences (cinematics).
- * 
+ *
  * Tools included:
  * - create_level_sequence: Create a new Level Sequence asset
  * - open_sequence: Open a sequence for editing
@@ -23,9 +23,9 @@ class RIFTBORNAI_API FSequencerToolsModule : public TToolModuleBase<FSequencerTo
 {
 public:
     static FString StaticModuleName() { return TEXT("SequencerTools"); }
-    
+
     virtual void RegisterTools(FClaudeToolRegistry& Registry) override;
-    
+
     // Tool implementations
     static FClaudeToolResult Tool_CreateLevelSequence(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_OpenSequence(const FClaudeToolCall& Call);
@@ -35,5 +35,5 @@ public:
     static FClaudeToolResult Tool_StopSequence(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_ListSequences(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_GetSequenceInfo(const FClaudeToolCall& Call);
-    
+
 };

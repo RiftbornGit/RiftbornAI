@@ -9,7 +9,7 @@
 /**
  * BatchToolsModule provides bulk operation tools for:
  * - Batch delete actors by pattern
- * - Batch move actors by pattern  
+ * - Batch move actors by pattern
  * - Batch move/rename assets
  * - Batch clone actors
  * - Batch material application
@@ -21,7 +21,7 @@ namespace BatchToolsModule
 {
 	/** Register all batch operation tools */
 	void RegisterTools();
-	
+
 	// Individual tool handlers
 	FClaudeToolResult Tool_BatchDeleteActors(const FClaudeToolCall& Call);
 	FClaudeToolResult Tool_BatchMoveActors(const FClaudeToolCall& Call);

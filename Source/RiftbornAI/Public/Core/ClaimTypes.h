@@ -32,7 +32,7 @@ enum class EClaimKind : uint8
 
 /**
  * A single claim made by a tool about the world
- * 
+ *
  * Key design: Predicate + Args is your semantic diff unit.
  * That's how time-travel works later.
  */
@@ -86,7 +86,7 @@ struct RIFTBORNAI_API FToolClaim
 
 /**
  * A proof bundle - evidence for a set of claims from a single tool execution
- * 
+ *
  * CHAIN BINDING (2026-01-31): Proofs now include governance configuration hashes
  * to prove they were generated under specific contract rules.
  */
@@ -128,7 +128,7 @@ struct RIFTBORNAI_API FClaimProofBundle
     /** SHA256 of canonical JSON (tamper detection) */
     UPROPERTY(BlueprintReadOnly, Category = "Proof")
     FString ProofHash;
-    
+
     /** CHAIN LINKING: Hash of previous proof in chain (empty for first proof) */
     UPROPERTY(BlueprintReadOnly, Category = "Proof")
     FString PreviousProofHash;
@@ -136,43 +136,43 @@ struct RIFTBORNAI_API FClaimProofBundle
     /** Environment signature (UE version, project, etc.) */
     UPROPERTY(BlueprintReadOnly, Category = "Proof")
     FString EnvironmentSignature;
-    
+
     // =========================================================================
     // CHAIN BINDING FIELDS (2026-01-31) - Prove governance configuration
     // =========================================================================
-    
+
     /** Hash of contracts.json at execution time */
     UPROPERTY(BlueprintReadOnly, Category = "ChainBinding")
     FString ContractsRegistryHash;
-    
+
     /** Hash of the approved plan that authorized this execution */
     UPROPERTY(BlueprintReadOnly, Category = "ChainBinding")
     FString PlanHash;
-    
+
     /** Unreal Engine version */
     UPROPERTY(BlueprintReadOnly, Category = "ChainBinding")
     FString EngineVersion;
-    
+
     /** RiftbornAI plugin version */
     UPROPERTY(BlueprintReadOnly, Category = "ChainBinding")
     FString PluginVersion;
-    
+
     /** Project GUID for multi-project verification */
     UPROPERTY(BlueprintReadOnly, Category = "ChainBinding")
     FString ProjectGuid;
-    
+
     /** Was PROOF mode enabled for this execution */
     UPROPERTY(BlueprintReadOnly, Category = "ChainBinding")
     bool bProofModeEnabled = false;
-    
+
     /** Was LAB mode enabled for this execution (2026-02-02) */
     UPROPERTY(BlueprintReadOnly, Category = "ChainBinding")
     bool bLabModeEnabled = false;
-    
+
     /** Was session tainted at execution time (2026-02-02) */
     UPROPERTY(BlueprintReadOnly, Category = "ChainBinding")
     bool bSessionTainted = false;
-    
+
     /** Step index within the plan (0-based) */
     UPROPERTY(BlueprintReadOnly, Category = "ChainBinding")
     int32 PlanStepIndex = -1;
@@ -191,11 +191,11 @@ struct RIFTBORNAI_API FClaimProofBundle
 
     /** Compute and set ProofHash (alias for Finalize) */
     void ComputeHash() { Finalize(); }
-    
+
     /** Compute and set ProofHash */
     void Finalize();
-    
-    /** 
+
+    /**
      * Populate chain binding fields from current environment
      * Call this BEFORE Finalize() to ensure binding fields are included in hash
      */

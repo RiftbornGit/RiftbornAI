@@ -45,7 +45,7 @@ public:
     UAudioComponent* PickupSound;
 
     // --- Pickup Properties (set in blueprint children) ---
-    
+
     /** Can this pickup be collected? */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup")
     bool bIsActive = true;

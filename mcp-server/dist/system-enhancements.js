@@ -34,7 +34,7 @@ function isReadTool(toolName) {
 function stableValue(value) {
     return sanitizeStructuredValue(value);
 }
-function cacheKey(toolName, params) {
+export function buildParamsKey(params) {
     // Sort keys to prevent ordering-dependent cache misses:
     // {a:1,b:2} and {b:2,a:1} must produce the same key.
     const sorted = Object.keys(params)
@@ -43,7 +43,10 @@ function cacheKey(toolName, params) {
         acc[k] = params[k];
         return acc;
     }, {});
-    return toolName + ":v1:" + JSON.stringify(stableValue(sorted));
+    return "v1:" + JSON.stringify(stableValue(sorted));
+}
+function cacheKey(toolName, params) {
+    return toolName + ":" + buildParamsKey(params);
 }
 export class ReadCache {
     cache = new Map();
@@ -199,6 +202,7 @@ export function sanitizeSessionEntry(value) {
             : 0,
         ...(typeof raw.error === "string" ? { error: raw.error } : {}),
         ...(typeof raw.cached === "boolean" ? { cached: raw.cached } : {}),
+        ...(typeof raw.paramsKey === "string" ? { paramsKey: raw.paramsKey } : {}),
     };
 }
 /**
@@ -291,4 +295,3 @@ export class SessionTracker {
             : 0;
     }
 }
-//# sourceMappingURL=system-enhancements.js.map

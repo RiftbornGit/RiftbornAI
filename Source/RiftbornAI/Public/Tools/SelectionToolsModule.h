@@ -10,7 +10,7 @@
 /**
  * Selection Tools Module
  * Provides tools for working with editor selection and undo/redo transactions.
- * 
+ *
  * Tools included:
  * - get_selected_actors: Get currently selected actors in the viewport
  * - resolve_scene_graph_node: Resolve a scene-graph actor id/path into a live editor actor
@@ -28,9 +28,9 @@ class RIFTBORNAI_API FSelectionToolsModule : public TToolModuleBase<FSelectionTo
 {
 public:
     static FString StaticModuleName() { return TEXT("SelectionTools"); }
-    
+
     virtual void RegisterTools(FClaudeToolRegistry& Registry) override;
-    
+
     // Selection tool implementations
     static FClaudeToolResult Tool_GetSelectedActors(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_ResolveSceneGraphNode(const FClaudeToolCall& Call);
@@ -41,19 +41,19 @@ public:
     static FClaudeToolResult Tool_SelectByTag(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_AddToSelection(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_RemoveFromSelection(const FClaudeToolCall& Call);
-    
+
     // Transaction tool implementations
     static FClaudeToolResult Tool_BeginTransaction(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_EndTransaction(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_Undo(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_Redo(const FClaudeToolCall& Call);
     static FClaudeToolResult Tool_GetUndoHistory(const FClaudeToolCall& Call);
-    
+
 private:
     // Active transaction tracking
     static TSharedPtr<class FScopedTransaction> CurrentTransaction;
     static FString CurrentTransactionName;
-    
+
     // Helper functions
     static AActor* FindActorByPath(const FString& ActorPath);
     static AActor* ResolveActorReference(const FString& ActorId, const FString& Label, FString& OutResolutionSource);

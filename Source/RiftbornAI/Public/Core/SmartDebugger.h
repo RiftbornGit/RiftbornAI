@@ -112,7 +112,7 @@ struct RIFTBORNAI_API FDetectedIssue
     // Whether a fix has been attempted
     UPROPERTY(BlueprintReadWrite, Category = "RiftbornAI")
     bool bFixAttempted = false;
-    
+
     FDetectedIssue() = default;
 };
 
@@ -155,7 +155,7 @@ struct RIFTBORNAI_API FDebugSession
     // Session notes
     UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
     TArray<FString> Notes;
-    
+
     FDebugSession() = default;
 };
 
@@ -243,7 +243,7 @@ struct RIFTBORNAI_API FDebugWatchpoint
     // History of values
     UPROPERTY(BlueprintReadOnly, Category = "RiftbornAI")
     TArray<FString> ValueHistory;
-    
+
     FDebugWatchpoint() = default;
 };
 
@@ -266,7 +266,7 @@ public:
     TArray<FDetectedIssue> AnalyzeLogFile(const FString& InLogFilePath);
     TArray<FDetectedIssue> CheckBlueprintHealth(UBlueprint* Blueprint);
     TArray<FDetectedIssue> CheckActorHealth(AActor* Actor);
-    
+
     // Real-time monitoring
     void EnableRealTimeMonitoring(bool bEnable);
     bool IsMonitoringEnabled() const { return bRealTimeMonitoring; }

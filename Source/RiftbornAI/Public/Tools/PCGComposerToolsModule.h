@@ -6,7 +6,7 @@
 
 /**
  * FPCGComposerToolsModule
- * 
+ *
  * Tool module providing specialized functionality.
  */
 class RIFTBORNAI_API FPCGComposerToolsModule : public TToolModuleBase<FPCGComposerToolsModule>

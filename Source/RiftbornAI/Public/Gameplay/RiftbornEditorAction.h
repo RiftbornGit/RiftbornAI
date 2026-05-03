@@ -72,10 +72,10 @@ struct RIFTBORNAI_API FRiftbornActionResult
 	{
 		Warnings.Add(Warning);
 	}
-	
+
 	/** Add error and translate to actionable error */
 	void AddActionableError(const FString& RawError);
-	
+
 	/** Get formatted error message for user display */
 	FString GetFormattedErrors() const;
 };

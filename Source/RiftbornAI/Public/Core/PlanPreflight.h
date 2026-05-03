@@ -39,13 +39,13 @@ struct RIFTBORNAI_API FPreflightFixSuggestion
 	EFixSuggestionType Type = EFixSuggestionType::CannotFix;
 	FString Description;            // Human-readable explanation
 	FString ActionLabel;            // Button text (e.g., "Switch to spawn_actor_cpp")
-	
+
 	// For tool switching
 	FString AlternativeToolName;    // If Type == SwitchTool
-	
+
 	// For witness fixes
 	TArray<FString> MissingWitnesses;  // What needs to be emitted
-	
+
 	FPreflightFixSuggestion() = default;
 	FPreflightFixSuggestion(EFixSuggestionType InType, const FString& InDesc)
 		: Type(InType), Description(InDesc) {}
@@ -59,28 +59,28 @@ struct RIFTBORNAI_API FStepPreflightResult
 	// Step identity
 	int32 StepIndex = 0;
 	FString ToolName;
-	
+
 	// Certification status (from FToolCertificationScanner)
 	EToolCertificationStatus Status = EToolCertificationStatus::Blocked;
 	bool bProofEligible = false;
-	
+
 	// Blocking reasons (from certification)
 	TArray<FString> BlockingReasons;
-	
+
 	// Argument validation
 	bool bArgsValid = true;
 	TArray<FString> ArgValidationErrors;
-	
+
 	// Witness binding validation
 	bool bWitnessBindingsValid = true;
 	TArray<FString> UnresolvedBindings;  // Bindings needed from earlier steps
-	
+
 	// Overall
 	bool bPasses() const { return bProofEligible && bArgsValid && bWitnessBindingsValid; }
-	
+
 	// Fix suggestions
 	TArray<FPreflightFixSuggestion> Suggestions;
-	
+
 	// Full certification result (for UI detail view)
 	TOptional<FToolCertificationResult> CertificationDetail;
 };
@@ -93,28 +93,28 @@ struct RIFTBORNAI_API FPlanPreflightResult
 	// Plan identity
 	FGuid DraftId;
 	FDateTime CheckedAt;
-	
+
 	// Overall result
 	bool bProofApprovable = false;      // True if ALL steps pass in PROOF mode
 	bool bDevApprovable = true;         // True in non-PROOF mode (less strict)
 	int32 PassingStepCount = 0;
 	int32 FailingStepCount = 0;
-	
+
 	// Per-step results
 	TArray<FStepPreflightResult> StepResults;
-	
+
 	// Aggregate blocking reasons
 	TArray<FString> BlockingReasons;    // High-level summary for header
-	
+
 	// Risk summary
 	EToolRisk HighestRisk = EToolRisk::Safe;
 	int32 MutatingStepCount = 0;
 	int32 DestructiveStepCount = 0;
 	bool bFullyReversible = true;
-	
+
 	// Quick accessors
 	bool HasFailingSteps() const { return FailingStepCount > 0; }
-	
+
 	TArray<int32> GetFailingStepIndices() const
 	{
 		TArray<int32> Indices;
@@ -127,7 +127,7 @@ struct RIFTBORNAI_API FPlanPreflightResult
 		}
 		return Indices;
 	}
-	
+
 	FString GetBlockingSummary() const
 	{
 		if (bProofApprovable)
@@ -140,7 +140,7 @@ struct RIFTBORNAI_API FPlanPreflightResult
 		}
 		return FString::Printf(TEXT("%d step(s) fail PROOF eligibility"), FailingStepCount);
 	}
-	
+
 	// Export for debugging/CI
 	TSharedPtr<FJsonObject> ToJson() const;
 	FString ToMarkdown() const;
@@ -161,7 +161,7 @@ struct RIFTBORNAI_API FToolAlternative
 
 /**
  * FPlanPreflight - Validates a plan draft before approval
- * 
+ *
  * This is the gatekeeper. Uses the SAME certification logic as execution,
  * ensuring what preflight approves will actually execute.
  */
@@ -169,39 +169,39 @@ class RIFTBORNAI_API FPlanPreflight
 {
 public:
 	static FPlanPreflight& Get();
-	
+
 	/**
 	 * Run preflight on a plan draft
-	 * 
+	 *
 	 * @param Draft         The plan to validate
 	 * @param bProofMode    True if in PROOF mode (strict), false for dev mode
 	 * @return              Full preflight result with per-step details
 	 */
 	FPlanPreflightResult CheckPlan(const FPlanDraft& Draft, bool bProofMode = true);
-	
+
 	/**
 	 * Quick check: is this plan approvable?
 	 * Faster than full CheckPlan if you just need the answer.
 	 */
 	bool IsApprovable(const FPlanDraft& Draft, bool bProofMode = true);
-	
+
 	/**
 	 * Check single step (for incremental validation during edits)
 	 */
 	FStepPreflightResult CheckStep(const FDraftToolCall& Step, int32 StepIndex, const FPlanDraft& Context);
-	
+
 	/**
 	 * Generate fix suggestions for a failing step
 	 */
 	TArray<FPreflightFixSuggestion> GenerateSuggestions(
 		const FStepPreflightResult& FailingStep,
 		EToolCertificationStatus Status);
-	
+
 	/**
 	 * Get alternative tool if one exists
 	 */
 	TOptional<FToolAlternative> GetToolAlternative(const FString& ToolName) const;
-	
+
 	/**
 	 * Register a tool alternative (for plugins/tool packs)
 	 */
@@ -209,16 +209,16 @@ public:
 
 private:
 	FPlanPreflight() { InitializeAlternatives(); }
-	
+
 	/** Initialize known tool alternatives */
 	void InitializeAlternatives();
-	
+
 	/** Validate step arguments against schema */
 	bool ValidateStepArgs(const FDraftToolCall& Step, TArray<FString>& OutErrors);
-	
+
 	/** Validate witness bindings (does step N have what step N+1 needs?) */
 	bool ValidateWitnessBindings(const FPlanDraft& Draft, int32 StepIndex, TArray<FString>& OutUnresolved);
-	
+
 	/** Tool alternatives map */
 	TMap<FString, FToolAlternative> Alternatives;
 };

@@ -9,7 +9,7 @@
 
 /**
  * FContextualAnimationToolsModule
- * 
+ *
  * Contextual Animation binding and authored-state inspection tools.
  */
 class RIFTBORNAI_API FContextualAnimationToolsModule : public TToolModuleBase<FContextualAnimationToolsModule>

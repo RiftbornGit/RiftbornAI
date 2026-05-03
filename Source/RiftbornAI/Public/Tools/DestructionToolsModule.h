@@ -9,7 +9,7 @@
 
 /**
  * FDestructionToolsModule
- * 
+ *
  * Destruction Tools Module — automatic breakable setup from static meshes.
  */
 class RIFTBORNAI_API FDestructionToolsModule : public TToolModuleBase<FDestructionToolsModule>

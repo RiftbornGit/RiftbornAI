@@ -10,13 +10,13 @@
 
 /**
  * SpawnActorWithTags Module
- * 
+ *
  * TIER 1 MUTATOR - Spawns actors with:
  * - Plan/Step tagging for tracking
  * - Transaction recording for undo
  * - Structured response with determinism hash
  * - Verification hooks for world diff
- * 
+ *
  * Capability: world.spawn_actor_with_tags
  * Mutates: Yes
  * Deterministic: Stable fields only (excludes runtime actor paths)
@@ -25,24 +25,24 @@ class RIFTBORNAI_API FSpawnActorWithTagsToolsModuleModule : public TToolModuleBa
 {
 public:
     static FString StaticModuleName() { return TEXT("SpawnActorWithTagsToolsModule"); }
-    
+
     virtual void RegisterTools(FClaudeToolRegistry& Registry) override;
-    
+
     // Tool implementation
     static FClaudeToolResult Tool_SpawnActorWithTags(const FClaudeToolCall& Call);
-    
+
     // Undo implementation
     static bool UndoSpawnByLabel(const FString& ActorLabel);
     static bool UndoSpawnByTag(const FString& Tag);
-    
+
     // Verification helpers
     static bool VerifyActorExists(const FString& ActorPath);
     static bool VerifyActorHasTags(const FString& ActorPath, const TArray<FString>& ExpectedTags);
-    
+
 private:
     // Helper to apply tags to actor
     static void ApplyTagsToActor(AActor* Actor, const TArray<FString>& Tags);
-    
+
     // Helper to compute determinism hash
     static FString ComputeDeterminismHash(const FString& ClassPath, const FString& Label, const TArray<FString>& Tags);
 };

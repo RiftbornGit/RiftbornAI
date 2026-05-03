@@ -38,7 +38,7 @@ Use in `SButton`, `STextBlock`, or `SRichTextBlock`. Test rendering in copilot p
 - **Menu/More**: ⋮ (U+22EE vertical), ☰ (U+2630 hamburger)
 - **Spark/AI**: ✦ (U+2726), ⚡ (U+26A1), ✨ (U+2728)
 
-**Copilot fit**: 
+**Copilot fit**:
 - Send/Execute: `➤` (U+27A4) — actual send button symbol
 - Stop: `⏹` or `■`
 - Success (completed plan): `✓`

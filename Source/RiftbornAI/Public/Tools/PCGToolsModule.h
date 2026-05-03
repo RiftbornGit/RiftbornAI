@@ -10,7 +10,7 @@
 /**
  * PCG Tools Module
  * Provides tools for procedural content generation with UE5's PCG framework.
- * 
+ *
  * Tools included:
  * - create_pcg_graph: Create a new PCG Graph asset
  * - spawn_pcg_volume: Spawn a PCG volume in the level and bind a graph
@@ -26,7 +26,7 @@ class RIFTBORNAI_API FPCGToolsModule : public TToolModuleBase<FPCGToolsModule>
 {
 public:
     static FString StaticModuleName() { return TEXT("PCGTools"); }
-    
+
     virtual void RegisterTools(FClaudeToolRegistry& Registry) override;
 
     // Tool implementations

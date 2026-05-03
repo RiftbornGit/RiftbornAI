@@ -194,4 +194,3 @@ export function recordResponseTelemetry(telemetry, toolName, response) {
     }
     telemetry.recordMetadataCount(metadataCount);
 }
-//# sourceMappingURL=pipeline-telemetry.js.map

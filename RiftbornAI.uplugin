@@ -16,9 +16,7 @@
   "Installed": false,
   "EnabledByDefault": true,
   "SupportedTargetPlatforms": [
-    "Win64",
-    "Linux",
-    "Mac"
+    "Win64"
   ],
   "EngineVersion": "5.7.0",
   "Modules": [

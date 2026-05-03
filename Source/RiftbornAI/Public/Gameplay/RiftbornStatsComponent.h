@@ -9,10 +9,10 @@
 
 /**
  * URiftbornStatsComponent - Minimal, deterministic stat surface.
- * 
+ *
  * PURPOSE: Provide a stable, proof-grade substrate for gameplay effects.
  * Talents, abilities, and items modify stats here. Predicates verify here.
- * 
+ *
  * DESIGN RULES:
  * - All stat access is deterministic (sorted iteration)
  * - All mutations increment StateRevision
@@ -71,7 +71,7 @@ public:
 	// DETERMINISTIC FINGERPRINTING (PROOF-GRADE)
 	// ========================================================================
 
-	/** 
+	/**
 	 * Get deterministic hash of all stats.
 	 * Format: Sort keys lexicographically, join as "key=value\n", SHA256 hex.
 	 * Values formatted to 6 decimal places for stability.

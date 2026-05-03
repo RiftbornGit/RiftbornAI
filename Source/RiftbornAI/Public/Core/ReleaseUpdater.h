@@ -11,6 +11,11 @@ struct RIFTBORNAI_API FRiftbornReleaseAsset
 	FString Name;
 	FString DownloadUrl;
 	int64 SizeBytes = 0;
+	/** Lowercase hex SHA-256 of the asset bytes if the GitHub `digest` field
+	 *  was present (GitHub started emitting `digest: "sha256:<hex>"` per asset
+	 *  in the Releases API). Used to verify a downloaded asset before it
+	 *  enters the install pipeline; empty when the API didn't provide one. */
+	FString Sha256Digest;
 };
 
 struct RIFTBORNAI_API FRiftbornReleaseInfo

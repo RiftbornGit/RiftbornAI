@@ -8,11 +8,11 @@
 
 /**
  * FRiftbornAICommands - UI command bindings for the RiftbornAI plugin
- * 
+ *
  * Registers editor commands that can be bound to keyboard shortcuts,
  * menu items, and toolbar buttons. Currently includes:
  * - OpenPluginWindow: Opens the main RiftbornAI chat/assistant window
- * 
+ *
  * Usage:
  *   FRiftbornAICommands::Register();
  *   auto& Commands = FRiftbornAICommands::Get();

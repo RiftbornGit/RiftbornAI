@@ -349,4 +349,3 @@ export class SceneChangeLog {
         }
     }
 }
-//# sourceMappingURL=scene-safety.js.map
